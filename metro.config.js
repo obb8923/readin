@@ -17,6 +17,19 @@ const config = mergeConfig(defaultConfig, {
   resolver: {
     assetExts: assetExts.filter((ext) => ext !== "svg"),
     sourceExts: [...sourceExts, "svg"],
+    extraNodeModules: {
+      'url': require.resolve('react-native-url-polyfill'),
+      'events': require.resolve('events'),
+      'http': require.resolve('stream-http'),
+      'https': require.resolve('stream-http'),
+      'net': require.resolve('react-native-tcp-socket'),
+      'tls': require.resolve('react-native-tcp-socket'),
+      'stream': require.resolve('readable-stream'),
+      'crypto': require.resolve('react-native-crypto'),
+      'zlib': require.resolve('browserify-zlib'),
+      'util': require.resolve('util'),
+      'assert': require.resolve('assert'),
+    },
   },
 });
 

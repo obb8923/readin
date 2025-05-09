@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, Image, TouchableOpacity, Animated } from 'react-native';
-// import { supabase } from '../../../lib/supabase';
-// import Up from 'react-native-vector-icons/'
+import { supabase } from '../../../libs/supabase/supabase';
 import DefaultButton from '../../../components/DefaultButton';
 // import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import MailIcon from '../../../../assets/svgs/Mail.svg'
@@ -31,16 +30,16 @@ const LoginScreen = ({navigation}: LoginScreenProps) => {
 
   const handleLogin = async () => {
     setLoading(true);
-    // const { error } = await supabase.auth.signInWithPassword({
-    //   email: email,
-    //   password: password,
-    // });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
 
-    // if (error) {
-    //   Alert.alert('로그인 오류', error.message);
-    // } else {
-    //   navigation.navigate("AppStack", { screen: "Home" });
-    // }
+    if (error) {
+      Alert.alert('로그인 오류', error.message);
+    } else {
+      navigation.navigate("AppStack", { screen: "Home" });
+    }
     setLoading(false);
   };
 
