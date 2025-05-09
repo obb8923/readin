@@ -38,7 +38,7 @@ const LoginScreen = ({navigation}: LoginScreenProps) => {
     if (error) {
       Alert.alert('로그인 오류', error.message);
     } else {
-      navigation.navigate("AppStack", { screen: "Home" });
+      navigation.navigate("AppTab");
     }
     setLoading(false);
   };
