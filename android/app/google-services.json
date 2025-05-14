@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "913491434166",
+    "project_id": "readin-458607",
+    "storage_bucket": "readin-458607.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764980019314:android:a75c6d1a4698c590087491",
+        "android_client_info": {
+          "package_name": "com.companyjeong.readin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "913491434166-rptdhu0dsl1e422345ps8agflt8aovl9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD180w9pasBe5vPGZjQrsZchA7GTm5Vrm0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "913491434166-rptdhu0dsl1e422345ps8agflt8aovl9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

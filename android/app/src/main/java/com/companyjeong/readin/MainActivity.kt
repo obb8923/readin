@@ -1,4 +1,4 @@
-package com.readin
+package com.companyjeong.readin
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

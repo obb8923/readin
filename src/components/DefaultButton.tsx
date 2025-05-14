@@ -1,5 +1,5 @@
 import { TouchableOpacity, Text, ViewStyle, TextStyle, DimensionValue } from 'react-native';
-
+import Colors from '../constants/Colors';
 interface DefaultButtonProps {
   title: string;
   onPress: () => void;
@@ -20,7 +20,7 @@ const DefaultButton= ({
   type='normal',
   ...props
 }: DefaultButtonProps) => {
-    const textColor = type === 'normal' ? '#007aff' : type === 'info' ? '#010101' : '#FF0000';
+    const textColor = type === 'normal' ? Colors.skyblue : type === 'info' ? Colors.black : Colors.brick;
   return (
     <TouchableOpacity
       className={`${props.className} `}

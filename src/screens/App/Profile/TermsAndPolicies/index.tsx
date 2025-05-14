@@ -3,6 +3,7 @@ import { TouchableOpacity, View, Text, Platform, UIManager, Animated, LayoutChan
 import ChevronDown from '../../../../../assets/svgs/ChevronDown.svg';
 import { tabnavheight } from '../../../../constants/normal';
 import { Terms, Privacy } from '../../../../constants/TermsAndPolicy';
+import Background from '../../../../components/Background';
 // Android에서 LayoutAnimation을 사용하기 위한 설정
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -48,7 +49,8 @@ const TermsAndPolicyScreen = () => {
     setContainerSize({ width, height });
   };
   return (
-    <View className='flex-1 p-6 bg-gray-50' style={{ paddingBottom: tabnavheight + 10 }}>
+    <Background>
+    <View className='flex-1 p-6' style={{ paddingBottom: tabnavheight + 10 }}>
       <View className='flex-1' onLayout={handleLayout}>
       <ProfileButton text="이용약관" isOpen={isOpen.terms} onPress={() => toggleOpen('terms')} />
       {/* 이용약관 컨텐츠 영역 */}
@@ -59,7 +61,7 @@ const TermsAndPolicyScreen = () => {
         className={`bg-white rounded-md shadow${isOpen.terms ? 'p-4' : 'p-0'}`}
       >
         <ScrollView>
-          <Text className="text-gray-700">
+          <Text className="text-gray-700 font-p">
             {Terms}
           </Text>
         </ScrollView>
@@ -74,13 +76,14 @@ const TermsAndPolicyScreen = () => {
         className={`bg-white rounded-md shadow my-2 ${isOpen.privacy ? 'p-4' : 'p-0'}`}
       >
         <ScrollView>
-          <Text className="text-gray-700">
+          <Text className="text-gray-700 font-p">
             {Privacy}
           </Text>
         </ScrollView>
       </Animated.View>
       </View>
     </View>
+    </Background>
   );
 }
 

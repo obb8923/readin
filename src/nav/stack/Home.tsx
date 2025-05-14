@@ -9,9 +9,9 @@ export type HomeStackParamList = {
 }
 const HomeStack = () => {
   return (
-    <Stack.Navigator screenOptions={{headerShown:false}}>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="BookSearch" component={BookSearchScreen} />
+    <Stack.Navigator >
+            <Stack.Screen name="Home" component={HomeScreen} options={{headerShown:false}}/>
+            <Stack.Screen name="BookSearch" component={BookSearchScreen} options={{title:'책 검색'}}/>
 </Stack.Navigator>
   );
 };

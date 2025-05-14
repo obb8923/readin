@@ -11,6 +11,7 @@ import { saveReadingRecord, getCurrentUserId } from '../../../../libs/supabase/s
 import DefaultButton from '../../../../components/DefaultButton';
 import { HomeStackParamList } from '../../../../nav/stack/Home';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Background from '../../../../components/Background';
 // Book 인터페이스 정의 (이전 홈 화면에서 가져옴)
 interface Book {
   isbn: string;
@@ -49,6 +50,14 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
   const ratingContainerRef = useRef<View>(null);
 
 
+  useEffect(() => {
+    // 탭바 숨기기
+    navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
+    // cleanup: 스크린에서 나갈 때 탭바 다시 보이게
+    return () => {
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
+    };
+  }, [isModalVisible]);
   // 검색 실행 함수 (이전 홈 화면에서 가져옴)
   const handleSearchSubmit = async () => {
     if (!searchQuery.trim()) return;
@@ -220,7 +229,10 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
       // 저장 성공 알림
       Alert.alert('저장 완료', '독서 기록이 성공적으로 저장되었습니다.');
       closeModal(); // 2. 모달 닫기
-      navigation.navigate('Home'); // 3. 홈 화면으로 이동
+      navigation.reset({ // 3. 홈 화면으로 이동 (스택 초기화)
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
 
 
     } catch (error: any) {
@@ -230,7 +242,7 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
   };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <Background>
       {/* 검색 화면 전체 컨테이너 */}
       <View className="flex-1 p-4">
 
@@ -251,7 +263,7 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
         {isSearching ? (
           <ActivityIndicator size="large" className="mt-5" />
         ) : searchError ? (
-          <Text className="text-red-500 text-center mt-5">{searchError}</Text>
+          <Text className="text-red-500 text-center mt-5 font-p">{searchError}</Text>
         ) : searchResults.length > 0 ? (
           <FlatList
             data={searchResults}
@@ -263,12 +275,12 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
                     <Image source={{ uri: item.thumbnail }} className="w-12 h-16 mr-4" resizeMode="contain" />
                   ) : (
                     <View className="w-12 h-16 mr-4 bg-gray-200 justify-center items-center">
-                      <Text className="text-xs text-gray-400">No Img</Text>
+                      <Text className="text-xs text-gray-400 font-p">No Img</Text>
                     </View>
                   )}
                   <View className="flex-1">
-                    <Text className="text-base font-semibold mb-1" numberOfLines={2}>{item.title}</Text>
-                    <Text className="text-sm text-gray-600">{item.authors?.join(', ')}</Text>
+                    <Text className="text-base font-p mb-1" numberOfLines={2}>{item.title}</Text>
+                    <Text className="text-sm text-gray-600 font-p">{item.authors?.join(', ')}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -303,7 +315,7 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
                     />
                   ) : (
                     <View className="w-24 h-32 bg-gray-200 justify-center items-center">
-                      <Text className="text-xs text-gray-400">No Img</Text>
+                      <Text className="text-xs text-gray-400 font-p">No Img</Text>
                     </View>
                   )}
                 </View>
@@ -311,8 +323,8 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
                 {/* 책 제목, 저자 */}
                 <View className="flex-1">
                   <Text className="text-lg mb-1 font-bold" numberOfLines={2}>{selectedBook.title}</Text>
-                  <Text className="text-sm mb-2 text-gray-600" numberOfLines={2}>{selectedBook.authors?.join(', ')}</Text>
-                  <Text className="text-xs mb-2 text-gray-500">{`ISBN: ${selectedBook.isbn}`}</Text>
+                  <Text className="text-sm mb-2 text-gray-600 font-p" numberOfLines={1}>{selectedBook.authors?.join(', ')}</Text>
+                  <Text className="text-xs mb-2 text-gray-500 font-p">{`ISBN: ${selectedBook.isbn}`}</Text>
                 </View>
               </View>
 
@@ -377,20 +389,20 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
                     className="border border-gray-300 rounded p-2 flex-1 h-10 justify-center mr-1"
                     onPress={() => showMode('start')}
                   >
-                    <Text className={startDate ? 'text-black text-center' : 'text-gray-400 text-center'}>
+                    <Text className={startDate ? 'text-black text-center font-p' : 'text-gray-400 text-center font-p'}>
                       {startDate ? startDate.toLocaleDateString() : '시작일 선택'}
                     </Text>
                   </TouchableOpacity>
-                  <Text className="mx-1">부터</Text> 
+                  <Text className="mx-1 font-p">부터</Text> 
                   <TouchableOpacity
                     className="border border-gray-300 rounded p-2 flex-1 h-10 justify-center ml-1"
                     onPress={() => showMode('end')}
                   >
-                    <Text className={endDate ? 'text-black text-center' : 'text-gray-400 text-center'}>
+                    <Text className={endDate ? 'text-black text-center font-p' : 'text-gray-400 text-center font-p'}>
                       {endDate ? endDate.toLocaleDateString() : '종료일 선택'}
                     </Text>
                   </TouchableOpacity>
-                   <Text className="ml-2">까지 읽음</Text> 
+                   <Text className="ml-2 font-p">까지 읽음</Text> 
                 </View>
 
                   {/* 간단 리뷰 */}
@@ -404,7 +416,7 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
              textAlignVertical="top"
              maxLength={300}
            />
-           <Text className="absolute bottom-0 right-1 text-xs text-gray-500">
+           <Text className="absolute bottom-0 right-1 text-xs text-gray-500 font-p">
              {review.length}/300
            </Text>
          </View>
@@ -443,6 +455,6 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
                 )}
           </View>
         </Animated.View>
-    </View>
+    </Background>
   );
 } 

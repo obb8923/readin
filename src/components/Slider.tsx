@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
+import Colors from '../constants/Colors';
 import {
   Gesture,
   GestureDetector,
@@ -30,7 +31,7 @@ export type TSliderProps = {
   onComplete?: (value: number) => void;
   value?: number;
   showIndicator?: boolean;
-  renderIndicator?: (value: number) => JSX.Element | null;
+  renderIndicator?: (value: number) => React.ReactNode | null;
   containerStyle?: StyleProp<ViewStyle>;
   sliderStyle?: StyleProp<ViewStyle>;
   renderIndicatorWidth?: number;
@@ -68,7 +69,7 @@ const RNHorizontalSlider = React.forwardRef<TSliderRef, TSliderProps>(
       height = 10,
       borderRadius = 5,
       maximumTrackTintColor = '#D1D5DB',
-      minimumTrackTintColor = '#007AFF',
+      minimumTrackTintColor = Colors.skyblue,
       disabled = false,
       onChange = () => {},
       onComplete = () => {},

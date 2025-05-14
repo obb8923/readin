@@ -6,8 +6,14 @@ import { requestAccountDeletion } from '../../../libs/supabase/supabaseOperation
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../../../nav/stack/Profile';
 import ChevronRight from '../../../../assets/svgs/ChevronRight.svg';
+import { RootStackParamList } from '../../../nav/stack/Root';
+import { CompositeScreenProps } from '@react-navigation/native';
+import Background from '../../../components/Background';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
-type ProfileScreenProps = NativeStackScreenProps<ProfileStackParamList,'Profile'>;
+type ProfileProps = NativeStackScreenProps<ProfileStackParamList,'Profile'>;
+type RootStackProps = NativeStackScreenProps<RootStackParamList>;
+type ProfileScreenProps = CompositeScreenProps<ProfileProps, RootStackProps>
 
 const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   const user = useAuthStore((state) => state.user);
@@ -20,12 +26,17 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   }, [user]);
 
   const handleLogout = async () => {
+    try {
+      await GoogleSignin.signOut(); // 구글 세션도 만료
+    } catch (e) {
+      // 구글 로그아웃 실패는 무시 (로그인 안 했을 수도 있음)
+    }
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('로그아웃 오류:', error.message);
       Alert.alert('오류', '로그아웃 중 오류가 발생했습니다.');
     } else {
-      console.log('로그아웃 성공');
+      navigation.navigate('AuthStack', {screen: 'LogIn'});
     }
   };
 
@@ -94,7 +105,8 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   ];
 
   return (
-    <View className="flex-1 p-6 bg-gray-50">
+    <Background>
+      <View className='flex-1 p-6'>
       {/* 프로필 정보 */}
         <View className='border-b border-gray-200 p-2 '>
           <Text className="text-3xl font-bold text-gray-800 mb-1 font-p">{userName || '이름 없음'}</Text>
@@ -110,7 +122,8 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
             />
           ))}
         </View>
-    </View>
+        </View>
+    </Background>
   );
 }
 

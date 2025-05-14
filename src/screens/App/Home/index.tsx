@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator, Alert, Dimensions, TextInput, Button, Platform, LayoutChangeEvent, Animated } from 'react-native';
 import { fetchUserReviews, ReviewWithBook, updateReview, deleteReview } from '../../../libs/supabase/supabaseOperations'; 
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'; 
@@ -6,6 +6,12 @@ import Slider from '../../../components/Slider';
 import DefaultButton from '../../../components/DefaultButton';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../../../nav/stack/Home';
+import SearchIcon from '../../../../assets/svgs/Search.svg';
+import GridIcon from '../../../../assets/svgs/Grid.svg';
+import ListIcon from '../../../../assets/svgs/List.svg';
+import Background from '../../../components/Background';
+import { useFocusEffect } from '@react-navigation/native';
+import Colors from '../../../constants/Colors';
 // 화면 너비 가져오기 (책장형 레이아웃 계산용)
 const screenWidth = Dimensions.get('window').width;
 const numColumnsBookshelf = 4; // 책장형 열 개수
@@ -36,6 +42,30 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
   const [datePickerMode, setDatePickerMode] = useState<'start' | 'end'>('start');
   const [tempDate, setTempDate] = useState(new Date()); // 임시 날짜 저장
 
+  // 리뷰 로딩 함수
+  const loadReviews = useCallback(async () => {
+    setIsLoading(true);
+    const { data, error } = await fetchUserReviews();
+    if (error) {
+      console.log('리뷰 로딩 오류:', error);
+      // router.push('/login');
+    } else if (data) {
+      setReviews(data);
+    }
+    setIsLoading(false);
+  }, []); 
+
+  useFocusEffect(
+    useCallback(() => {
+      loadReviews();
+    }, [loadReviews])
+  );
+
+  useEffect(() => {
+    navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
+
+  }, []);
+
   // --- 애니메이션 관련 ---
   const fadeAnim = useRef(new Animated.Value(0)).current; // 초기 투명도 0
 
@@ -52,22 +82,6 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
     const { width, height } = event.nativeEvent.layout;
     setRatingContainerSize({ width, height });
   };
-
-  useEffect(() => {
-    const loadReviews = async () => {
-      setIsLoading(true);
-      const { data, error } = await fetchUserReviews();
-      if (error) {
-        console.log('리뷰 로딩 오류:', error);
-        // router.push('/login');
-      } else if (data) {
-        setReviews(data);
-      }
-      setIsLoading(false);
-    };
-
-    loadReviews();
-  }, []);
 
   useEffect(() => {
     if (isModalVisible) {
@@ -95,6 +109,7 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
 
   // --- 모달 열기 ---
   const openModal = (item: ReviewWithBook) => {
+    navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
     setSelectedReview(item);
     setProgress(item.progress || 0);
     setRating(item.rating || 0);
@@ -107,6 +122,9 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
   // --- 모달 닫기 ---
   const closeModal = () => {
     setIsModalVisible(false);
+    setTimeout(() => {
+      navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
+    }, 300);
   };
 
   // --- 날짜 관련 함수 ---
@@ -214,18 +232,18 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
   const renderReviewItem = ({ item }: { item: ReviewWithBook }) => {
     const progressWidth = item.progress || 0;
     const rating = Math.max(0, Math.min(100, item.rating || 0));
-    const bgOpacity = rating / 100;
+    const bgOpacity = rating <= 10 ? 0.1 : rating / 100;
 
     return (
       <TouchableOpacity onPress={() => openModal(item)}>
-        <View className="bg-white mb-3 rounded-lg shadow-sm overflow-hidden h-12 justify-center relative">
+        <View className="bg-transparent mb-3 rounded-lg overflow-hidden h-12 justify-center relative">
           {/* 진행도 및 평점 배경 */}
           <View
-            className={`absolute top-0 left-0 h-full bg-blue-500`}
+            className={`absolute top-0 left-0 right-0 bottom-0 bg-skyblue`}
             style={{ width: `${progressWidth}%`, opacity: bgOpacity }}
           />
           <Text
-            className="text-base font-medium text-gray-800 z-10 relative px-3"
+            className="text-base font-semibold z-10 px-3"
             numberOfLines={1}
           >
             {item.books?.title || '제목 없음'}
@@ -257,8 +275,7 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
   );
 
   return (
-    // 전체 배경
-    <View className="relative flex-1 bg-gray-100">
+    <Background style={{}}>
       {/* 내부 컨테이너 */}
       <View className="flex-1 p-4">
       {/* 책 추가 버튼 */}
@@ -266,28 +283,21 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
         className="flex-row items-center h-12 bg-white border border-gray-300 rounded-lg mb-4 px-3"
         onPress={() => navigation.navigate('BookSearch')}
       >
-        {/* <Ionicons name="search" size={20} color="#9ca3af" className="mr-2" /> */}
-        <Text className="text-base text-gray-400">읽은 책 추가하기...</Text>
+        <SearchIcon className="w-6 h-6" style={{marginRight: 8, color: '#9ca3af'}}/>
+        <Text className="font-p text-base text-gray-400">읽은 책 추가하기...</Text>
       </TouchableOpacity>
 
       {/* 컨트롤 영역: 책 개수 및 보기 모드 전환 */}
       {!isLoading && reviews.length > 0 && (
         <View className="flex-row justify-between items-center mb-4 px-1">
-          <Text className="text-sm text-gray-600">총 {reviews.length}권</Text>
-          <View className="flex-row space-x-3">
+          <Text className="font-p text-sm text-gray-600">총 {reviews.length}권</Text>
+          <View className="flex-row items-center justify-center">
             <TouchableOpacity onPress={() => setViewMode('list')}>
-              {/* <Ionicons
-                name="list"
-                size={24}
-                color={viewMode === 'list' ? '#3b82f6' : '#9ca3af'} // 활성/비활성 색상
-              /> */}
+              <ListIcon style={{color: viewMode === 'list' ? '#191919' : '#9ca3af'}} className={`w-6 h-6`} />
             </TouchableOpacity>
+            <View className='w-3'/>
             <TouchableOpacity onPress={() => setViewMode('bookshelf')}>
-              {/* <Ionicons
-                name="grid"
-                size={24}
-                color={viewMode === 'bookshelf' ? '#3b82f6' : '#9ca3af'} // 활성/비활성 색상
-              /> */}
+              <GridIcon style={{color: viewMode === 'bookshelf' ? '#191919' : '#9ca3af'}} className={`w-6 h-6`} />
             </TouchableOpacity>
           </View>
         </View>
@@ -298,7 +308,7 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
         {isLoading ? (
           <ActivityIndicator size="large" color="#6b7280" className="mt-10" />
         ) : reviews.length === 0 ? (
-          <Text className="text-gray-500 text-center mt-10 text-base">아직 추가된 책이 없습니다.</Text>
+          <Text className="text-gray-500 text-center mt-10 text-base font-p">아직 추가된 책이 없습니다.</Text>
         ) : viewMode === 'list' ? (
           // --- 리스트형 보기 ---
           <FlatList
@@ -351,8 +361,8 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
            {/* 책 제목, 저자, ISBN */}
            <View className="flex-1">
              <Text className="text-lg font-bold mb-1" numberOfLines={2}>{selectedReview.books?.title || '제목 없음'}</Text>
-             <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>{selectedReview.books?.author || '저자 정보 없음'}</Text>
-             <Text className="text-xs text-gray-500">{`ISBN: ${selectedReview.isbn}`}</Text>
+             <Text className="text-sm text-gray-600 mb-2 font-p" numberOfLines={1}>{selectedReview.books?.author || '저자 정보 없음'}</Text>
+             <Text className="text-xs text-gray-500 font-p">{`ISBN: ${selectedReview.isbn}`}</Text>
            </View>
          </View>
 
@@ -406,26 +416,26 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
              className="border border-gray-300 rounded p-2 flex-1 h-10 justify-center mr-1"
              onPress={() => showMode('start')}
            >
-             <Text className={startDate ? 'text-black text-center' : 'text-gray-400 text-center'}>
+             <Text className={startDate ? 'text-black text-center font-p' : 'text-gray-400 text-center font-p'}>
                {startDate ? startDate.toLocaleDateString() : '시작일 선택'}
              </Text>
            </TouchableOpacity>
-           <Text className="mx-1">부터</Text> 
+           <Text className="mx-1 font-p">부터</Text> 
            <TouchableOpacity
              className="border border-gray-300 rounded p-2 flex-1 h-10 justify-center ml-1"
              onPress={() => showMode('end')}
            >
-             <Text className={endDate ? 'text-black text-center' : 'text-gray-400 text-center'}>
+             <Text className={endDate ? 'text-black text-center font-p' : 'text-gray-400 text-center font-p'}>
                {endDate ? endDate.toLocaleDateString() : '종료일 선택'}
              </Text>
            </TouchableOpacity>
-            <Text className="ml-2">까지 읽음</Text> 
+            <Text className="ml-2 font-p">까지 읽음</Text> 
          </View>
          
          {/* 간단 리뷰 */}
          <View className="w-full mt-4 mb-4">
            <TextInput
-             className="border border-gray-300 rounded p-2 w-full h-24"
+             className="border border-gray-300 rounded p-2 w-full h-24 font-p"
              placeholder="간단한 리뷰를 남길 수 있어요(선택)"
              multiline
              value={review}
@@ -433,7 +443,7 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
              textAlignVertical="top"
              maxLength={300}
            />
-           <Text className="absolute bottom-0 right-1 text-xs text-gray-500">
+           <Text className="absolute bottom-0 right-1 text-xs text-gray-500 font-p">
              {review.length}/300
            </Text>
          </View>
@@ -481,7 +491,7 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
              </View>
          )}
       </Animated.View>
-    </View>
+    </Background>
   );
 }
 
