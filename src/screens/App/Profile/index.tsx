@@ -81,6 +81,10 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
     navigation.navigate('TermsAndPolicies');
   };
 
+  const handleStatistics = () => {
+    navigation.navigate('Statistics');
+  };
+
 
   if (loading) {
     return (
@@ -102,6 +106,7 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
     { text: '약관 및 정책', onPress: handleTerms },
     { text: '로그아웃', onPress: handleLogout },
     { text: '회원탈퇴', onPress: handleWithdrawal },
+    { text: '독서 통계', onPress: handleStatistics },
   ];
 
   return (

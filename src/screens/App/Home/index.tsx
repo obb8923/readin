@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator, Alert, Dimensions, TextInput, Button, Platform, LayoutChangeEvent, Animated } from 'react-native';
-import { fetchUserReviews, ReviewWithBook, updateReview, deleteReview } from '../../../libs/supabase/supabaseOperations'; 
+import { View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator, Alert, Dimensions, TextInput, Button, Platform, LayoutChangeEvent, Animated, SectionList } from 'react-native';
+import { ReviewWithBook, updateReview, deleteReview } from '../../../libs/supabase/supabaseOperations';
+import useReviewStore from '../../../store/reviewStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'; 
 import Slider from '../../../components/Slider';
 import DefaultButton from '../../../components/DefaultButton';
@@ -26,8 +27,7 @@ HomeStackParamList,
 'Home'
 >;
 export default function HomeScreen({navigation}: HomeScreenProps) {
-  const [reviews, setReviews] = useState<ReviewWithBook[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { reviews, isLoading, error, fetchReviews, getGroupedReviews } = useReviewStore();
   const [viewMode, setViewMode] = useState<'list' | 'bookshelf'>('list'); // 보기 모드 상태
 
   // --- 모달 관련 상태 ---
@@ -41,30 +41,6 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [datePickerMode, setDatePickerMode] = useState<'start' | 'end'>('start');
   const [tempDate, setTempDate] = useState(new Date()); // 임시 날짜 저장
-
-  // 리뷰 로딩 함수
-  const loadReviews = useCallback(async () => {
-    setIsLoading(true);
-    const { data, error } = await fetchUserReviews();
-    if (error) {
-      console.log('리뷰 로딩 오류:', error);
-      // router.push('/login');
-    } else if (data) {
-      setReviews(data);
-    }
-    setIsLoading(false);
-  }, []); 
-
-  useFocusEffect(
-    useCallback(() => {
-      loadReviews();
-    }, [loadReviews])
-  );
-
-  useEffect(() => {
-    navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
-
-  }, []);
 
   // --- 애니메이션 관련 ---
   const fadeAnim = useRef(new Animated.Value(0)).current; // 초기 투명도 0
@@ -179,12 +155,9 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
     const { success, error } = await updateReview(selectedReview.id, updatedData);
 
     if (success) {
-      // 로컬 상태 업데이트
-      setReviews(prevReviews =>
-        prevReviews.map(r =>
-          r.id === selectedReview.id ? { ...r, ...updatedData } : r
-        )
-      );
+      // 로컬 상태 업데이트 대신 스토어 액션 호출 또는 스토어가 자동으로 업데이트되도록 처리
+      // 현재는 fetchReviews()를 다시 호출하여 목록을 갱신합니다.
+      fetchReviews();
       closeModal();
     } else {
       console.error('리뷰 업데이트 오류:', error);
@@ -212,8 +185,9 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
                         const { success, error } = await deleteReview(selectedReview.id);
 
                         if (success) {
-                            // 로컬 상태 업데이트
-                            setReviews(prevReviews => prevReviews.filter(r => r.id !== selectedReview.id));
+                            // 로컬 상태 업데이트 대신 스토어 액션 호출 또는 스토어가 자동으로 업데이트되도록 처리
+                            // 현재는 fetchReviews()를 다시 호출하여 목록을 갱신합니다.
+                            fetchReviews();
                             Alert.alert('성공', '리뷰가 삭제되었습니다.');
                             closeModal();
                         } else {
@@ -228,7 +202,7 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
         );
     };
 
-  // --- 리스트형 아이템 렌더러 ---
+  // --- 리스트형 아이템 렌더러 (SectionList의 renderItem으로 사용) ---
   const renderReviewItem = ({ item }: { item: ReviewWithBook }) => {
     const progressWidth = item.progress || 0;
     const rating = Math.max(0, Math.min(100, item.rating || 0));
@@ -274,6 +248,24 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
     </TouchableOpacity>
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchReviews();
+    }, [fetchReviews])
+  );
+
+  useEffect(() => {
+    if (error) {
+      console.log('리뷰 로딩 오류 (from store):', error);
+      Alert.alert("오류", "리뷰를 불러오는 중 문제가 발생했습니다.");
+    }
+  }, [error]);
+
+  useEffect(() => {
+    navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
+
+  }, []);
+
   return (
     <Background style={{}}>
       {/* 내부 컨테이너 */}
@@ -310,13 +302,18 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
         ) : reviews.length === 0 ? (
           <Text className="text-gray-500 text-center mt-10 text-base font-p">아직 추가된 책이 없습니다.</Text>
         ) : viewMode === 'list' ? (
-          // --- 리스트형 보기 ---
-          <FlatList
-            key={`flatlist-${viewMode}`}
-            data={reviews}
-            renderItem={renderReviewItem}
-            keyExtractor={(item) => `list-${item.id?.toString() || item.isbn}`}
+          // --- 리스트형 보기 (SectionList로 변경) ---
+          <SectionList
+            sections={getGroupedReviews()} // 그룹화된 데이터 사용
+            keyExtractor={(item, index) => `list-${item.id?.toString() || item.isbn}-${index}`}
+            renderItem={renderReviewItem} // 기존 아이템 렌더러 재활용
+            renderSectionHeader={({ section: { title } }) => (
+              <View className="bg-gray-100 px-3 py-2 mt-2">
+                <Text className="text-lg font-bold text-gray-700">{title}</Text>
+              </View>
+            )}
             contentContainerStyle={{ paddingBottom: 16 }}
+            // ListEmptyComponent, refreshing 등 필요한 props 추가 가능
           />
         ) : (
           // --- 책장형 보기 ---
