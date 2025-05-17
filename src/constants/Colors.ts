@@ -5,6 +5,7 @@ const Colors = {
   brick: '#E06847',
   white: '#fefefe',
   black: '#191919',
+  svggray: '#6b7280',
 }
 
 export default Colors;

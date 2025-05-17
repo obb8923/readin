@@ -256,6 +256,158 @@ export const deleteReview = async (reviewId: number) => {
 };
 
 /**
+ * 오늘의 독서 기록을 추가합니다.
+ * 이미 오늘 날짜로 기록이 존재하면, 오류를 발생시켜 중복 기록을 방지합니다.
+ * (count를 계속 증가시키는 기능은 다른 함수/버튼으로 분리 예정)
+ */
+export const upsertTodaysReadingLog = async () => {
+  // 1. 현재 사용자 ID 가져오기
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error('Error fetching user or user not logged in:', userError);
+    throw new Error('사용자 인증에 실패했습니다. 로그인이 필요합니다.');
+  }
+  const userId = user.id;
+
+  // 2. 오늘 날짜를 'YYYY-MM-DD' 형식으로 생성
+  const today = new Date().toISOString().split('T')[0];
+
+  // 3. 오늘 날짜로 이미 기록이 있는지 확인
+  const { data: existingLog, error: selectError } = await supabase
+    .from('reading_logs')
+    .select('id') // 존재 여부만 확인하면 되므로 id만 가져옴
+    .eq('user_id', userId)
+    .eq('date', today)
+    .maybeSingle(); // 결과가 없으면 null, 있으면 객체
+
+  if (selectError) {
+    console.error("Error checking for existing reading log:", selectError);
+    throw selectError; // DB 조회 오류
+  }
+
+  if (existingLog) {
+    // 이미 오늘 날짜로 기록이 존재하면, 오류를 발생시켜 UI에서 처리하도록 함
+    console.log(`Reading log for user ${userId} on ${today} already exists.`);
+    throw new Error('오늘의 독서 기록이 이미 존재합니다.');
+  }
+
+  // 4. 오늘 날짜 기록이 없으면 새로 삽입 (count는 1로 시작)
+  const { error: insertError } = await supabase
+    .from('reading_logs')
+    .insert([{ user_id: userId, date: today, count: 1 }]);
+
+  if (insertError) {
+    console.error("Error inserting new reading log:", insertError);
+    throw insertError; // DB 삽입 오류
+  }
+
+  console.log(`Successfully inserted reading log for user ${userId} on ${today}.`);
+  // 성공 시 특별한 반환값 없음 (void)
+};
+
+/**
+ * 특정 날짜의 독서 시간을 기록하거나 업데이트합니다.
+ * 이미 해당 날짜에 기록이 존재하면, 기존 count에 새로운 시간을 더합니다.
+ * @param durationInMinutes 기록할 독서 시간 (분 단위)
+ * @returns {Promise<void>} 성공 시 void, 실패 시 에러 발생
+ */
+export const upsertReadingDurationLog = async (durationInMinutes: number): Promise<void> => {
+  // 0분 이하면 기록하지 않음
+  if (durationInMinutes <= 0) {
+    console.log('Reading duration is 0 or less, skipping log.');
+    return;
+  }
+
+  // 1. 현재 사용자 ID 가져오기
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error('Error fetching user or user not logged in:', userError);
+    throw new Error('사용자 인증에 실패했습니다. 로그인이 필요합니다.');
+  }
+  const userId = user.id;
+
+  // 2. 오늘 날짜를 'YYYY-MM-DD' 형식으로 생성
+  const today = new Date().toISOString().split('T')[0];
+
+  // 3. 오늘 날짜로 이미 기록이 있는지 확인
+  const { data: existingLog, error: selectError } = await supabase
+    .from('reading_logs')
+    .select('id, count')
+    .eq('user_id', userId)
+    .eq('date', today)
+    .maybeSingle();
+
+  if (selectError) {
+    console.error("Error checking for existing reading log:", selectError);
+    throw selectError;
+  }
+
+  if (existingLog) {
+    // 4. 오늘 날짜 기록이 있으면 count 업데이트 (기존 값 + 새로운 시간)
+    const newCount = (existingLog.count || 0) + durationInMinutes;
+    const { error: updateError } = await supabase
+      .from('reading_logs')
+      .update({ count: newCount })
+      .eq('id', existingLog.id);
+
+    if (updateError) {
+      console.error("Error updating reading log:", updateError);
+      throw updateError;
+    }
+    console.log(`Successfully updated reading log for user ${userId} on ${today}. New count: ${newCount}`);
+  } else {
+    // 5. 오늘 날짜 기록이 없으면 새로 삽입
+    const { error: insertError } = await supabase
+      .from('reading_logs')
+      .insert([{ user_id: userId, date: today, count: durationInMinutes }]);
+
+    if (insertError) {
+      console.error("Error inserting new reading log:", insertError);
+      throw insertError;
+    }
+    console.log(`Successfully inserted new reading log for user ${userId} on ${today} with count: ${durationInMinutes}.`);
+  }
+};
+
+export interface ReadingLogDataForGraph {
+  date: Date; // string 대신 Date 객체 사용
+  count: number;
+}
+
+/**
+ * 현재 로그인된 사용자의 모든 독서 기록을 ContributionGraph용으로 가져옵니다.
+ * @returns {Promise<ReadingLogDataForGraph[]>} ContributionGraph에 적합한 데이터 배열
+ */
+export const getReadingLogsForContributionGraph = async (): Promise<ReadingLogDataForGraph[]> => {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    console.error('Error fetching user or user not logged in for graph data:', userError);
+    throw new Error('사용자 인증에 실패했습니다. 로그인이 필요합니다.');
+  }
+  const userId = user.id;
+
+  const { data, error } = await supabase
+    .from('reading_logs')
+    .select('date, count')
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error fetching reading logs for graph:', error);
+    throw error;
+  }
+
+  // 데이터를 ContributionGraph가 기대하는 형태로 매핑 (count -> value, string -> Date)
+  const mappedData: ReadingLogDataForGraph[] = (data || []).map(log => ({
+    date: new Date(log.date), // YYYY-MM-DD 문자열을 Date 객체로 변환
+    count: log.count,
+  }));
+
+  return mappedData;
+};
+
+/**
  * 회원 탈퇴를 위한 Supabase Edge Function 호출을 요청합니다.
  * 실제 삭제 로직은 'delete-user' Edge Function에서 처리됩니다.
  * @returns {Promise<{ success: boolean, error?: any }>} 요청 성공 여부와 에러 객체

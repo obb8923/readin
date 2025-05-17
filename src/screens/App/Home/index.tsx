@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator, Alert, Dimensions, TextInput, Button, Platform, LayoutChangeEvent, Animated, SectionList } from 'react-native';
 import { ReviewWithBook, updateReview, deleteReview } from '../../../libs/supabase/supabaseOperations';
-import useReviewStore from '../../../store/reviewStore';
+import useReviewStore from '../../../../store/reviewStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'; 
 import Slider from '../../../components/Slider';
 import DefaultButton from '../../../components/DefaultButton';
@@ -13,6 +13,7 @@ import ListIcon from '../../../../assets/svgs/List.svg';
 import Background from '../../../components/Background';
 import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../../constants/Colors';
+import Divider from '../../../components/Divider';
 // 화면 너비 가져오기 (책장형 레이아웃 계산용)
 const screenWidth = Dimensions.get('window').width;
 const numColumnsBookshelf = 4; // 책장형 열 개수
@@ -27,7 +28,7 @@ HomeStackParamList,
 'Home'
 >;
 export default function HomeScreen({navigation}: HomeScreenProps) {
-  const { reviews, isLoading, error, fetchReviews, getGroupedReviews } = useReviewStore();
+  const { reviews, isLoading, error, fetchReviews, getGroupedReviews,getReviewsForBookshelf } = useReviewStore();
   const [viewMode, setViewMode] = useState<'list' | 'bookshelf'>('list'); // 보기 모드 상태
 
   // --- 모달 관련 상태 ---
@@ -308,18 +309,16 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
             keyExtractor={(item, index) => `list-${item.id?.toString() || item.isbn}-${index}`}
             renderItem={renderReviewItem} // 기존 아이템 렌더러 재활용
             renderSectionHeader={({ section: { title } }) => (
-              <View className="bg-gray-100 px-3 py-2 mt-2">
-                <Text className="text-lg font-bold text-gray-700">{title}</Text>
-              </View>
+             <Divider text={title}  className="mt-2 mb-2"/>
             )}
             contentContainerStyle={{ paddingBottom: 16 }}
-            // ListEmptyComponent, refreshing 등 필요한 props 추가 가능
+            ListEmptyComponent={<Text className="text-gray-500 text-center mt-10 text-base font-p">아직 추가된 책이 없습니다.</Text>}
           />
         ) : (
           // --- 책장형 보기 ---
           <FlatList
             key={`flatlist-${viewMode}`}
-            data={reviews}
+            data={getReviewsForBookshelf()}
             renderItem={renderBookshelfItem}
             keyExtractor={(item) => `shelf-${item.id?.toString() || item.isbn}`}
             numColumns={numColumnsBookshelf}

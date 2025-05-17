@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { fetchUserReviews, ReviewWithBook } from '../libs/supabase/supabaseOperations';
+import { fetchUserReviews, ReviewWithBook } from '../src/libs/supabase/supabaseOperations';
 
 interface ReviewState {
   reviews: ReviewWithBook[];
@@ -11,6 +11,8 @@ interface ReviewState {
   getGroupedReviews: () => Array<{ title: string; data: ReviewWithBook[] }>;
   // 여기에 월별 그룹화된 리뷰를 저장할 상태나, 통계 계산 함수를 추가할 수도 있습니다.
   // 예를 들어, getMonthlyStats: () => MonthlyStatsType[];
+  // 책장형 보기를 위한 새 getter 함수: created_at 기준으로 최신순 정렬
+  getReviewsForBookshelf: () => ReviewWithBook[];
 }
 
 import { StateCreator } from 'zustand';
@@ -86,6 +88,30 @@ const reviewStoreCreator: StateCreator<ReviewState> = (set, get) => ({
       });
     }
     return sections;
+  },
+  // 책장형 보기를 위한 새 getter 함수: 완독일 및 생성일 기준으로 최신순 정렬
+  getReviewsForBookshelf: () => {
+    const reviews = get().reviews;
+    return [...reviews].sort((a, b) => {
+      const aHasEndDate = !!a.end_date;
+      const bHasEndDate = !!b.end_date;
+
+      if (aHasEndDate && bHasEndDate) {
+        // 둘 다 완독일이 있는 경우: 완독일 최신순
+        return new Date(b.end_date!).getTime() - new Date(a.end_date!).getTime();
+      } else if (aHasEndDate) {
+        // a만 완독일이 있는 경우: a가 먼저 (완독일 있는 항목이 위로)
+        return -1;
+      } else if (bHasEndDate) {
+        // b만 완독일이 있는 경우: b가 먼저 (완독일 있는 항목이 위로)
+        return 1;
+      } else {
+        // 둘 다 완독일이 없는 경우: 생성일 최신순
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+      }
+    });
   },
 });
 

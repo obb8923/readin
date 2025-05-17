@@ -6,6 +6,7 @@ import { AuthStackParamList } from '../../../nav/stack/Auth';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import TextInput from '../../../components/TextInput';
 import AppLogo from '../../../../assets/svgs/AppLogo.svg';
+import Divider from '../../../components/Divider';
 type SignUpScreenProps = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
 
@@ -95,12 +96,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
             </>
         )}
          {/* 구분선 */}
-         <View className="w-full mb-10 flex-row items-center justify-center">
-      <View className="absolute top-1/2 left-0 bg-gray-200 w-full h-[1px]" />
-      <View className="bg-background px-4 py-2 rounded-full ">
-      <Text className="text-gray-500 text-sm font-bold ">회원가입</Text>
-      </View>
-      </View>
+         <Divider text="회원가입"/>
       <TextInput
         placeholder="닉네임 입력 (10자 이하)"
         value={name}

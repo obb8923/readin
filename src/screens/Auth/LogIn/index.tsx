@@ -11,6 +11,7 @@ import AuthButton from '../../../components/AuthButton';
 import TextInput from '../../../components/TextInput';
 import AppLogo from '../../../../assets/svgs/AppLogo.svg';
 import Background from '../../../components/Background';
+import Divider from '../../../components/Divider';
 type AuthStack = NativeStackScreenProps<AuthStackParamList, 'LogIn'>;
 type RootStack = NativeStackScreenProps<RootStackParamList>;
 type LoginScreenProps = CompositeScreenProps<AuthStack, RootStack>;
@@ -130,12 +131,7 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
       {/* 로고 이미지 */}
       <AppLogo style={{marginTop: '10%',marginBottom: '10%'}}/>
       {/* 구분선 */}
-      <View className="w-full mb-10 flex-row items-center justify-center">
-      <View className="absolute top-1/2 left-0 bg-gray-200 w-full h-[1px]" />
-      <View className="bg-background px-4 py-2 rounded-full">
-      <Text className="text-gray-500 text-sm font-p">로그인/회원가입</Text>
-      </View>
-      </View>
+      <Divider text="로그인/회원가입"  />
       {/*Google Login Button */}
       <View style={{width: '80%'}}>
       <AuthButton handleLogin={handleGoogleLogin} loading={loading} type="google" />
