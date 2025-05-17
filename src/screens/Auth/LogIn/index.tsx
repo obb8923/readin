@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text,Alert, Animated, Button } from 'react-native';
+import { View,Alert, Animated } from 'react-native';
 import { supabase } from '../../../libs/supabase/supabase';
 import DefaultButton from '../../../components/DefaultButton';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -9,9 +9,9 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { AuthStackParamList } from '../../../nav/stack/Auth';
 import AuthButton from '../../../components/AuthButton';
 import TextInput from '../../../components/TextInput';
-import AppLogo from '../../../../assets/svgs/AppLogo.svg';
 import Background from '../../../components/Background';
 import Divider from '../../../components/Divider';
+import LogoIcon from '../../../../assets/svgs/readin.svg';
 type AuthStack = NativeStackScreenProps<AuthStackParamList, 'LogIn'>;
 type RootStack = NativeStackScreenProps<RootStackParamList>;
 type LoginScreenProps = CompositeScreenProps<AuthStack, RootStack>;
@@ -129,7 +129,7 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
     <View className="flex-1 flex-col justify-start items-center p-5">
     <View style={{height: '10%'}} />
       {/* 로고 이미지 */}
-      <AppLogo style={{marginTop: '10%',marginBottom: '10%'}}/>
+      <LogoIcon/>
       {/* 구분선 */}
       <Divider text="로그인/회원가입"  />
       {/*Google Login Button */}

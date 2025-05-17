@@ -5,8 +5,8 @@ import DefaultButton from '../../../components/DefaultButton';
 import { AuthStackParamList } from '../../../nav/stack/Auth';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import TextInput from '../../../components/TextInput';
-import AppLogo from '../../../../assets/svgs/AppLogo.svg';
 import Divider from '../../../components/Divider';
+import LogoIcon from '../../../../assets/svgs/readin.svg';
 type SignUpScreenProps = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
 
@@ -92,7 +92,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
         {isLogoVisible && (
           <>
             {/* 로고 이미지 */}
-            <AppLogo style={{marginTop: '10%',marginBottom: '10%'}}/>
+            <LogoIcon/>
             </>
         )}
          {/* 구분선 */}
