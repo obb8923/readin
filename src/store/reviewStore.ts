@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { fetchUserReviews, ReviewWithBook } from '../src/libs/supabase/supabaseOperations';
+import { fetchUserReviews, ReviewWithBook } from '../libs/supabase/supabaseOperations';
 
 interface ReviewState {
   reviews: ReviewWithBook[];

@@ -31,7 +31,12 @@ export interface ReviewWithBook {
     image_url: string;
   } | null; // books 테이블 정보
 }
-
+export interface Book {
+  isbn: string;
+  title: string;
+  authors: string[];
+  thumbnail: string;
+}
 /**
  * 책 정보와 독서 기록을 각각 books와 reviews 테이블에 저장합니다.
  * books 테이블에는 중복 확인 후 없는 경우에만 삽입합니다.
@@ -64,16 +69,16 @@ export const saveReadingRecord = async (recordData: ReadingRecordData): Promise<
     // 책이 존재하지 않으면 삽입
     if (!existingBook) {
       console.log(`Books 테이블에 새 책 추가: ${recordData.isbn}`);
+      const bookDataToInsert = {
+        isbn: recordData.isbn,
+        title: recordData.title,
+        author: recordData.authors.join(','),
+        image_url: recordData.image_url // 필드명 매핑
+      };
+      console.log('[supabaseOperations.ts] Inserting into books table with image_url:', bookDataToInsert.image_url); // 추가된 로그
       const { error: insertBookError } = await supabase
         .from('books')
-        .insert([
-          {
-            isbn: recordData.isbn,
-            title: recordData.title,
-            author: recordData.authors.join(','), // 배열을 ','로 join하여 text로 저장
-            image_url: recordData.image_url // 필드명 매핑
-          }
-        ]);
+        .insert([bookDataToInsert]);
 
       if (insertBookError) {
         console.error('Books 테이블 삽입 오류:', insertBookError);

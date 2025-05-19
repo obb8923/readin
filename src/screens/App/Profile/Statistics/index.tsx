@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
-import useReviewStore from '../../../../../store/reviewStore';
+import useReviewStore from '../../../../store/reviewStore';
 import Background from '../../../../components/Background';
 import { ProfileStackParamList } from '../../../../nav/stack/Profile';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '../src/libs/supabase/supabase'; // Supabase 클라이언트 확인
+import { supabase } from '../libs/supabase/supabase'; // Supabase 클라이언트 확인
 import { Session, User } from '@supabase/supabase-js';
 
 // 상태 타입 정의

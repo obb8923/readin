@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigatorScreenParams } from "@react-navigation/native";
 import AppTab from "../tab/App";
 import AuthStack, { AuthStackParamList } from "./Auth";
-import { useAuthStore } from "../../../store/authStore";
+import { useAuthStore } from "../../store/authStore";
 import { ActivityIndicator, View } from "react-native";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

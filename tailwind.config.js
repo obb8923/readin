@@ -19,6 +19,7 @@ module.exports = {
         'white': '#fefefe',
         'black': '#191919',
         'svggray': '#6b7280',
+        'bluegray': '#F1F2F4',
       },
     },
   },

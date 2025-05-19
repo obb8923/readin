@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, Alert, TouchableOpacity, Dimensions, Animated,Image } from 'react-native';
-import { useAuthStore } from '../../../../store/authStore';
+import { useAuthStore } from '../../../store/authStore';
 import { supabase } from '../../../libs/supabase/supabase';
 import { requestAccountDeletion, upsertTodaysReadingLog, getReadingLogsForContributionGraph, ReadingLogDataForGraph, upsertReadingDurationLog } from '../../../libs/supabase/supabaseOperations';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';

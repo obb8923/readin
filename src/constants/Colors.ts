@@ -6,6 +6,8 @@ const Colors = {
   white: '#fefefe',
   black: '#191919',
   svggray: '#6b7280',
+  svggray2: '#9ca3af',
+  bluegray: '#F1F2F4',
 }
 
 export default Colors;
