@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator, Alert, Dimensions, TextInput, Button, Platform, LayoutChangeEvent, Animated, SectionList } from 'react-native';
-import { ReviewWithBook, updateReview, deleteReview } from '../../../libs/supabase/supabaseOperations';
+import { ReviewWithBook } from '../../../libs/supabase/supabaseOperations';
 import useReviewStore from '../../../store/reviewStore';
 import { supabase } from '../../../libs/supabase/supabase';
-
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../../../nav/stack/Home';
 import SearchIcon from '../../../../assets/svgs/Search.svg';
@@ -12,8 +11,8 @@ import ListIcon from '../../../../assets/svgs/List.svg';
 import Background from '../../../components/Background';
 import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../../constants/Colors';
-import Divider from '../../../components/Divider';
 import useModal from '../../../libs/hooks/useModal';
+// import { TabNavOptions} from '../../../constants/TabNavOptions';
 // 화면 너비 가져오기 (책장형 레이아웃 계산용)
 const screenWidth = Dimensions.get('window').width;
 const numColumnsBookshelf = 4; // 책장형 열 개수
@@ -153,15 +152,14 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
     }
   }, [error]);
 
-  useEffect(() => {
-    navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
-
-  }, []);
+  // useEffect(() => {
+  //   navigation.getParent()?.setOptions({ tabBarStyle:TabNavOptions.tabBarStyle  });
+  // }, []);
 
   return (
     <Background style={{}}>
       {/* 내부 컨테이너 */}
-      <View className="flex-1 p-4">
+      <View className="flex-1 pt-4 px-4">
       {/* 책 추가 버튼 */}
       <TouchableOpacity
         className="flex-row items-center h-12 bg-white border border-gray-300 rounded-lg mb-4 px-3"
@@ -199,10 +197,16 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
             sections={getGroupedReviews()} // 그룹화된 데이터 사용
             keyExtractor={(item, index) => `list-${item.id?.toString() || item.isbn}-${index}`}
             renderItem={renderReviewItem}
+            
             renderSectionHeader={({ section: { title } }) => (
-             <Divider text={title}  className="mt-2 mb-2"/>
+              <View className="mt-2 mb-2 w-full flex-row items-center justify-center">
+             <View className="w-auto h-auto bg-backgroundf8 px-4 py-2 rounded-full">
+             <Text className="text-gray-500 text-sm font-p">{title}</Text>
+         </View>
+         </View>
             )}
-            contentContainerStyle={{ paddingBottom: 16 }}
+            stickySectionHeadersEnabled={true}
+            contentContainerStyle={{ paddingBottom: 100 }}
             ListEmptyComponent={<Text className="text-gray-500 text-center mt-10 text-base font-p">아직 추가된 책이 없습니다.</Text>}
           />
         ) : (

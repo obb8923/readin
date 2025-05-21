@@ -1,4 +1,4 @@
-import { View, ViewStyle } from "react-native"
+import { View, ViewStyle,StatusBar } from "react-native"
 
 type BackgroundProps = {
   children: React.ReactNode;
@@ -6,10 +6,11 @@ type BackgroundProps = {
   style?: ViewStyle | ViewStyle[];
 }
 const Background = ({children,...props}: BackgroundProps) => {
+  const statusBarHeight = StatusBar.currentHeight;
   return (
     <View 
     className={`flex-1 bg-background ${props.className}`} 
-    style={[props.style]}>
+    style={[props.style, {paddingTop: statusBarHeight}]}>
       {children}
     </View>
   )

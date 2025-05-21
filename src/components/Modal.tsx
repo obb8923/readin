@@ -23,7 +23,7 @@ interface ModalImageDisplayProps {
   resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
 }
 
-const ModalImageDisplay: React.FC<ModalImageDisplayProps> = ({ imageUrlOrPath, style, resizeMode = "cover" }) => {
+const ModalImageDisplay = ({ imageUrlOrPath, style, resizeMode = "cover" }: ModalImageDisplayProps) => {
   const [displayUrl, setDisplayUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -947,12 +947,6 @@ const Modal = () => {
 
          {/* 버튼 영역 */}
          <View className="w-full flex-row justify-between items-center">
-           <DefaultButton
-               title="삭제하기"
-               onPress={handleDelete} // addBook 모달에서는 이 버튼이 보이지 않거나 다른 동작을 해야 할 수 있습니다.
-               type="delete"
-               className="w-auto"
-           />
                 <DefaultButton
                title="닫기"
                onPress={hide}

@@ -13,6 +13,8 @@ module.exports = {
       },
       colors: {
         'background': '#fafafa',
+        'backgroundf8': '#fafafaf8',
+        'backgroundaa': '#fafafaaa',
         'matcha': '#5F9B41',
         'skyblue': '#378FE9',
         'brick': '#E06847',

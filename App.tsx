@@ -19,7 +19,7 @@ function App(): React.JSX.Element {
     <GestureHandlerRootView style={{flex:1}}>
       <SafeAreaView style={{flex:1}}>
         <NavigationContainer>
-          <StatusBar barStyle="dark-content" backgroundColor={Colors.background}/>
+          <StatusBar barStyle="dark-content" backgroundColor={Colors.brick} translucent={false} />
           <RootStack />
           <Modal />
           <SnackBar />

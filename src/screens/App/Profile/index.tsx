@@ -15,7 +15,7 @@ import { contributionGraphConfig } from '../../../constants/ContributionGraphCon
 import ClockPlusIcon from '../../../../assets/svgs/ClockPlus.svg';
 import Colors from '../../../constants/Colors';
 import Timer from '../../../components/Timer';
-import BookIcon from '../../../../assets/svgs/Book_Icon.svg';
+import LinearGradient from 'react-native-linear-gradient';
 import PlayIcon from '../../../../assets/svgs/Play.svg';
 import PauseIcon from '../../../../assets/svgs/Pause.svg';
 const screenWidth = Dimensions.get('window').width;
@@ -35,6 +35,7 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   const [pause, setPause] = useState(true);
   const [timerTime, setTimerTime] = useState(0);
   const [shouldRefreshTimer, setShouldRefreshTimer] = useState<boolean>(false);
+  const [currentStreak, setCurrentStreak] = useState(0);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const modalTranslateYAnim = React.useRef(new Animated.Value(-Dimensions.get('window').height / 2)).current;
   const buttonsTranslateYAnim = React.useRef(new Animated.Value(200)).current;
@@ -103,24 +104,17 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   }, [fetchContributionData]);
 
   useEffect(() => {
-    if (contributionData.length > 0) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // 시간, 분, 초, 밀리초를 0으로 설정하여 날짜만 비교
+    const todayForLogCheck = new Date();
+    todayForLogCheck.setHours(0, 0, 0, 0);
 
-      const latestLogDate = contributionData.reduce((latest, log) => {
-        const logDate = new Date(log.date);
-        logDate.setHours(0, 0, 0, 0);
-        return logDate > latest ? logDate : latest;
-      }, new Date(0)); // 초기값을 아주 오래된 날짜로 설정
+    const todayHasPositiveCountLog = contributionData.some(log => {
+      if (!log.date || log.count === undefined) return false;
+      const logDate = new Date(log.date);
+      logDate.setHours(0, 0, 0, 0);
+      return logDate.getTime() === todayForLogCheck.getTime() && log.count > 0;
+    });
 
-      if (latestLogDate.getTime() === today.getTime()) {
-        setIsTodayLogged(true);
-      } else {
-        setIsTodayLogged(false);
-      }
-    } else {
-      setIsTodayLogged(false); // 기록이 없으면 오늘 기록 안 한 것으로 간주
-    }
+    setIsTodayLogged(todayHasPositiveCountLog);
   }, [contributionData]);
 
   useEffect(() => {
@@ -136,12 +130,53 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   }, [isLoadingContributionData, contributionData, graphOpacityAnim]);
 
   useEffect(() => {
-    Animated.timing(todayLoggedOpacityAnim, {
-      toValue: isTodayLogged ? 1 : 0,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, [isTodayLogged, todayLoggedOpacityAnim]);
+    if (!isLoadingContributionData) {
+      Animated.timing(todayLoggedOpacityAnim, {
+        toValue: 1, 
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      todayLoggedOpacityAnim.setValue(0);
+    }
+  }, [isLoadingContributionData, todayLoggedOpacityAnim]);
+
+  useEffect(() => {
+    if (!contributionData || contributionData.length === 0) {
+      setCurrentStreak(0);
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const hasLogOnDateHelper = (dateToSearch: Date, logs: ReadingLogDataForGraph[]): boolean => {
+      const targetTimestamp = dateToSearch.getTime();
+      return logs.some((log: ReadingLogDataForGraph) => {
+        if (!log.date || log.count === undefined) return false; // 유효한 로그인지 확인
+        const log_date_obj = new Date(log.date); // 변수명 변경 (logDate 중복 방지)
+        log_date_obj.setHours(0, 0, 0, 0);
+        return log_date_obj.getTime() === targetTimestamp && log.count > 0;
+      });
+    };
+
+    let calculatedStreak = 0;
+    if (hasLogOnDateHelper(today, contributionData)) {
+      calculatedStreak = 1;
+      const previousDate = new Date(today); // 날짜 객체 복사
+
+      // 연속된 이전 날짜들을 확인 (무한 루프, 내부 break로 종료)
+      for (let i = 0; true; i++) { 
+        previousDate.setDate(previousDate.getDate() - 1); // 하루 전으로 이동
+        if (hasLogOnDateHelper(previousDate, contributionData)) {
+          calculatedStreak++;
+        } else {
+          break; // 연속이 끊기면 중단
+        }
+      }
+    }
+    setCurrentStreak(calculatedStreak);
+  }, [contributionData]); // contributionData가 변경될 때만 재계산
 
   const handleLogout = async () => {
     Alert.alert('로그아웃', '정말로 로그아웃 하시겠습니까?', [
@@ -287,7 +322,7 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
           <Text className="text-base text-gray-500 mb-4 font-p">{user?.email}</Text>
         </View>
         {/* 일일 독서 로그 그래프 */}
-        <Animated.View className='mt-4 items-center' style={{ opacity: graphOpacityAnim }}>
+        <Animated.View className='mt-4 items-center border border-gray-200 rounded-lg mb-4' style={{ opacity: graphOpacityAnim }}>
           <ContributionGraph
             values={contributionData && contributionData.length > 0 ? contributionData : [{date: null, count: null}]}
             endDate={new Date()}
@@ -316,14 +351,29 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
             }}
             chartConfig={contributionGraphConfig}
           />
+           { currentStreak > 0 && (
+            <View className='w-full px-4 flex-row items-center justify-between mb-4'>
+              <Text className="font-p">{currentStreak}일 연속 독서 중!</Text>
+              <View className='flex-row items-center gap-2'>
+                <Text className="font-p text-sm">조금 읽음</Text>
+                <LinearGradient
+                  colors={['#C4DDF1', '#3645AC']}
+                  start={{ x: 0.1, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ width: 60, height: 20, borderRadius: 10 }}
+                />
+                <Text className="font-p text-sm">오래 읽음</Text>
+              </View>
+            </View>
+          )}
         </Animated.View>
         {/* 오늘 독서 기록 버튼 */}
-        <Animated.View className='flex-row justify-between mb-4' style={{ opacity: todayLoggedOpacityAnim }}>
+        <Animated.View className='h-16 flex-row justify-between mb-4' style={{ opacity: todayLoggedOpacityAnim }}>
         <TouchableOpacity
           onPress={handleReadToday}
           disabled={isUpdatingLog || isTodayLogged}
-          className="flex-1 bg-skyblue px-4 py-2 rounded-lg items-center justify-center"
-          style={{ opacity: (isUpdatingLog || isTodayLogged) ? 0.7 : 1, minHeight: 50 }}
+          className="h-full flex-1 bg-skyblue px-4 py-2 rounded-lg items-center justify-center"
+          style={{ opacity: (isUpdatingLog || isTodayLogged) ? 0.7 : 1 }}
         >
           {isUpdatingLog ? (
             <ActivityIndicator color={Colors.white} size="small" />
@@ -339,8 +389,7 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
         <View className='w-2'/>
         <TouchableOpacity
           onPress={openModal}
-          className="flex-row flex-1 border border-gray-300 p-4 rounded-lg items-center justify-center"
-          style={{minHeight: 50 }}
+          className="h-full flex-row flex-1 border border-gray-300 p-4 rounded-lg items-center justify-center"
         >
           <ClockPlusIcon style={{color:Colors.svggray, width: 20, height: 20}}/>
           <Text className="ml-2 text-base text-gray-600 font-p">독서 시간 추가하기</Text>

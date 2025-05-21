@@ -9,52 +9,10 @@ import HomeIcon from '../../../assets/svgs/Home.svg';
 import ProfileIcon from '../../../assets/svgs/Profile.svg';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Colors from '../../constants/Colors';
-const isIOS = Platform.OS === 'ios';
-
+import {TabNavOptions} from '../../constants/TabNavOptions';
 const Tab = createBottomTabNavigator();
 
-const TabNavOptions0 = {
-  headerShown: false,
-  tabBarStyle: {
-    borderTopColor: 'transparent',
-    // backgroundColor: '#36384E',
-    height: isIOS ? 100 : 78,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    padding: 10,
-    position: 'absolute',
-  },
-  tabBarItemStyle: {flex: 1},
-  tabBarIconStyle: {flex: 1},
-  tabBarLabelStyle: {
-    flex: 1,
-    fontSize: 11,
-    fontFamily: 'Pretendard-Regular',
-    lineHeight: 16.5,
-    letterSpacing: -0.275,
-  },
-  // tabBarActiveTintColor: '#fafafa',
-  // tabBarInactiveTintColor: '#585a6c',
-};
-export const TabNavOptions = {
-  headerShown: false,
-  tabBarStyle: {
-    borderTopColor: 'transparent',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    padding: 10,
-    position: 'absolute' as 'absolute',
-  },
-  tabBarLabelStyle: {
-    fontSize: 11,
-    // fontFamily: 'Pretendard-Regular',
-    letterSpacing: -0.275,
-    
-  },
-  tabBarActiveTintColor: Colors.black,
-  tabBarInactiveTintColor: '#bbbbbb',
 
-}
 // <Tab.Navigator screenOptions={TabNavOptions as BottomTabNavigationOptions}>
 const AppTab = () => {
   return (
@@ -73,7 +31,9 @@ const AppTab = () => {
             ) : (
               <HomeIcon style={{color: '#dddddd'}} />
             ),
-            tabBarStyle: routeName === 'Home' ? TabNavOptions.tabBarStyle : {display: 'none'},
+            tabBarStyle: routeName === 'Home'
+              ? { ...TabNavOptions.tabBarStyle, display: 'flex' }
+              : { display: 'none' },
           }
         }}
       />
@@ -90,7 +50,9 @@ const AppTab = () => {
             ) : (
               <ProfileIcon style={{color: '#dddddd'}} />
             ),
-            tabBarStyle: routeName === 'Profile' ? TabNavOptions.tabBarStyle : {display: 'none'},
+            tabBarStyle: routeName === 'Profile'
+              ? { ...TabNavOptions.tabBarStyle, display: 'flex' }
+              : { display: 'none' },
           }
         }}
       />

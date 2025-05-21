@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     View, Text, TextInput, ActivityIndicator, FlatList, 
     Alert, Image, TouchableOpacity, 
-    Animated
 } from 'react-native';
 import { searchBooks } from '../../../../libs/supabase/kakaoBookSearch';
 import { HomeStackParamList } from '../../../../nav/stack/Home';
@@ -21,14 +20,15 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
  
-  //이 화면에서 탭바 숨기기
+  //이 화면에서 탭바 숨기기 및 정리 작업
   useEffect(() => {
     navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' } });
     return () => {
-      hide();// 화면이 닫힐 때 스낵바 숨기기
+      hideSnackBar(); // 스낵바 숨기기
+      hide(); // 모달 숨기기
       navigation.getParent()?.setOptions({ tabBarStyle: { display: 'flex' } });
     };
-  }, []);
+  }, [navigation, hideSnackBar, hide]); // 의존성 배열 업데이트
 
   // 검색하면 스낵바 띄우기
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
       />
 
       {/* 검색 결과 표시 영역 */}
-      <View className="flex-1 bg-white rounded-lg border border-gray-200 px-4 pt-4">
+      <View className="flex-1 rounded-lg px-4 pt-4">
         {isSearching ? (
           <ActivityIndicator size="large" className="mt-5" />
         ) : searchError ? (
@@ -92,9 +92,10 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
           <FlatList
             data={searchResults}
             keyExtractor={(item, index) => `${item.isbn || item.title}-${index}`}
+            contentContainerStyle={{ paddingBottom: 100 }}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => show('addReview',null,item)}>
-                <View className="flex-row mb-4 pb-4 border-b border-gray-100 items-center">
+                <View className="bg-white flex-row mb-4 p-4 border-b border-gray-200 items-center">
                   {item.thumbnail ? (
                     <Image source={{ uri: item.thumbnail }} className="w-12 h-16 mr-4" resizeMode="contain" />
                   ) : (
