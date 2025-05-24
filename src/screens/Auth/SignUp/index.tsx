@@ -13,7 +13,7 @@ type SignUpScreenProps = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [name, setName] = React.useState('');
+  const [nickname, setNickname] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [isLogoVisible, setIsLogoVisible] = React.useState(true); // 로고 표시 상태
@@ -47,7 +47,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
       Alert.alert('오류', '비밀번호는 6자 이상이어야 합니다.');
       return;
     }
-    if (name.length > 10) {
+    if (nickname.length > 10) {
         Alert.alert('오류', '닉네임은 10자 이하이어야 합니다.');
         return;
     }
@@ -58,7 +58,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
       password: password,
       options: {
         data: { 
-          name: name,
+          nickname: nickname,
         }
       }
     });
@@ -99,8 +99,8 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
          <Divider text="회원가입"/>
       <TextInput
         placeholder="닉네임 입력 (10자 이하)"
-        value={name}
-        onChangeText={setName}
+        value={nickname}
+        onChangeText={setNickname}
         autoCapitalize="words"
         maxLength={10}
       />

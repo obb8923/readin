@@ -7,7 +7,6 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { Book, getCurrentUserId, ReviewWithBook, saveReadingRecord } from '../libs/supabase/supabaseOperations';
 import { updateReview, deleteReview } from '../libs/supabase/supabaseOperations';
 import useReviewStore from '../store/reviewStore';
-import { HomeStackParamList } from '../nav/stack/Home';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Asset, launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
@@ -15,7 +14,7 @@ import { supabase } from '../libs/supabase/supabase';
 import ReactNativeFS from 'react-native-fs';
 import { decode as decodeBase64 } from 'base64-arraybuffer';
 import Colors from '../constants/Colors';
-
+import { BookcaseStackParamList } from '../nav/stack/Bookcase';
 // --- 모달 내 이미지 표시를 위한 헬퍼 컴포넌트 ---
 interface ModalImageDisplayProps {
   imageUrlOrPath: string | null | undefined;
@@ -127,7 +126,7 @@ const isValidIsbn13 = (isbn: string): boolean => {
 };
 
 const Modal = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<BookcaseStackParamList>>();
   const { isVisible, modalType, reviewWithBook, book, hide } = useModalStore();
   const { fetchReviews } = useReviewStore();
 
@@ -419,7 +418,7 @@ const Modal = () => {
       hide(); 
       navigation.reset({ 
         index: 0,
-        routes: [{ name: 'Home' }],
+        routes: [{ name: 'Bookcase' }],
       });
     } catch (error: any) {
       console.error('handleSave 함수 오류:', error);

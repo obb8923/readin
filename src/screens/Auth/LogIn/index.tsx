@@ -30,6 +30,7 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
     try {
       GoogleSignin.configure({
         webClientId: '913491434166-rptdhu0dsl1e422345ps8agflt8aovl9.apps.googleusercontent.com',
+        iosClientId:'913491434166-943bpnms579toeb0n9onsq302oni0h7k.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
       });
     } catch (error) {

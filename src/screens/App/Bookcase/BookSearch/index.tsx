@@ -4,15 +4,15 @@ import {
     Alert, Image, TouchableOpacity, 
 } from 'react-native';
 import { searchBooks } from '../../../../libs/supabase/kakaoBookSearch';
-import { HomeStackParamList } from '../../../../nav/stack/Home';
+import { BookcaseStackParamList } from '../../../../nav/stack/Bookcase';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Background from '../../../../components/Background';
 import useSnackBar from '../../../../libs/hooks/useSnackBar';
 import { useModalStore } from '../../../../store/modalStore';
 import { Book } from '../../../../libs/supabase/supabaseOperations';
 
-type BookSearchScreenProps = NativeStackScreenProps<HomeStackParamList, 'BookSearch'>;
-export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
+type BookSearchScreenProps = NativeStackScreenProps<BookcaseStackParamList, 'BookSearch'>;
+const BookSearchScreen=({navigation}: BookSearchScreenProps) => {
   const { show: showSnackBar, hide: hideSnackBar } = useSnackBar();
   const { show, hide, isVisible: isModalVisible } = useModalStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -120,3 +120,5 @@ export default function BookSearchScreen({navigation}: BookSearchScreenProps) {
     </Background>
   );
 } 
+
+export default BookSearchScreen;

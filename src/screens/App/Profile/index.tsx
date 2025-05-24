@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, Alert, TouchableOpacity, Dimensions, Animated,Image } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, TouchableOpacity, Dimensions, Animated,Modal, TextInput } from 'react-native';
 import { useAuthStore } from '../../../store/authStore';
 import { supabase } from '../../../libs/supabase/supabase';
-import { requestAccountDeletion, upsertTodaysReadingLog, getReadingLogsForContributionGraph, ReadingLogDataForGraph, upsertReadingDurationLog } from '../../../libs/supabase/supabaseOperations';
+import { requestAccountDeletion, upsertTodaysReadingLog, getReadingLogsForContributionGraph, ReadingLogDataForGraph, upsertReadingDurationLog, getUserNickname, checkNicknameUpdateAvailability, updateUserNickname } from '../../../libs/supabase/supabaseOperations';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../../../nav/stack/Profile';
 import ChevronRight from '../../../../assets/svgs/ChevronRight.svg';
@@ -18,6 +18,7 @@ import Timer from '../../../components/Timer';
 import LinearGradient from 'react-native-linear-gradient';
 import PlayIcon from '../../../../assets/svgs/Play.svg';
 import PauseIcon from '../../../../assets/svgs/Pause.svg';
+import PencilIcon from '../../../../assets/svgs/Pencil.svg';
 const screenWidth = Dimensions.get('window').width;
 type ProfileProps = NativeStackScreenProps<ProfileStackParamList,'Profile'>;
 type RootStackProps = NativeStackScreenProps<RootStackParamList>;
@@ -41,11 +42,18 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   const buttonsTranslateYAnim = React.useRef(new Animated.Value(200)).current;
   const graphOpacityAnim = React.useRef(new Animated.Value(0)).current;
   const todayLoggedOpacityAnim = React.useRef(new Animated.Value(0)).current;
-
+  const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
+  const [newNickname, setNewNickname] = useState('');
+  // 닉네임 가져오기
   useEffect(() => {
-    if (user && user.user_metadata && user.user_metadata.name) setUserName(user.user_metadata.name);
+    const fetchNickname = async () => {
+      const nickname = await getUserNickname();
+      if (nickname) setUserName(nickname);
+    };
+    fetchNickname();
   }, [user]);
 
+  // 타이머 모달 애니메이션
   useEffect(() => {
     if (isModalVisible) {
       Animated.parallel([
@@ -118,7 +126,7 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
   }, [contributionData]);
 
   useEffect(() => {
-    if (!isLoadingContributionData && contributionData && contributionData.length > 0) {
+    if (!isLoadingContributionData) {
       Animated.timing(graphOpacityAnim, {
         toValue: 1,
         duration: 500,
@@ -248,6 +256,40 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
     }
   };
 
+  const handleModifyNickname = async () => {
+    const { canUpdate, message } = await checkNicknameUpdateAvailability();
+    
+    if (!canUpdate) {
+      Alert.alert('알림', message || '닉네임은 한 달에 한 번만 변경할 수 있습니다.');
+      return;
+    }
+    
+    setNicknameModalVisible(true);
+  };
+
+  const handleSaveNickname = async () => {
+    if (!newNickname.trim()) {
+      Alert.alert('알림', '닉네임을 입력해주세요.');
+      return;
+    }
+    
+    try {
+      const { success, error } = await updateUserNickname(newNickname.trim());
+      
+      if (success) {
+        setUserName(newNickname.trim());
+        setNicknameModalVisible(false);
+        setNewNickname('');
+        Alert.alert('성공', '닉네임이 변경되었습니다.');
+      } else {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('닉네임 변경 오류:', error);
+      Alert.alert('오류', error?.message || '닉네임 변경 중 오류가 발생했습니다.');
+    }
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -312,13 +354,23 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
     closeModal();
   };
 
+ 
   
+  
+
   return (
     <Background>
       <View className='flex-1 p-6'>
       {/* 프로필 정보 */}
         <View className='border-b border-gray-200 p-2 '>
-          <Text className="text-3xl font-bold text-gray-800 mb-1 font-p">{userName || '이름 없음'}</Text>
+          {/* 이름 */}
+          <View className='w-full flex-row items-center gap-2'>
+          <Text numberOfLines={1} className="text-3xl font-bold text-gray-800 mb-1 font-p">{userName || '이름 없음'}</Text>
+          <TouchableOpacity onPress={handleModifyNickname}>
+            <PencilIcon style={{color:Colors.svggray2, width: 16, height: 16}}/>
+          </TouchableOpacity>
+          </View>
+          {/* 이메일 */}
           <Text className="text-base text-gray-500 mb-4 font-p">{user?.email}</Text>
         </View>
         {/* 일일 독서 로그 그래프 */}
@@ -351,9 +403,8 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
             }}
             chartConfig={contributionGraphConfig}
           />
-           { currentStreak > 0 && (
             <View className='w-full px-4 flex-row items-center justify-between mb-4'>
-              <Text className="font-p">{currentStreak}일 연속 독서 중!</Text>
+              <Text className="font-p">{currentStreak > 0 ? `${currentStreak}일 연속 독서 중!` : '아래 버튼을 눌러보세요!'}</Text>
               <View className='flex-row items-center gap-2'>
                 <Text className="font-p text-sm">조금 읽음</Text>
                 <LinearGradient
@@ -365,7 +416,6 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
                 <Text className="font-p text-sm">오래 읽음</Text>
               </View>
             </View>
-          )}
         </Animated.View>
         {/* 오늘 독서 기록 버튼 */}
         <Animated.View className='h-16 flex-row justify-between mb-4' style={{ opacity: todayLoggedOpacityAnim }}>
@@ -444,7 +494,43 @@ const ProfileScreen=({navigation}: ProfileScreenProps) =>{
           <Text className="text-base text-skyblue font-p">저장</Text>
         </TouchableOpacity>
       </Animated.View>
-      
+      {/* 닉네임 변경 모달 */}
+      <Modal
+        visible={nicknameModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setNicknameModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="w-[80%] bg-white rounded-2xl p-6">
+            <Text className="text-xl font-bold mb-4 text-center font-p">닉네임 변경</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-3 mb-4 font-p"
+              placeholder="새로운 닉네임을 입력하세요"
+              value={newNickname}
+              onChangeText={setNewNickname}
+              maxLength={20}
+            />
+            <View className="flex-row justify-end gap-2">
+              <TouchableOpacity
+                onPress={() => {
+                  setNicknameModalVisible(false);
+                  setNewNickname('');
+                }}
+                className="px-4 py-2 rounded-lg border border-gray-300"
+              >
+                <Text className="text-gray-600 font-p">취소</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSaveNickname}
+                className="px-4 py-2 rounded-lg bg-skyblue"
+              >
+                <Text className="text-white font-p">저장</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Background>
   );
 }

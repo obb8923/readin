@@ -10,6 +10,8 @@ import ProfileIcon from '../../../assets/svgs/Profile.svg';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Colors from '../../constants/Colors';
 import {TabNavOptions} from '../../constants/TabNavOptions';
+import BookcaseStack from '../stack/Bookcase';
+import BookIcon from '../../../assets/svgs/Book.svg';
 const Tab = createBottomTabNavigator();
 
 
@@ -18,8 +20,8 @@ const AppTab = () => {
   return (
      
 <Tab.Navigator screenOptions={TabNavOptions as BottomTabNavigationOptions}>
-<Tab.Screen
-        name="HomeStack"
+  <Tab.Screen
+    name="HomeStack"
         component={HomeStack}
         options={({route}) => {
           const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
@@ -35,10 +37,29 @@ const AppTab = () => {
               ? { ...TabNavOptions.tabBarStyle, display: 'flex' }
               : { display: 'none' },
           }
+    }}
+  />
+  <Tab.Screen
+    name="BookcaseStack"
+        component={BookcaseStack}
+        options={({route}) => {
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Book';
+          return {
+            tabBarLabel: '책장',
+            tabBarIcon: ({focused}) =>
+              focused ? (
+                <BookIcon style={{color: Colors.black}} />
+              ) : (
+                <BookIcon style={{color: '#dddddd'}} />
+              ),
+            tabBarStyle: routeName === 'Book'
+              ? { ...TabNavOptions.tabBarStyle, display: 'flex' }
+              : { display: 'none' },
+          }
         }}
-      />
-      <Tab.Screen
-        name="ProfileStack"
+  />
+  <Tab.Screen
+    name="ProfileStack"
         component={ProfileStack}
         options={({route}) => {
           const routeName = getFocusedRouteNameFromRoute(route) ?? 'Profile';
@@ -54,8 +75,8 @@ const AppTab = () => {
               ? { ...TabNavOptions.tabBarStyle, display: 'flex' }
               : { display: 'none' },
           }
-        }}
-      />
+    }}
+  />
    </Tab.Navigator>
   );
 };

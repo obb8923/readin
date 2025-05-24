@@ -441,3 +441,300 @@ export const requestAccountDeletion = async (): Promise<{ success: boolean, erro
     return { success: false, error: new Error(errorMessage) };
   }
 };
+
+// ArticleScreen에서 사용할 Post 상세 정보 타입
+export interface PostDetail {
+  id: string; 
+  created_at: string;
+  content: string | null;
+  updated_at: string | null;
+  views: number | null;
+  likes_count: number | null; // 실제 컬럼명 likes_count를 사용
+  user_id: string;
+  isbn: string | null;
+  isLiked: boolean; 
+  books: { 
+    title: string | null;
+    image_url: string | null;
+    author: string | null; 
+  } | null;
+  users: { 
+    nickname: string | null;
+  } | null;
+}
+
+interface UserLikeRecordForDetail { // HomeScreen의 UserLikeRecord와 동일하게 사용 가능
+  user_id: string;
+}
+
+export const fetchPostDetailsById = async (postId: string): Promise<{ data: PostDetail | null, error?: any }> => {
+  if (!postId) {
+    return { data: null, error: new Error('게시글 ID가 필요합니다.') };
+  }
+
+  try {
+    // 먼저 현재 게시글의 조회수와 좋아요 수를 가져옴 (업데이트 전 값)
+    const { data: initialPostState, error: fetchInitialError } = await supabase
+      .from('posts')
+      .select('views, likes_count')
+      .eq('id', postId)
+      .single();
+
+    if (fetchInitialError) {
+      console.error('게시글 초기 상태(조회수/좋아요) 가져오기 오류:', fetchInitialError);
+      // 오류가 발생해도 계속 진행하되, 이 값들은 null일 수 있음을 인지
+    }
+
+    const currentViews = initialPostState?.views || 0;
+    const newViews = currentViews + 1;
+
+    // 조회수 업데이트
+    const { error: updateViewsError } = await supabase
+      .from('posts')
+      .update({ views: newViews })
+      .eq('id', postId);
+
+    if (updateViewsError) {
+      console.error('게시글 조회수 업데이트 오류:', updateViewsError);
+      // 조회수 업데이트 실패는 치명적이지 않을 수 있으므로 로깅 후 계속 진행
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const currentUserId = user?.id;
+
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        id,
+        created_at,
+        content,
+        updated_at,
+        views, 
+        likes_count, 
+        user_id,
+        isbn,
+        books (title, image_url, author),
+        users (nickname),
+        user_like_records:likes!left (
+          user_id
+        )
+      `)
+      .eq('id', postId)
+      .single();
+
+    if (error) {
+      // 이 에러는 심각하므로 바로 반환
+      console.error(`ID가 ${postId}인 게시글 조회 오류 (Supabase):`, JSON.stringify(error, null, 2));
+      return { data: null, error };
+    }
+
+    if (!data) {
+      return { data: null, error: new Error('게시글을 찾을 수 없습니다.') };
+    }
+
+    interface FetchedPostDetails {
+        id: string; created_at: string; content: string | null; updated_at: string | null;
+        views: number | null; likes_count: number | null; user_id: string; isbn: string | null;
+        books: { title: string | null; image_url: string | null; author: string | null; } | null;
+        users: { nickname: string | null; } | null;
+        user_like_records: UserLikeRecordForDetail[] | null;
+    }
+
+    // 타입 단언 수정: unknown을 거쳐서 타입 변환
+    const fetchedData = data as unknown as FetchedPostDetails;
+
+    // 매핑 로직 수정: .length 와 [0] 접근 제거
+    const book = fetchedData.books ? fetchedData.books : null;
+    const authorUser = fetchedData.users ? fetchedData.users : null;
+    const isLiked = !!(currentUserId && fetchedData.user_like_records && fetchedData.user_like_records.some(like => like.user_id === currentUserId));
+
+    const mappedPost: PostDetail = {
+      id: fetchedData.id,
+      created_at: fetchedData.created_at,
+      content: fetchedData.content,
+      updated_at: fetchedData.updated_at,
+      views: newViews, // 업데이트 시도한 조회수 (또는 fetchedData.views)
+      likes_count: fetchedData.likes_count, // 서버에서 직접 가져온 최신 좋아요 수
+      user_id: fetchedData.user_id,
+      isbn: fetchedData.isbn,
+      books: book,
+      users: authorUser,
+      isLiked: isLiked,
+    };
+
+    return { data: mappedPost, error: null };
+
+  } catch (err: any) {
+    console.error(`fetchPostDetailsById (${postId}) 함수 내부에서 예외 발생:`, JSON.stringify(err, null, 2));
+    return { data: null, error: err };
+  }
+};
+
+/**
+ * 게시물에 좋아요를 추가합니다.
+ * @param postId 좋아요를 추가할 게시물의 ID
+ * @param userId 좋아요를 누른 사용자의 ID
+ * @returns {Promise<{ success: boolean, error?: any }>} 작업 성공 여부 및 에러 객체
+ */
+export const addLike = async (postId: string, userId: string): Promise<{ success: boolean, error?: any }> => {
+  if (!postId || !userId) {
+    return { success: false, error: new Error('게시물 ID와 사용자 ID가 모두 필요합니다.') };
+  }
+  try {
+    const { error } = await supabase
+      .from('likes')
+      .insert([{ post_id: postId, user_id: userId }]);
+    if (error) {
+      // 좋아요 중복 시 발생하는 유니크 제약 조건 위반 (코드: '23505')은 에러로 간주하지 않을 수 있음
+      // 여기서는 모든 DB 에러를 실패로 처리
+      console.error('좋아요 추가 오류:', error);
+      return { success: false, error };
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('addLike 함수 처리 중 예외 발생:', err);
+    return { success: false, error: err };
+  }
+};
+
+/**
+ * 게시물에서 좋아요를 제거합니다.
+ * @param postId 좋아요를 제거할 게시물의 ID
+ * @param userId 좋아요를 취소하는 사용자의 ID
+ * @returns {Promise<{ success: boolean, error?: any }>} 작업 성공 여부 및 에러 객체
+ */
+export const removeLike = async (postId: string, userId: string): Promise<{ success: boolean, error?: any }> => {
+  if (!postId || !userId) {
+    return { success: false, error: new Error('게시물 ID와 사용자 ID가 모두 필요합니다.') };
+  }
+  try {
+    const { error } = await supabase
+      .from('likes')
+      .delete()
+      .eq('post_id', postId)
+      .eq('user_id', userId);
+    if (error) {
+      console.error('좋아요 제거 오류:', error);
+      return { success: false, error };
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('removeLike 함수 처리 중 예외 발생:', err);
+    return { success: false, error: err };
+  }
+};
+
+/**
+ * 현재 로그인된 사용자의 닉네임을 가져옵니다.
+ * @returns {Promise<string | null>} 사용자의 닉네임 또는 null (로그인되지 않았거나 오류 발생 시)
+ */
+export const getUserNickname = async (): Promise<string | null> => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error('Error fetching user or user not logged in:', userError);
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('nickname')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user nickname:', error);
+      return null;
+    }
+
+    return data?.nickname || null;
+  } catch (err) {
+    console.error('getUserNickname function error:', err);
+    return null;
+  }
+};
+
+/**
+ * 사용자의 닉네임 변경 가능 여부를 확인합니다.
+ * @returns {Promise<{ canUpdate: boolean, message?: string }>} 변경 가능 여부와 메시지
+ */
+export const checkNicknameUpdateAvailability = async (): Promise<{ canUpdate: boolean, message?: string }> => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return { canUpdate: false, message: '사용자 인증에 실패했습니다.' };
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('last_profile_update_at')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error checking nickname update availability:', error);
+      return { canUpdate: false, message: '닉네임 변경 가능 여부를 확인하는 중 오류가 발생했습니다.' };
+    }
+
+    // last_profile_update_at이 null이면 변경 가능
+    if (!data.last_profile_update_at) {
+      return { canUpdate: true };
+    }
+
+    // 마지막 업데이트로부터 한 달이 지났는지 확인
+    const lastUpdate = new Date(data.last_profile_update_at);
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    if (lastUpdate < oneMonthAgo) {
+      return { canUpdate: true };
+    }
+
+    // 다음 변경 가능 날짜 계산
+    const nextUpdateDate = new Date(lastUpdate);
+    nextUpdateDate.setMonth(nextUpdateDate.getMonth() + 1);
+    
+    return { 
+      canUpdate: false, 
+      message: `다음 닉네임 변경은 ${nextUpdateDate.toLocaleDateString()}부터 가능합니다.` 
+    };
+  } catch (err) {
+    console.error('checkNicknameUpdateAvailability function error:', err);
+    return { canUpdate: false, message: '닉네임 변경 가능 여부를 확인하는 중 오류가 발생했습니다.' };
+  }
+};
+
+/**
+ * 사용자의 닉네임을 업데이트합니다.
+ * @param newNickname 새로운 닉네임
+ * @returns {Promise<{ success: boolean, error?: any }>} 업데이트 성공 여부와 에러 객체
+ */
+export const updateUserNickname = async (newNickname: string): Promise<{ success: boolean, error?: any }> => {
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return { success: false, error: new Error('사용자 인증에 실패했습니다.') };
+    }
+
+    const { error } = await supabase
+      .from('users')
+      .update({ 
+        nickname: newNickname,
+        last_profile_update_at: new Date().toISOString()
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error updating nickname:', error);
+      return { success: false, error };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('updateUserNickname function error:', err);
+    return { success: false, error: err };
+  }
+};

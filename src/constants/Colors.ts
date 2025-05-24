@@ -9,6 +9,7 @@ const Colors = {
   svggray: '#6b7280',
   svggray2: '#9ca3af',
   bluegray: '#F1F2F4',
+  red: '#FF0000',
 }
 
 export default Colors;
