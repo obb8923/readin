@@ -10,7 +10,7 @@ const Background = ({children,...props}: BackgroundProps) => {
   return (
     <View 
     className={`flex-1 bg-background ${props.className}`} 
-    style={[props.style, {paddingTop: statusBarHeight}]}>
+    style={[props.style]}>
       {children}
     </View>
   )

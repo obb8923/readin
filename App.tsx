@@ -3,7 +3,7 @@ import RootStack from "./src/nav/stack/Root";
 import "./global.css"
 import { useEffect } from 'react';
 import { useAuthStore } from './src/store/authStore';
-import { SafeAreaView} from 'react-native';
+import { SafeAreaView} from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'react-native';
 import Colors from './src/constants/Colors';
