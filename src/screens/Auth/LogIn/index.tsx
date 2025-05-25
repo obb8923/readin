@@ -48,6 +48,15 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
     if (error) {
       Alert.alert('로그인 오류', error.message);
     } else {
+      // user_metadata에 readin: true 추가
+      const { error: updateUserError } = await supabase.auth.updateUser({
+        data: { readin: true }
+      });
+
+      if (updateUserError) {
+        console.error('사용자 메타데이터 업데이트 오류:', updateUserError);
+      }
+      
       navigation.navigate("AppTab");
     }
     setLoading(false);
@@ -72,6 +81,15 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
         if (error) {
           Alert.alert('Google 로그인 오류', error.message);
         } else if (data.session) {
+          // user_metadata에 readin: true 추가
+          const { error: updateUserError } = await supabase.auth.updateUser({
+            data: { readin: true }
+          });
+
+          if (updateUserError) {
+            console.error('사용자 메타데이터 업데이트 오류:', updateUserError);
+          }
+
           navigation.navigate('AppTab');
         }
       } else {
