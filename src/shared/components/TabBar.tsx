@@ -1,15 +1,13 @@
 import React, { useEffect } from 'react';
 import { View, TouchableOpacity, Alert } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import { useActiveTab, TabName, useSetActiveTab } from '@store/tabStore';
-import { useDiary } from '@libs/hooks/useDiary';
 import { Colors } from '@constants/Colors';
 
 // SVG 아이콘 import
-import PencilIcon from '@assets/svgs/Pencil.svg';
+import HomeIcon from '@assets/svgs/Home.svg';
 import CalendarIcon from '@assets/svgs/Calendar.svg';
 import DotsIcon from '@assets/svgs/Dots.svg';
-
+import { TAB_NAME } from '@constants/tab';
 // 탭 정보 타입
 interface TabInfo {
   name: TabName;
@@ -18,44 +16,23 @@ interface TabInfo {
 
 // 탭 정보 배열
 const tabs: TabInfo[] = [
-  { name: 'Diary', icon: PencilIcon },
-  { name: 'Calendar', icon: CalendarIcon },
-  { name: 'Etc', icon: DotsIcon },
+  { name: TAB_NAME.HOME, icon: HomeIcon },
+  { name: TAB_NAME.BOOKS, icon: CalendarIcon },
+  { name: TAB_NAME.PROFILE, icon: DotsIcon },
 ];
 
 export const TabBar = () => {
   const activeTab = useActiveTab();
   const setActiveTab = useSetActiveTab();
-  const { error: diaryError } = useDiary();
 
   const handleTabPress = (tabName: TabName) => {
     setActiveTab(tabName);
   };
   
-  // 에러가 있으면 Alert로 표시
-  useEffect(() => {
-    if (diaryError) {
-      Alert.alert(
-        '오류가 발생했어요', 
-        diaryError,
-        [
-          { text: '확인', onPress: () => {} }
-        ]
-      );
-    }
-  }, [diaryError]);
+
 
   return (
-    <LinearGradient
-      colors={[
-        'rgba(0, 0, 0, 0)',       // 완전 투명
-        'rgba(0, 0, 0, 0.05)',     // 약간 투명
-        'rgba(0, 0, 0, 0.15)',     // 중간 투명도
-        'rgba(0, 0, 0, 0.25)'      // 진한 투명도
-      ]}
-      locations={[0, 0.2, 0.7, 1]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
+   <View
       style={{
         position: 'absolute',
         left: 0,
@@ -91,6 +68,6 @@ export const TabBar = () => {
           })}
         </View>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
