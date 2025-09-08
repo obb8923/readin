@@ -1,11 +1,14 @@
 import { View } from 'react-native';
 import { Background } from '@/shared/component/Background';
 import { Text } from '@/shared/component/Text';
+import { SearchBar } from '@/shared/component/SearchBar';
 export const HomeScreen = () => {
   return (
     <Background>
       {/* 검색 바 */}
-      <View></View>
+      <View>
+        <SearchBar placeholder="검색어를 입력하세요" />
+      </View>
       <Text text="Title1" type="title1"/>
       <Text text="Title2" type="title2"/>
       <Text text="Title3" type="title3"/>

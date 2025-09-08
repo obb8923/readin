@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, ViewStyle } from 'react-native';
 import { Text } from './Text';
-
+import SearchIcon from '@assets/svgs/Search.svg';
+import { Colors } from '../constant/Colors';
 export type SearchBarProps = {
   placeholder?: string;
   value?: string;
@@ -52,9 +53,7 @@ export const SearchBar = ({
       style={style}
     >
       {/* 검색 아이콘 */}
-      <View className="mr-3">
-        <Text text="🔍" type="body2" />
-      </View>
+      <SearchIcon width={20} height={20} color={Colors.primary} />
       
       {/* 검색 입력 필드 */}
       <TextInput
