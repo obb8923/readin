@@ -1,9 +1,10 @@
-import { View, Text } from "react-native";
 
+import { Background } from "@/shared/components/Background";
+import { Text } from "@/shared/components/Text";
 export const ProfileScreen = () => {
   return (
-    <View>
-      <Text>Profile</Text>
-    </View>
+    <Background>
+      <Text text="Profile" type="title1"/>
+    </Background>
   );
 };

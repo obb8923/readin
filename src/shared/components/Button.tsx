@@ -1,11 +1,11 @@
 import React from 'react';
 import { TouchableOpacity, ViewStyle } from 'react-native';
-import { Text } from './Text';
+import { Text, TypographyType } from './Text';
 
 export type ButtonProps = {
   text: string;
   onPress: () => void;
-  textType?: 'regular' | 'semibold' | 'extrabold' | 'black';
+  textType?: TypographyType;
   disabled?: boolean;
   className?: string;
   textClassName?: string;
@@ -15,7 +15,7 @@ export type ButtonProps = {
 export const Button = ({
   text,
   onPress,
-  textType = 'semibold',
+  textType = 'body2',
   disabled = false,
   className = '',
   textClassName = '',
@@ -32,7 +32,7 @@ export const Button = ({
       <Text 
         text={text} 
         type={textType} 
-        className={`text-center font-bold ${textClassName}`}
+        className={`text-center ${textClassName}`}
       />
     </TouchableOpacity>
   );

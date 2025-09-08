@@ -8,7 +8,7 @@ type BackgroundProps = {
   isStatusBarGap?: boolean;
   isTabBarGap?: boolean;
 }
-export const Background = ({children,isStatusBarGap=false,isTabBarGap=false,...props}: BackgroundProps) => {
+export const Background = ({children,isStatusBarGap=true,isTabBarGap=true,...props}: BackgroundProps) => {
   const insets = useSafeAreaInsets();
  
   return (
