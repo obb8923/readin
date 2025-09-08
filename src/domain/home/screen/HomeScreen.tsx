@@ -6,7 +6,7 @@ export const HomeScreen = () => {
   return (
     <Background>
       {/* 검색 바 */}
-      <View>
+      <View className="w-full px-4 mt-2">
         <SearchBar placeholder="검색어를 입력하세요" />
       </View>
       <Text text="Title1" type="title1"/>
