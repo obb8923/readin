@@ -49,12 +49,13 @@ export const SearchBar = ({
 
   return (
     <View 
-      className={`flex-row items-center bg-gray-100 rounded-full px-4 py-3 ${className}`}
+      className={`flex-row items-center bg-background rounded-full px-4 py-3 border border-primary ${className}`}
       style={style}
     >
       {/* 검색 아이콘 */}
+      <View className="mr-2">
       <SearchIcon width={20} height={20} color={Colors.primary} />
-      
+      </View>
       {/* 검색 입력 필드 */}
       <TextInput
         value={currentValue}
