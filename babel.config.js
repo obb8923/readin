@@ -9,8 +9,8 @@ module.exports = {
           '@': './src', // @ 를 src 폴더로 매핑
           '@assets': './assets',
           '@domain': './src/domain',
-          '@components': './src/shared/components',
-          '@constants': './src/shared/constants',
+          '@component': './src/shared/component',
+          '@constant': './src/shared/constant',
           '@libs': './src/shared/libs',
           '@store': './src/shared/store',
           '@nav': './src/shared/nav',
