@@ -1,5 +1,30 @@
-{
+{ 
+  "compilerOptions": {
+  "baseUrl": ".",               // 기준 경로 (프로젝트 루트)
+  "paths": {
+    "@/*": ["src/*"],           // '@'는 src 폴더 전체를 가리킴
+    "@assets/*": ["assets/*"],
+    "@domain/*": ["src/domain/*"],
+    "@components/*": ["src/shared/components/*"],
+    "@constants/*": ["src/shared/constants/*"],
+    "@libs/*": ["src/shared/libs/*"],
+    "@store/*": ["src/shared/store/*"],
+    "@services/*": ["src/shared/services/*"],
+    "@types/*": ["src/shared/types/*"],
+    "@diary/*": ["src/domain/diary/*"],
+    "@calendar/*": ["src/domain/calendar/*"],
+    "@etc/*": ["src/domain/etc/*"],
+    "@nav/*": ["src/shared/nav/*"],
+  }
+},
   "extends": "@react-native/typescript-config",
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["**/node_modules", "**/Pods"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/Pods"
+  ]
 }
