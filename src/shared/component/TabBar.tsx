@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { View, TouchableOpacity, Alert } from 'react-native';
 import { useActiveTab, TabName, useSetActiveTab } from '@store/tabStore';
-import { Colors } from '@constants/Colors';
+import { Colors } from '@/shared/constant/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // SVG 아이콘 import
 import HomeIcon from '@assets/svgs/Home.svg';
 import BooksIcon from '@assets/svgs/Books.svg';
 import ProfileIcon from '@assets/svgs/Profile.svg';
-import { TAB_NAME, TAB_NAME_KOR } from '@constants/tab';
+import { TAB_NAME, TAB_NAME_KOR } from '@/shared/constant/tab';
 import { Text } from './Text';
 // 탭 정보 타입
 interface TabInfo {

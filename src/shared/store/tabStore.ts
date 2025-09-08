@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TAB_NAME } from '@constants/tab';
+import { TAB_NAME } from '@/shared/constant/tab';
 // 탭 이름 타입 정의
 export type TabName = typeof TAB_NAME[keyof typeof TAB_NAME];
 

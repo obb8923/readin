@@ -5,8 +5,8 @@
     "@/*": ["src/*"],           // '@'는 src 폴더 전체를 가리킴
     "@assets/*": ["assets/*"],
     "@domain/*": ["src/domain/*"],
-    "@components/*": ["src/shared/components/*"],
-    "@constants/*": ["src/shared/constants/*"],
+    "@components/*": ["src/shared/component/*"],
+    "@constants/*": ["src/shared/constant/*"],
     "@libs/*": ["src/shared/libs/*"],
     "@store/*": ["src/shared/store/*"],
     "@nav/*": ["src/shared/nav/*"],

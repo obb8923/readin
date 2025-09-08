@@ -3,7 +3,7 @@ import {BooksStack} from '@/shared/nav/stack/Books';
 import {HomeStack} from '@/shared/nav/stack/Home';
 import {ProfileStack} from '@/shared/nav/stack/Profile';
 import { useActiveTab } from '@store/tabStore';
-import { TAB_NAME } from '@constants/tab';
+import { TAB_NAME } from '@/shared/constant/tab';
 
 export const AppTab = () => {
   const activeTab = useActiveTab();

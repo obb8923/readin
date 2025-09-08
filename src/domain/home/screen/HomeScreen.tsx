@@ -1,6 +1,6 @@
 import { View } from 'react-native';
-import { Background } from '@/shared/components/Background';
-import { Text } from '@/shared/components/Text';
+import { Background } from '@/shared/component/Background';
+import { Text } from '@/shared/component/Text';
 export const HomeScreen = () => {
   return (
     <Background>
