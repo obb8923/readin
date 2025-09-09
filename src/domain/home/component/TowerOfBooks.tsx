@@ -6,15 +6,14 @@ import { defaultBooks } from '@/shared/constant/mock';
 import { DEVICE_WIDTH } from '@/shared/constant/normal';
 import { BookType } from '@/shared/type/bookType';
 import {Colors} from '@constant/Colors';
+
 interface TowerOfBooksProps {
   books?: BookType[];
 }
 
-
-
-export const TowerOfBooks: React.FC<TowerOfBooksProps> = ({ 
+export const TowerOfBooks = ({ 
   books = defaultBooks 
-}) => {
+}: TowerOfBooksProps) => {
 
   // 총 페이지수 계산
   const totalPages = books.reduce((sum, book) => sum + book.pages, 0);
@@ -30,13 +29,7 @@ export const TowerOfBooks: React.FC<TowerOfBooksProps> = ({
   
   return (
     <View className="flex-1">
-      {/* 총 높이 정보 표시 */}
-      <View className="mb-4 p-3 rounded-lg border border-gray-700">
-        <Text 
-          text={`총 ${books.length}권의 책 • ${totalPages}페이지 • 높이 ${totalHeight}cm`}
-          className="text-gray-300 text-xs mt-1"
-        />
-      </View>
+    
       
       <ScrollView 
         showsVerticalScrollIndicator={false}
@@ -50,6 +43,18 @@ export const TowerOfBooks: React.FC<TowerOfBooksProps> = ({
           borderBottomColor: Colors.primary,
         }}
       >
+          {/* 총 높이 정보 표시 */}
+      <View className="mb-4 p-3 rounded-lg">
+        <Text 
+          text={`${books.length}권의 책 \n ${totalPages} 페이지 \n 높이 ${totalHeight}cm`}
+          className="text-gray-300 text-xs mt-1 text-center"
+        />
+        <View className="flex-row">
+        <Text text="머그컵" type="body1" className="text-primary text-xs mt-1 text-center" />
+        <Text text=" 급 독서광" type="body1" className="text-gray-300 text-xs mt-1 text-center" />
+
+        </View>
+      </View>
           {books.map((book, index) => (
               <BookHorizontal
                 id={book.id}

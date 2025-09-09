@@ -6,15 +6,22 @@ import { Colors } from '@constant/Colors';
 import { TowerOfBooks } from '../component/TowerOfBooks';
 import { Text } from '@component/Text';
 import { useNavigation } from '@react-navigation/native';
+import { HomeStackParamList } from '@nav/stack/Home';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useHideTabBar } from '@/shared/store/tabStore';
 export const HomeScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const hideTabBar = useHideTabBar();
   return (
     <Background isTabBarGap={true}>
       {/* 검색 페이지 이동 버튼 */}
       <View className="w-full px-4 mt-2">
         <View 
         className="flex-row items-center justify-start h-14 bg-background rounded-full px-4 py-3 border border-primary overflow-hidden"
-        onTouchEnd={() => {}}
+        onTouchEnd={() => {
+          hideTabBar();
+          navigation.navigate('BookSearch');
+        }}
         >
           {/* 검색 아이콘 */}
           <View className="mr-2">
