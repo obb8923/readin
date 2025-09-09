@@ -10,4 +10,5 @@ const TAB_NAME_KOR = {
   PROFILE: '프로필',
 } as const;
 
-export { TAB_NAME, TAB_NAME_KOR };
+const TAB_BAR_HEIGHT = 60;
+export { TAB_NAME, TAB_NAME_KOR, TAB_BAR_HEIGHT };

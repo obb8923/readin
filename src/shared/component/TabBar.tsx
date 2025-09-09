@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeIcon from '@assets/svgs/Home.svg';
 import BooksIcon from '@assets/svgs/Books.svg';
 import ProfileIcon from '@assets/svgs/Profile.svg';
-import { TAB_NAME, TAB_NAME_KOR } from '@/shared/constant/tab';
+import { TAB_NAME, TAB_NAME_KOR ,TAB_BAR_HEIGHT} from '@/shared/constant/tab';
 import { Text } from './Text';
 // 탭 정보 타입
 interface TabInfo {
@@ -37,6 +37,7 @@ export const TabBar = () => {
    <View  className="bg-gray800 absolute bottom-0 left-0 right-0 w-full z-50"
    style={{
     paddingBottom: insets.bottom,
+    height: TAB_BAR_HEIGHT + insets.bottom,
    }}
    >
         <View className="flex-1 flex-row items-center justify-evenly py-2">
