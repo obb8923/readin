@@ -5,7 +5,7 @@ import { BookHorizontal } from '@/shared/component/BookHorizontal';
 import { defaultBooks } from '@/shared/constant/mock';
 import { DEVICE_WIDTH } from '@/shared/constant/normal';
 import { BookType } from '@/shared/type/bookType';
-
+import {Colors} from '@constant/Colors';
 interface TowerOfBooksProps {
   books?: BookType[];
 }
@@ -39,13 +39,15 @@ export const TowerOfBooks: React.FC<TowerOfBooksProps> = ({
       </View>
       
       <ScrollView 
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
         style={{ flex: 1 }}
         contentContainerStyle={{
           alignItems: 'center',
           justifyContent: 'flex-end',
           paddingBottom: 16,
           minHeight: '100%',
+          borderBottomWidth: 1,
+          borderBottomColor: Colors.primary,
         }}
       >
           {books.map((book, index) => (
