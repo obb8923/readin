@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { Text } from "@/shared/component/Text";
 import { BookData } from "@home/component/TowerOfBooks";
 import { Colors } from "@/shared/constant/Colors";
-export const Book = ({ title, thickness, height, color }: BookData) => {
+export const BookHorizontal = ({ title, thickness, height, color }: BookData) => {
   const bookHeight = height * 2;
   const bookThickness = thickness * 2;
   const bookColor = color || Colors.orange400;

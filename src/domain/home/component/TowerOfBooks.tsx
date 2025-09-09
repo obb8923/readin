@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { Text } from '@/shared/component/Text';
-import { Book } from '@home/component/Book';
-import { Colors } from '@/shared/constant/Colors';
+import { BookHorizontal } from '@/shared/component/BookHorizontal';
 import { defaultBooks } from '@/shared/constant/mock';
 export interface BookData {
   id: string;
@@ -48,7 +47,7 @@ export const TowerOfBooks: React.FC<TowerOfBooksProps> = ({
         }}
       >
           {books.map((book, index) => (
-              <Book
+              <BookHorizontal
                 id={book.id}
                 title={book.title}
                 thickness={book.thickness}

@@ -1,6 +1,3 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="2" y="2" width="9" height="9" rx="1" fill="currentColor"/>
-<rect x="11.5015" y="6.5" width="8.48432" height="8.48432" rx="1" transform="rotate(-45 11.5015 6.5)" fill="currentColor"/>
-<rect x="2" y="13" width="9" height="9" rx="1" fill="currentColor"/>
-<rect x="13" y="13" width="9" height="9" rx="1" fill="currentColor"/>
+<svg viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M18.4924 14.6927H4.46166C2.83029 14.6927 1.50781 16.0152 1.50781 17.6465M18.4924 14.6927V19.1235C18.4924 19.9391 17.8312 20.6004 17.0155 20.6004H4.46166C2.83029 20.6004 1.50781 19.2779 1.50781 17.6465M18.4924 14.6927V2.87731C18.4924 2.06163 17.8312 1.40039 17.0155 1.40039H6.30781M1.50781 17.6465V4.35424C1.50781 2.72287 2.83029 1.40039 4.46166 1.40039H6.30781M6.30781 14.6004V1.40039" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

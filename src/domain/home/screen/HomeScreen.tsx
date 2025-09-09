@@ -1,13 +1,9 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Background } from '@/shared/component/Background';
-import { Text } from '@/shared/component/Text';
 import { SearchBar } from '@/shared/component/SearchBar';
 import { TowerOfBooks } from '../component/TowerOfBooks';
-import { TAB_BAR_HEIGHT } from '@/shared/constant/tab';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export const HomeScreen = () => {
-  const insets = useSafeAreaInsets();
   return (
     <Background isTabBarGap={true}>
       {/* 검색 바 */}
