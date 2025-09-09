@@ -2,9 +2,9 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { Text } from '@component/Text';
 import { BookHorizontal } from '@/shared/component/BookHorizontal';
-import { BookData } from '@home/component/TowerOfBooks';
+import { BookType } from '@/shared/type/bookType';
 
-export const BookGrid = ({ books = [] }: { books: BookData[] }) => {
+export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
   return (
     <View className="flex-1">
       {/* 책장 정보 */}
@@ -34,9 +34,9 @@ export const BookGrid = ({ books = [] }: { books: BookData[] }) => {
                   <BookHorizontal
                     id={book.id}
                     title={book.title}
-                    thickness={book.thickness}
+                    pages={book.pages}
                     height={book.height}
-                    color={book.color}
+                    color={undefined}
                   />
                 </View>
               </View>

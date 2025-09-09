@@ -2,9 +2,9 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { Text } from '@component/Text';
 import { BookVertical } from '@/shared/component/BookVertical';
-import { BookData } from '@home/component/TowerOfBooks';
+import { BookType } from '@/shared/type/bookType';
 
-export const BookShelf = ({books = []}: {books: BookData[]}) => {
+export const BookShelf = ({books = []}: {books: BookType[]}) => {
   return (
     <View className="flex-1">
       {/* 책장 정보 */}
@@ -31,9 +31,9 @@ export const BookShelf = ({books = []}: {books: BookData[]}) => {
               key={book.id}
               id={book.id}
               title={book.title}
-              thickness={book.thickness}
+              pages={book.pages}
               height={book.height}
-              color={book.color}
+              color={undefined}
             />
           ))}
         </View>

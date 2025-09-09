@@ -3,16 +3,11 @@ import { View, ScrollView } from 'react-native';
 import { Text } from '@/shared/component/Text';
 import { BookHorizontal } from '@/shared/component/BookHorizontal';
 import { defaultBooks } from '@/shared/constant/mock';
-export interface BookData {
-  id: string;
-  title: string;
-  thickness: number;
-  height: number; // 페이지수 (총 높이 계산용)
-  color?: string;
-}
+import { DEVICE_WIDTH } from '@/shared/constant/normal';
+import { BookType } from '@/shared/type/bookType';
 
 interface TowerOfBooksProps {
-  books?: BookData[];
+  books?: BookType[];
 }
 
 
@@ -20,18 +15,25 @@ interface TowerOfBooksProps {
 export const TowerOfBooks: React.FC<TowerOfBooksProps> = ({ 
   books = defaultBooks 
 }) => {
+
   // 총 페이지수 계산
-  const totalPages = books.reduce((sum, book) => sum + book.height, 0);
+  const totalPages = books.reduce((sum, book) => sum + book.pages, 0);
   
-  // 총 높이 계산 (1페이지 = 2픽셀)
-  const totalHeight = totalPages * 2;
+  // 총 높이 계산 (실제 책 높이의 합)
+  const totalHeight = books.reduce((sum, book) => sum + book.height, 0);
+  
+  // 가장 높은 책의 높이 찾기
+  const maxHeight = Math.max(...books.map(book => book.height));
+  
+  // 가장 높은 책을 DEVICE_WIDTH/2로 설정하는 비례 상수 계산
+  const scaleFactor = (DEVICE_WIDTH * 7 / 12) / maxHeight;
   
   return (
     <View className="flex-1">
       {/* 총 높이 정보 표시 */}
       <View className="mb-4 p-3 rounded-lg border border-gray-700">
         <Text 
-          text={`총 ${books.length}권의 책 • ${totalPages}페이지 • 높이 ${totalHeight}mm`}
+          text={`총 ${books.length}권의 책 • ${totalPages}페이지 • 높이 ${totalHeight}cm`}
           className="text-gray-300 text-xs mt-1"
         />
       </View>
@@ -50,9 +52,10 @@ export const TowerOfBooks: React.FC<TowerOfBooksProps> = ({
               <BookHorizontal
                 id={book.id}
                 title={book.title}
-                thickness={book.thickness}
+                pages={book.pages}
                 height={book.height}
-                color={book.color}
+                color={undefined}
+                scale={scaleFactor}
                 key={book.id}
               />
           ))}
