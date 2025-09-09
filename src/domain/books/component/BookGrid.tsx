@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { Text } from '@component/Text';
-import { BookHorizontal } from '@/shared/component/BookHorizontal';
 import { BookType } from '@/shared/type/bookType';
 
 export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
@@ -29,16 +28,7 @@ export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
             <View key={book.id} className="w-[31%] mb-6">
               {/* 책 표지 이미지 영역 (3:4 비율) */}
               <View className="w-full aspect-[3/4] bg-gray-700 rounded-lg mb-2 overflow-hidden">
-                {/* 임시로 BookHorizontal 컴포넌트 사용, 나중에 이미지로 교체 */}
-                <View className="flex-1 justify-center items-center">
-                  <BookHorizontal
-                    id={book.id}
-                    title={book.title}
-                    pages={book.pages}
-                    height={book.height}
-                    color={undefined}
-                  />
-                </View>
+              
               </View>
               
               {/* 책 제목 */}
