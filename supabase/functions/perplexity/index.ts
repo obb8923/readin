@@ -37,7 +37,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const body = await req.json().catch(() => undefined) as Record<string, unknown> | undefined
     const messages = (body as any)?.messages
-    const model = (body as any)?.model ?? 'llama-3.1-sonar-small-128k-chat'
+    const model = (body as any)?.model ?? 'sonar'
     const stream = Boolean((body as any)?.stream ?? false)
     const temperature = (body as any)?.temperature ?? 0.2
     const top_p = (body as any)?.top_p ?? 0.9

@@ -7,7 +7,7 @@ import { HomeStackParamList } from "@nav/stack/Home";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SearchBar } from "@/shared/component/SearchBar";
 import { useState } from "react";
-import { searchBooks, cleanSearchQuery } from "@/shared/libs/supabase/bookSearch";
+import { searchBooks } from "@/shared/libs/supabase/bookSearch";
 import { BookType } from "@/shared/type/bookType";
 import {Colors} from "@constant/Colors";
 import { useShowTabBar } from '@/shared/store/tabStore';
@@ -27,8 +27,7 @@ export const BookSearchScreen = () => {
 
     setIsLoading(true);
     try {
-      const cleanedQuery = cleanSearchQuery(query);
-      const results = await searchBooks(cleanedQuery);
+      const results = await searchBooks(query);
       setSearchResults(results);
       console.log("results: ",results);
     } catch (error) {
