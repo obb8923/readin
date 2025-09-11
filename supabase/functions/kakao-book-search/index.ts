@@ -20,21 +20,23 @@ interface KakaoBookSearchRequest {
   sort?: 'accuracy' | 'latest' | 'sale'
 }
 
-interface KakaoBookSearchResponse {
-  documents: Array<{
-    title: string
-    contents: string
-    url: string
-    isbn: string
-    datetime: string
-    authors: string[]
-    publisher: string
-    translators: string[]
-    price: number
-    sale_price: number
-    thumbnail: string
-    status: string
-  }>
+type KakaoBookType = {
+  title: string
+  contents: string
+  url: string
+  isbn: string
+  datetime: string
+  authors: string[]
+  publisher: string
+  translators: string[]
+  price: number
+  sale_price: number
+  thumbnail: string
+  status: string
+}
+
+type KakaoBookSearchResponse = {
+  documents: KakaoBookType[]
   meta: {
     is_end: boolean
     pageable_count: number
@@ -42,20 +44,7 @@ interface KakaoBookSearchResponse {
   }
 }
 
-interface BookType {
-  id: string
-  title: string
-  author: string[]
-  publisher: string
-  category: string[]
-  isbn: string
-  description: string
-  imageUrl: string
-  height: number
-  width: number
-  thickness: number
-  pages: number
-}
+// 1단계: Kakao 원본 타입 그대로 반환
 
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
@@ -118,32 +107,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const data: KakaoBookSearchResponse = await response.json()
 
-    // 카카오 API 응답을 BookType 형식으로 변환
-    const books: BookType[] = data.documents.map((doc, index) => ({
-      id: doc.isbn || `kakao_${index}_${Date.now()}`,
-      title: doc.title || '제목 없음',
-      author: doc.authors || [],
-      publisher: doc.publisher || '출판사 정보 없음',
-      category: [], // 카카오 API에서는 카테고리 정보를 제공하지 않음
-      isbn: doc.isbn || '',
-      description: doc.contents || '설명 없음',
-      imageUrl: doc.thumbnail || '',
-      height: 200, // 기본값 설정
-      width: 140,  // 기본값 설정
-      thickness: 20, // 기본값 설정
-      pages: 300, // 기본값 설정
-    }))
-
     return new Response(
       JSON.stringify({
-        books,
-        meta: {
-          totalCount: data.meta.total_count,
-          pageableCount: data.meta.pageable_count,
-          isEnd: data.meta.is_end,
-          currentPage: page,
-          pageSize: size,
-        }
+        documents: data.documents,
+        meta: data.meta,
+        page,
+        size,
+        sort,
       }),
       { status: 200, headers: jsonHeaders },
     )

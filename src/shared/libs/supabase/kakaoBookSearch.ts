@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { BookType } from '@/shared/type/bookType';
+import { KakaoBookSearchResult } from '@/shared/type/kakaoBookType';
 
 export interface KakaoBookSearchRequest {
   query: string;
@@ -8,16 +9,12 @@ export interface KakaoBookSearchRequest {
   sort?: 'accuracy' | 'latest' | 'sale';
 }
 
-export interface KakaoBookSearchResponse {
-  books: BookType[];
-  meta: {
-    totalCount: number;
-    pageableCount: number;
-    isEnd: boolean;
-    currentPage: number;
-    pageSize: number;
-  };
-}
+// 1단계: Kakao 원본 응답 사용
+export type KakaoBookSearchResponse = KakaoBookSearchResult & {
+  page: number;
+  size: number;
+  sort: 'accuracy' | 'latest' | 'sale';
+};
 
 /**
  * 카카오 책검색 API를 사용하여 책을 검색하는 함수
@@ -67,7 +64,7 @@ export async function searchBooksWithKakao(
       throw new Error('검색 결과를 받지 못했습니다.');
     }
 
-    return data;
+    return data as KakaoBookSearchResponse;
   } catch (error) {
     console.error('카카오 책검색 오류:', error);
     throw new Error(
@@ -99,5 +96,20 @@ export function cleanSearchQuery(query: string): string {
 export async function searchBooks(searchQuery: string): Promise<BookType[]> {
   const cleanedQuery = cleanSearchQuery(searchQuery);
   const response = await searchBooksWithKakao(cleanedQuery);
-  return response.books;
+  // 1단계: BookType으로 변환하지 않고, 기존 호출부 유지 위해 최소 매핑만 수행
+  const books: BookType[] = response.documents.map((doc, index) => ({
+    id: doc.isbn || `kakao_${index}_${Date.now()}`,
+    title: doc.title || '제목 없음',
+    author: doc.authors || [],
+    publisher: doc.publisher || '출판사 정보 없음',
+    category: [],
+    isbn: doc.isbn || '',
+    description: doc.contents || '설명 없음',
+    imageUrl: doc.thumbnail || '',
+    height: 200,
+    width: 140,
+    thickness: 20,
+    pages: 300,
+  }));
+  return books;
 }
