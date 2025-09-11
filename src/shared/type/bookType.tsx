@@ -13,11 +13,17 @@ export type BookType = {
   pages: number; //페이지수
 };
 
-export type RecordType ={
-    createdAt: string;
-    updatedAt: string;
-    bookId: string;
-    userId: string;
-    rate: number;
-    memo: string;
+
+// 저장 단위
+export type SavedBook = {
+  book: BookType; // 검색으로 받은 원본
+  record: {
+    rate: number;          // 0~100
+    memo: string;          // 최대 200자
+    startedAt?: string;    // ISO (YYYY-MM-DD)
+    finishedAt?: string;   // ISO
+  };
+  createdAt: string;       // ISO
+  updatedAt: string;       // ISO
+  bookId: string;          // book.id 또는 isbn
 };
