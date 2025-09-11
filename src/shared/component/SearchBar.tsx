@@ -12,6 +12,7 @@ export type SearchBarProps = {
   className?: string;
   style?: ViewStyle | ViewStyle[];
   disabled?: boolean;
+  autoFocus?: boolean;
 };
 
 export const SearchBar = ({
@@ -23,6 +24,7 @@ export const SearchBar = ({
   className = '',
   style,
   disabled = false,
+  autoFocus = false,
 }: SearchBarProps) => {
   const [internalValue, setInternalValue] = useState('');
   
@@ -49,7 +51,7 @@ export const SearchBar = ({
 
   return (
     <View 
-      className={`flex-row items-center bg-background rounded-full px-4 py-3 border border-primary ${className}`}
+      className={`h-14 flex-row items-center bg-background rounded-full px-4 py-3 border border-primary ${className}`}
       style={style}
     >
       {/* 검색 아이콘 */}
@@ -64,8 +66,10 @@ export const SearchBar = ({
         placeholder={placeholder}
         placeholderTextColor="#999999"
         editable={!disabled}
-        className="flex-1 text-black"
+        autoFocus={autoFocus}
+        className="flex-1 text-white"
         style={{
+          height: 20,
           fontFamily: 'Pretendard-Regular',
           fontSize: 16,
           lineHeight: 16 * 1.4,
