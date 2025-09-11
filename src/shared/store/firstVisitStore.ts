@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { StorageService } from '../services/storageService';
+import { StorageService } from '@/shared/services/storageService';
 
 interface FirstVisitStore {
   // 상태
