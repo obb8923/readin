@@ -1,13 +1,28 @@
 
 import React from 'react';
-import { ScrollView, View, TouchableOpacity } from 'react-native';
+import { ScrollView, View, TouchableOpacity, Alert } from 'react-native';
 import { Background } from "@/shared/component/Background";
 import { Text } from "@/shared/component/Text";
 import { MenuItem } from "../component/MenuItem";
+import { useAuthStore } from '@/shared/store/authStore';
 
 export const ProfileScreen = () => {
+  const { logout, isLoading } = useAuthStore();
   const handleMenuPress = (menuName: string) => {
     console.log(`${menuName} 메뉴를 눌렀습니다.`);
+  };
+
+  const handleLogoutConfirm = () => {
+    if (isLoading) return;
+    Alert.alert(
+      '로그아웃',
+      '정말 로그아웃 하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        { text: '로그아웃', style: 'destructive', onPress: () => logout() },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -116,7 +131,8 @@ export const ProfileScreen = () => {
           {/* 로그아웃 */}
           <View className="px-6 py-4">
             <TouchableOpacity
-              onPress={() => handleMenuPress('로그아웃')}
+              onPress={handleLogoutConfirm}
+              disabled={isLoading}
               className="bg-red-600 rounded-lg py-4 items-center"
               activeOpacity={0.7}
             >

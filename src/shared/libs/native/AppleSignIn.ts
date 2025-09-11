@@ -1,21 +1,16 @@
 import { NativeModules } from 'react-native';
 
-const { AppleSignInModule } = NativeModules as {
-  AppleSignInModule?: {
-    signInWithApple: () => Promise<{ idToken?: string }>
-  }
-};
+// 디버깅을 위해 사용 가능한 모든 모듈들을 확인
+console.log('Available NativeModules:', Object.keys(NativeModules));
+console.log('AppleSignInModule:', NativeModules.AppleSignInModule);
+
+const { AppleSignInModule } = NativeModules;
 
 export async function signInWithAppleNative(): Promise<string> {
-  if (!AppleSignInModule || typeof AppleSignInModule.signInWithApple !== 'function') {
-    throw new Error('AppleSignInModule이 네이티브에 연결되지 않았습니다. iOS 브리지 설정을 확인하세요.');
+  if (!AppleSignInModule) {
+    throw new Error('AppleSignInModule is not available. Make sure the native module is properly linked.');
   }
+  
   const result = await AppleSignInModule.signInWithApple();
-  const idToken = result?.idToken;
-  if (!idToken) {
-    throw new Error('Apple 로그인 idToken을 가져오지 못했습니다.');
-  }
-  return idToken;
-}
-
-
+  return result.idToken;
+} 

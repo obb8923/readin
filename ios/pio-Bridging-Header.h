@@ -3,7 +3,8 @@
 //  pio
 //
 //
-#import "RNSplashScreen.h"
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
 #ifndef pio_Bridging_Header_h
 #define pio_Bridging_Header_h

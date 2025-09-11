@@ -1,5 +1,6 @@
 import Foundation
 import AuthenticationServices
+import React
 
 @objc(AppleSignInModule)
 class AppleSignInModule: NSObject, ASAuthorizationControllerDelegate {
