@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Background } from '@/shared/component/Background';
 import { Text } from '@/shared/component/Text';
-import { supabase } from '@/shared/libs/supabase/supabase';
 import { useHideTabBar, useShowTabBar } from '@/shared/store/tabStore';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { useAuthStore } from '@/shared/store/authStore';
 
 export const LoginScreen = () => {
   const hideTabBar = useHideTabBar();
@@ -19,55 +18,45 @@ export const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { handleEmailLogin, handleGoogleLogin, handleAppleLogin, isLoading } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
 
   const onLogin = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        setError(signInError.message);
-      }
+      const ok = await handleEmailLogin(email, password);
+      if (!ok) setError('이메일 또는 비밀번호가 올바르지 않습니다.');
     } catch (e: any) {
       setError(e?.message ?? '로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
-  }, [email, password]);
+  }, [email, password, handleEmailLogin]);
 
   const signInWithGoogle = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const userInfo = await GoogleSignin.signIn();
-      const idToken = (userInfo as any)?.idToken;
-      if (idToken) {
-        const { data, error: supaError } = await supabase.auth.signInWithIdToken({
-          provider: 'google',
-          token: idToken,
-        });
-        if (supaError) {
-          setError(supaError.message);
-        }
-      } else {
-        throw new Error('Google ID 토큰을 가져오지 못했습니다.');
-      }
+      await handleGoogleLogin();
     } catch (e: any) {
-      if (e?.code === statusCodes.SIGN_IN_CANCELLED) {
-        // 사용자가 로그인 플로우 취소
-      } else if (e?.code === statusCodes.IN_PROGRESS) {
-        // 이미 진행중
-      } else if (e?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        setError('Play Services가 사용 불가하거나 업데이트가 필요합니다.');
-      } else {
-        setError(e?.message ?? '구글 로그인 중 오류가 발생했습니다.');
-      }
+      setError(e?.message ?? '구글 로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [handleGoogleLogin]);
+
+  const signInWithApple = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await handleAppleLogin();
+    } catch (e: any) {
+      setError(e?.message ?? 'Apple 로그인 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, [handleAppleLogin]);
 
   return (
     <Background>
@@ -96,7 +85,7 @@ export const LoginScreen = () => {
           ) : null}
           <TouchableOpacity
             onPress={onLogin}
-            disabled={loading}
+            disabled={loading || isLoading}
             className="bg-primary rounded-xl py-4 items-center mt-2"
             activeOpacity={0.7}
           >
@@ -110,7 +99,7 @@ export const LoginScreen = () => {
         <View className="mt-6">
           <TouchableOpacity
             onPress={signInWithGoogle}
-            disabled={loading}
+            disabled={loading || isLoading}
             className="bg-white rounded-xl py-4 items-center"
             activeOpacity={0.7}
           >
@@ -121,6 +110,22 @@ export const LoginScreen = () => {
             )}
           </TouchableOpacity>
         </View>
+        {Platform.OS === 'ios' && (
+          <View className="mt-3">
+            <TouchableOpacity
+              onPress={signInWithApple}
+              disabled={loading || isLoading}
+              className="bg-black rounded-xl py-4 items-center"
+              activeOpacity={0.7}
+            >
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text text="Apple로 로그인" type="body1" className="text-white font-semibold" />
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </Background>
   );
