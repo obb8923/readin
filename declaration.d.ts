@@ -11,6 +11,6 @@ declare module '@env' {
   export const SUPABASE_REF: string; 
   export const SUPABASE_ANON_KEY: string;
   export const SUPABASE_EDGE_FUNCTION_PERPLEXITY: string; 
-  export const SUPABASE_WEB_CLIENT_ID: string;
-  export const SUPABASE_IOS_CLIENT_ID: string;
+  export const SUPABASE_WEB_CLIENT_KEY: string;
+  export const SUPABASE_IOS_CLIENT_KEY: string;
 }

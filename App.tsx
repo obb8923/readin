@@ -10,7 +10,7 @@ import { useIsTabBarVisible } from './src/shared/store/tabStore';
 import { useFirstVisitStore } from '@store/firstVisitStore';
 import { OnboardingStack } from '@nav/stack/Onboarding';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { SUPABASE_WEB_CLIENT_ID, SUPABASE_IOS_CLIENT_ID } from '@env';
+import { SUPABASE_WEB_CLIENT_KEY, SUPABASE_IOS_CLIENT_KEY } from '@env';
 
 export default function App() {
   const isTabBarVisible = useIsTabBarVisible();
@@ -20,8 +20,8 @@ export default function App() {
     // Google Sign-In 설정
     try {
       GoogleSignin.configure({
-        webClientId: SUPABASE_WEB_CLIENT_ID,
-        iosClientId: SUPABASE_IOS_CLIENT_ID,
+        webClientId: SUPABASE_WEB_CLIENT_KEY,
+        iosClientId: SUPABASE_IOS_CLIENT_KEY,
         scopes: ['profile', 'email'],
       });
     } catch (error) {
