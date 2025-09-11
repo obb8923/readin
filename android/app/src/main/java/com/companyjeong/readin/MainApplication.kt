@@ -1,4 +1,4 @@
-package com.readin
+package com.companyjeong.readin
 
 import android.app.Application
 import com.facebook.react.PackageList
