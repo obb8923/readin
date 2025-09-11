@@ -23,7 +23,7 @@ export const BookSearchScreen = () => {
   const [selectedBook, setSelectedBook] = useState<BookType | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEnrichLoading, setIsEnrichLoading] = useState(false);
-  const [enriched, setEnriched] = useState<{ width: number; height: number; thickness: number; pages: number } | null>(null);
+  const [enriched, setEnriched] = useState<{ width: number; height: number; thickness: number; pages: number; weight: number } | null>(null);
   const [rating, setRating] = useState(100);
   const [memo, setMemo] = useState('');
   const [memoDraft, setMemoDraft] = useState('');
@@ -80,17 +80,17 @@ export const BookSearchScreen = () => {
     setShowMemoEditor(false);
     // Perplexity로 보강 정보 조회
     setIsEnrichLoading(true);
-    // fetchPhysicalInfoWithPerplexity({
-    //   title: book.title,
-    //   authors: book.author,
-    //   publisher: book.publisher,
-    //   isbn: book.isbn,
-    // })
-    //   .then((info) => setEnriched(info))
-    //   .catch((e) => {
-    //     console.warn('물리 정보 조회 실패:', e);
-    //   })
-    //   .finally(() => setIsEnrichLoading(false));
+    fetchPhysicalInfoWithPerplexity({
+      title: book.title,
+      authors: book.author,
+      publisher: book.publisher,
+      isbn: book.isbn,
+    })
+      .then((info) => setEnriched(info))
+      .catch((e) => {
+        console.warn('물리 정보 조회 실패:', e);
+      })
+      .finally(() => setIsEnrichLoading(false));
   };
 
   const handleCloseModal = () => {
@@ -479,24 +479,6 @@ export const BookSearchScreen = () => {
                       </KeyboardAvoidingView>
                     </View>
                   </Modal>
-
-                  {/* 물리 정보 섹션 */}
-                  <View className="mb-6">
-                    {isEnrichLoading ? (
-                      <View className="flex-row items-center">
-                        <ActivityIndicator size="small" color={Colors.primary} />
-                        <Text text="  책 물리 정보를 불러오는 중..." type="caption1" className="text-gray300" />
-                      </View>
-                    ) : enriched ? (
-                      <View>
-                        <Text text={`크기(mm): ${enriched.width} x ${enriched.height}`} type="body3" className="text-gray200" />
-                        <Text text={`두께(mm): ${enriched.thickness}`} type="body3" className="text-gray200" />
-                        <Text text={`페이지: ${enriched.pages}`} type="body3" className="text-gray200" />
-                      </View>
-                    ) : (
-                      <Text text="물리 정보를 가져오지 못했습니다." type="caption1" className="text-gray400" />
-                    )}
-                  </View>
 
                   {/* 버튼 섹션 */}
                   <View className="flex-row">

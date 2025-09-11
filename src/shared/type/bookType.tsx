@@ -10,6 +10,7 @@ export type BookType = {
   height: number; //세로
   width: number; //가로
   thickness: number; //두께
+  weight: number; //무게
   pages: number; //페이지수
 };
 
