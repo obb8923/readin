@@ -9,10 +9,26 @@ import { TabBar } from './src/shared/component/TabBar';
 import { useIsTabBarVisible } from './src/shared/store/tabStore';
 import { useFirstVisitStore } from '@store/firstVisitStore';
 import { OnboardingStack } from '@nav/stack/Onboarding';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { SUPABASE_WEB_CLIENT_ID, SUPABASE_IOS_CLIENT_ID } from '@env';
+
 export default function App() {
   const isTabBarVisible = useIsTabBarVisible();
   const { isFirstVisit, isLoading, checkFirstVisit } = useFirstVisitStore();
 
+  useEffect(() => {
+    // Google Sign-In 설정
+    try {
+      GoogleSignin.configure({
+        webClientId: SUPABASE_WEB_CLIENT_ID,
+        iosClientId: SUPABASE_IOS_CLIENT_ID,
+        scopes: ['profile', 'email'],
+      });
+    } catch (error) {
+      console.error('[App.tsx] Google Sign-In configuration error:', error);
+    }
+  }, []);
+  
   useEffect(() => {
     checkFirstVisit();
   }, [checkFirstVisit]);
