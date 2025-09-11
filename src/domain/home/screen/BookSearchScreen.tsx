@@ -1,4 +1,4 @@
-import { View, FlatList, ActivityIndicator, Alert, Image, Modal, TouchableOpacity, TextInput, Platform, LayoutChangeEvent } from "react-native";
+import { View, FlatList, ActivityIndicator, Alert, Image, Modal, TouchableOpacity, TextInput, Platform, LayoutChangeEvent, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Text } from "@component/Text";
 import { Background } from "@/shared/component/Background";
 import { AppBar } from "@/shared/component/AppBar";
@@ -16,6 +16,7 @@ import { fetchPhysicalInfoWithPerplexity } from '@/shared/libs/supabase/enrichBo
 import RNHorizontalSlider from "@/shared/component/Slider";
 export const BookSearchScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const MEMO_MAX = 200;
   const [searchResults, setSearchResults] = useState<BookType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,10 +26,12 @@ export const BookSearchScreen = () => {
   const [enriched, setEnriched] = useState<{ width: number; height: number; thickness: number; pages: number } | null>(null);
   const [rating, setRating] = useState(100);
   const [memo, setMemo] = useState('');
+  const [memoDraft, setMemoDraft] = useState('');
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showMemoEditor, setShowMemoEditor] = useState(false);
   const [ratingWidth, setRatingWidth] = useState(0);
   const showTabBar = useShowTabBar();
   // 검색 실행 함수
@@ -69,10 +72,12 @@ export const BookSearchScreen = () => {
     setEnriched(null);
     setRating(100);
     setMemo('');
+    setMemoDraft('');
     setStartDate(new Date());
     setEndDate(new Date());
     setShowStartDatePicker(false);
     setShowEndDatePicker(false);
+    setShowMemoEditor(false);
     // Perplexity로 보강 정보 조회
     setIsEnrichLoading(true);
     // fetchPhysicalInfoWithPerplexity({
@@ -93,10 +98,12 @@ export const BookSearchScreen = () => {
     setSelectedBook(null);
     setRating(0);
     setMemo('');
+    setMemoDraft('');
     setStartDate(null);
     setEndDate(null);
     setShowStartDatePicker(false);
     setShowEndDatePicker(false);
+    setShowMemoEditor(false);
   };
 
   // 날짜 선택 핸들러
@@ -233,12 +240,11 @@ export const BookSearchScreen = () => {
           onRequestClose={handleCloseModal}
         >
           {/* 모달 배경 */}
-          <View className="flex-1 justify-center items-center bg-black/60">
+          <View className="flex-1 justify-center items-center bg-black/80">
           {/* 모달 전체 컨테이너 */}
-            <View className="bg-gray800 rounded-2xl p-6 mx-4 w-11/12">
+            <View className="bg-gray800 rounded-2xl p-6 mx-4 w-11/12 border border-primary">
               {selectedBook && (
                 <View>
-                  <Text text="책 정보 저장" type="title3" className="text-white mb-4 text-center" />
                   
                   {/* 책 정보 섹션 */}
                   <View className="flex-row mb-6">
@@ -403,17 +409,76 @@ export const BookSearchScreen = () => {
                   {/* 메모 섹션 */}
                   <View className="mb-6">
                     <Text text="메모" type="body2" className="text-white mb-3" />
-                    <TextInput
-                      value={memo}
-                      onChangeText={setMemo}
-                      placeholder="짧은 감상평을 남겨보세요 (선택)"
-                      placeholderTextColor={Colors.gray400}
-                      multiline
-                      numberOfLines={3}
-                      className="bg-gray700 rounded-lg p-3 text-white text-sm"
-                      style={{ textAlignVertical: 'top' }}
-                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        setMemoDraft(memo);
+                        setShowMemoEditor(true);
+                      }}
+                      activeOpacity={0.8}
+                      className="bg-gray700 rounded-lg p-3"
+                    >
+                      {memo ? (
+                        <Text
+                          text={memo}
+                          type="body3"
+                          className="text-white"
+                          numberOfLines={3}
+                        />
+                      ) : (
+                        <Text
+                          text="짧은 감상평을 남겨보세요 (선택)"
+                          type="body3"
+                          className="text-gray400"
+                          numberOfLines={1}
+                        />
+                      )}
+                    </TouchableOpacity>
                   </View>
+
+                  {/* 메모 에디터 모달 */}
+                  <Modal
+                    visible={showMemoEditor}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowMemoEditor(false)}
+                  >
+                    <View className="flex-1 justify-end bg-black/50">
+                      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                          <View className="bg-gray800 rounded-t-3xl p-6">
+                            <View className="flex-row justify-between items-center mb-4">
+                              <Text text="메모" type="title3" className="text-white" />
+                              <TouchableOpacity
+                                onPress={() => {
+                                  setMemo(memoDraft);
+                                  setShowMemoEditor(false);
+                                }}
+                                className="bg-gray700 rounded-full p-2"
+                                activeOpacity={0.8}
+                              >
+                                <Text text="완료" type="body2" className="text-white" />
+                              </TouchableOpacity>
+                            </View>
+                            <TextInput
+                              value={memoDraft}
+                              onChangeText={setMemoDraft}
+                              placeholder="짧은 감상평을 남겨보세요 (선택)"
+                              placeholderTextColor={Colors.gray400}
+                              multiline
+                              numberOfLines={8}
+                              className="bg-gray700 rounded-lg p-3 text-white text-sm"
+                              style={{ textAlignVertical: 'top', minHeight: 160 }}
+                              maxLength={MEMO_MAX}
+                              autoFocus
+                            />
+                            <View className="mt-2 w-full items-end">
+                              <Text text={`${memoDraft.length}/${MEMO_MAX}`} type="caption1" className="text-gray400" />
+                            </View>
+                          </View>
+                        </TouchableWithoutFeedback>
+                      </KeyboardAvoidingView>
+                    </View>
+                  </Modal>
 
                   {/* 물리 정보 섹션 */}
                   <View className="mb-6">
