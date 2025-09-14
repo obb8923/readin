@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import BookShelf from '@assets/svgs/BookShelf.svg';
 import Grid from '@assets/svgs/Grid.svg';
-
+import { Colors } from '@constant/Colors';
 export type ViewType = 'shelf' | 'grid';
 
 interface SegmentedControlProps {
@@ -12,7 +12,7 @@ interface SegmentedControlProps {
 
 export const SegmentedControl = ({ selectedView, onViewChange }: SegmentedControlProps) => {
   return (
-    <View className="flex-row bg-gray-800 rounded-lg p-1 mx-6 mb-4">
+    <View className="flex-row bg-gray800 rounded-lg p-1 mx-6 mb-4">
       {/* 책장형 보기 버튼 */}
       <TouchableOpacity
         onPress={() => onViewChange('shelf')}
@@ -23,7 +23,8 @@ export const SegmentedControl = ({ selectedView, onViewChange }: SegmentedContro
         <BookShelf 
           width={18} 
           height={18} 
-          fill={selectedView === 'shelf' ? '#fafafa' : '#999999'} 
+          color={selectedView === 'shelf' ? Colors.white : Colors.gray400}
+          fill={selectedView === 'shelf' ? Colors.primary : 'transparent'}
         />
       </TouchableOpacity>
 
@@ -37,7 +38,8 @@ export const SegmentedControl = ({ selectedView, onViewChange }: SegmentedContro
         <Grid 
           width={18} 
           height={18} 
-          fill={selectedView === 'grid' ? '#fafafa' : '#999999'} 
+          color={selectedView === 'grid' ? Colors.white : Colors.gray400} 
+          fill={selectedView === 'grid' ? Colors.primary : 'transparent'}
         />
       </TouchableOpacity>
     </View>
