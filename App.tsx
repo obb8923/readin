@@ -8,6 +8,8 @@ import {RootStack} from './src/shared/nav/stack/Root';
 import { TabBar } from './src/shared/component/TabBar';
 import { useIsTabBarVisible } from './src/shared/store/tabStore';
 import { useFirstVisitStore } from '@store/firstVisitStore';
+import { useAuthStore } from '@store/authStore';
+import { useFetchReadingLogs } from '@store/readingLogsWithBooksStore';
 import { OnboardingStack } from '@nav/stack/Onboarding';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { SUPABASE_WEB_CLIENT_KEY, SUPABASE_IOS_CLIENT_KEY } from '@env';
@@ -15,6 +17,8 @@ import { SUPABASE_WEB_CLIENT_KEY, SUPABASE_IOS_CLIENT_KEY } from '@env';
 export default function App() {
   const isTabBarVisible = useIsTabBarVisible();
   const { isFirstVisit, isLoading, checkFirstVisit } = useFirstVisitStore();
+  const { isLoggedIn, userId } = useAuthStore();
+  const fetchReadingLogs = useFetchReadingLogs();
 
   useEffect(() => {
     // Google Sign-In 설정
@@ -32,6 +36,13 @@ export default function App() {
   useEffect(() => {
     checkFirstVisit();
   }, [checkFirstVisit]);
+
+  // 사용자가 로그인했을 때 독서 기록 가져오기
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      fetchReadingLogs(userId);
+    }
+  }, [isLoggedIn, userId, fetchReadingLogs]);
 
   const showTabBar = !isLoading && !isFirstVisit && isTabBarVisible;
 

@@ -9,6 +9,38 @@ export type ReadingLogCreateInput = {
   finishedAt?: string | null; // YYYY-MM-DD
 };
 
+export type ReadingLog = {
+  id: string;
+  user_id: string;
+  book_id: string | number;
+  rate: number;
+  memo: string;
+  started_at: string | null;
+  finished_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ReadingLogWithBook = ReadingLog & {
+  book: {
+    id: string;
+    title: string;
+    author: string[];
+    publisher: string;
+    category: string[];
+    isbn: string | null;
+    description: string;
+    image_url: string | null;
+    width: number | null;
+    height: number | null;
+    thickness: number | null;
+    weight: number | null;
+    pages: number | null;
+    created_at: string;
+    updated_at: string;
+  };
+};
+
 export async function createReadingLog(input: ReadingLogCreateInput) {
   // 사용자 인증 확인
   const { data: userInfo, error: userError } = await supabase.auth.getUser();
@@ -28,8 +60,6 @@ export async function createReadingLog(input: ReadingLogCreateInput) {
     memo: input.memo,
     started_at: input.startedAt ?? null,
     finished_at: input.finishedAt ?? null,
-    // created_at은 서버 default(now()) 사용
-    // updated_at은 트리거/서버 로직이 없으면 업데이트 시점에만 세팅
   };
   const { data, error } = await supabase.from('reading_logs').insert(row).select('*').limit(1);
   if (error) throw error;
@@ -52,6 +82,53 @@ export async function deleteLogById(id: string | number) {
   const { error } = await supabase.from('reading_logs').delete().eq('id', id);
   if (error) throw error;
   return true;
+}
+
+export async function getUserReadingLogs(userId: string) {
+  // 사용자 인증 확인
+  const { data: userInfo, error: userError } = await supabase.auth.getUser();
+  if (userError || !userInfo?.user) {
+    throw new Error('로그인이 필요합니다.');
+  }
+  
+  // 사용자 ID 검증
+  if (userInfo.user.id !== userId) {
+    throw new Error('권한이 없습니다.');
+  }
+  
+  const { data, error } = await supabase
+    .from('reading_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data as ReadingLog[];
+}
+
+export async function getUserReadingLogsWithBookInfo(userId: string) {
+  // 사용자 인증 확인
+  const { data: userInfo, error: userError } = await supabase.auth.getUser();
+  if (userError || !userInfo?.user) {
+    throw new Error('로그인이 필요합니다.');
+  }
+  
+  // 사용자 ID 검증
+  if (userInfo.user.id !== userId) {
+    throw new Error('권한이 없습니다.');
+  }
+  
+  const { data, error } = await supabase
+    .from('reading_logs')
+    .select(`
+      *,
+      book:books(*)
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data as ReadingLogWithBook[];
 }
 
 
