@@ -1,19 +1,50 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { Text } from '@/shared/component/Text';
 import { BookHorizontal } from '@/shared/component/BookHorizontal';
-import { defaultBooks } from '@/shared/constant/mock';
 import { DEVICE_WIDTH } from '@/shared/constant/normal';
-import { BookType } from '@/shared/type/bookType';
-import {Colors} from '@constant/Colors';
+import { Colors } from '@constant/Colors';
+import { useReadingLogs, useIsReadingLogsLoading } from '@/shared/store/readingLogsWithBooksStore';
 
-interface TowerOfBooksProps {
-  books?: BookType[];
-}
+export const TowerOfBooks = () => {
+  const readingLogs = useReadingLogs();
+  const isLoading = useIsReadingLogsLoading();
 
-export const TowerOfBooks = ({ 
-  books = defaultBooks 
-}: TowerOfBooksProps) => {
+  // 독서 기록이 없을 때 빈 배열 반환
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text text="독서 기록을 불러오는 중..." className="text-gray-300 text-sm mt-2" />
+      </View>
+    );
+  }
+
+  if (readingLogs.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text text="아직 읽은 책이 없습니다" className="text-gray-300 text-sm" />
+        <Text text="첫 번째 책을 읽어보세요!" className="text-gray-400 text-xs mt-1" />
+      </View>
+    );
+  }
+
+  // 독서 기록에서 책 정보 추출
+  const books = readingLogs.map(log => ({
+    id: log.book.id,
+    title: log.book.title,
+    author: log.book.author,
+    publisher: log.book.publisher,
+    category: log.book.category,
+    isbn: log.book.isbn,
+    description: log.book.description,
+    imageUrl: log.book.image_url || '',
+    height: log.book.height || 0,
+    width: log.book.width || 0,
+    thickness: log.book.thickness || 0,
+    weight: log.book.weight || 0,
+    pages: log.book.pages || 0,
+  }));
 
   // 총 페이지수 계산
   const totalPages = books.reduce((sum, book) => sum + book.pages, 0);
