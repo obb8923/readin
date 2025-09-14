@@ -17,7 +17,7 @@ import { SUPABASE_WEB_CLIENT_KEY, SUPABASE_IOS_CLIENT_KEY } from '@env';
 export default function App() {
   const isTabBarVisible = useIsTabBarVisible();
   const { isFirstVisit, isLoading, checkFirstVisit } = useFirstVisitStore();
-  const { isLoggedIn, userId } = useAuthStore();
+  const { isLoggedIn, userId, checkLoginStatus } = useAuthStore();
   const fetchReadingLogs = useFetchReadingLogs();
 
   useEffect(() => {
@@ -36,6 +36,11 @@ export default function App() {
   useEffect(() => {
     checkFirstVisit();
   }, [checkFirstVisit]);
+
+  // 앱 시작 시 로그인 상태 확인
+  useEffect(() => {
+    checkLoginStatus();
+  }, [checkLoginStatus]);
 
   // 사용자가 로그인했을 때 독서 기록 가져오기
   useEffect(() => {
