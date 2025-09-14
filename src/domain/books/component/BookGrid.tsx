@@ -3,10 +3,13 @@ import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Text } from '@component/Text';
 import { BookType, BookWithRecord } from '@/shared/type/bookType';
 import { BookRecordModal } from '@/shared/component/BookRecordModal';
+import { useUpdateReadingLog, useRemoveReadingLog } from '@/shared/store/readingLogsWithBooksStore';
 
 export const BookGrid = ({ books = [] }: { books: BookWithRecord[] }) => {
   const [selectedBook, setSelectedBook] = useState<BookWithRecord | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const updateReadingLog = useUpdateReadingLog();
+  const removeReadingLog = useRemoveReadingLog();
 
   const handleBookPress = (book: BookWithRecord) => {
     setSelectedBook(book);
@@ -89,6 +92,24 @@ export const BookGrid = ({ books = [] }: { books: BookWithRecord[] }) => {
         visible={isModalVisible}
         onClose={handleCloseModal}
         book={selectedBook}
+        mode="view"
+        onUpdateSuccess={() => {
+          // 수정 성공 시 store에서 해당 항목을 업데이트
+          if (selectedBook) {
+            updateReadingLog(selectedBook.record.id, {
+              rate: selectedBook.record.rate,
+              memo: selectedBook.record.memo,
+              started_at: selectedBook.record.startedAt,
+              finished_at: selectedBook.record.finishedAt,
+            });
+          }
+        }}
+        onDeleteSuccess={() => {
+          // 삭제 성공 시 store에서 해당 항목을 제거
+          if (selectedBook) {
+            removeReadingLog(selectedBook.record.id);
+          }
+        }}
       />
     </View>
   );

@@ -10,8 +10,8 @@ interface BookHorizontalProps extends Pick<BookType, 'id' | 'title' | 'pages' | 
 
 export const BookHorizontal = ({ title, pages, thickness,height, color, scale = 1 }: BookHorizontalProps) => {
   // 스케일을 적용한 너비와 높이 계산
-  const bookWidth = height * scale;
-  const bookHeight = thickness * scale;
+  const bookWidth = Math.max(height * scale, 20); // 최소 20px 보장
+  const bookHeight = Math.max(thickness * scale, 10); // 최소 10px 보장
   const bookColor = color || Colors.orange400;
   return (
     <View className="bg-orange400 rounded-md justify-center items-center px-4 overflow-hidden"  style={{

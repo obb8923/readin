@@ -6,6 +6,7 @@ import { DEVICE_WIDTH } from '@/shared/constant/normal';
 import { Colors } from '@constant/Colors';
 import { useReadingLogs, useIsReadingLogsLoading } from '@/shared/store/readingLogsWithBooksStore';
 import { getReadingLevel } from '@/shared/constant/ReadingLevels';
+import { transformReadingLogToBookInfo } from '@/shared/utils/bookDataTransform';
 
 export const TowerOfBooks = () => {
   const readingLogs = useReadingLogs();
@@ -30,22 +31,8 @@ export const TowerOfBooks = () => {
     );
   }
 
-  // 독서 기록에서 책 정보 추출
-  const books = readingLogs.map(log => ({
-    id: log.book.id,
-    title: log.book.title,
-    author: log.book.author,
-    publisher: log.book.publisher,
-    category: log.book.category,
-    isbn: log.book.isbn,
-    description: log.book.description,
-    imageUrl: log.book.image_url || '',
-    height: log.book.height || 0,
-    width: log.book.width || 0,
-    thickness: log.book.thickness || 0,
-    weight: log.book.weight || 0,
-    pages: log.book.pages || 0,
-  }));
+  // 독서 기록에서 책 정보 추출 (공통 함수 사용)
+  const books = readingLogs.map(transformReadingLogToBookInfo);
 
   // 총 페이지수 계산
   const totalPages = books.reduce((sum, book) => sum + book.pages, 0);

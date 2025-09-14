@@ -7,6 +7,7 @@ import { BookGrid } from '@/domain/books/component/BookGrid';
 import { SegmentedControl, ViewType } from '@/domain/books/component/SegmentedControl';
 import { useReadingLogs, useIsReadingLogsLoading } from '@/shared/store/readingLogsWithBooksStore';
 import { Colors } from '@constant/Colors';
+import { transformReadingLogToBookWithRecord } from '@/shared/utils/bookDataTransform';
 
 export const BooksScreen = () => {
   const [selectedView, setSelectedView] = useState<ViewType>('shelf');
@@ -17,31 +18,8 @@ export const BooksScreen = () => {
     setSelectedView(view);
   };
 
-  // readingLogs를 BookWithRecord 형태로 변환
-  const books = readingLogs.map(log => ({
-    id: log.book.id,
-    title: log.book.title,
-    author: log.book.author,
-    publisher: log.book.publisher,
-    category: log.book.category,
-    isbn: log.book.isbn || '',
-    description: log.book.description,
-    imageUrl: log.book.image_url || '',
-    height: log.book.height || 0,
-    width: log.book.width || 0,
-    thickness: log.book.thickness || 0,
-    weight: log.book.weight || 0,
-    pages: log.book.pages || 0,
-    record: {
-      rate: log.rate,
-      memo: log.memo || '',
-      startedAt: log.started_at || undefined,
-      finishedAt: log.finished_at || undefined,
-    },
-    createdAt: log.created_at,
-    updatedAt: log.updated_at,
-    bookId: String(log.book_id),
-  }));
+  // readingLogs를 BookWithRecord 형태로 변환 (공통 함수 사용)
+  const books = readingLogs.map(transformReadingLogToBookWithRecord);
 
   if (isLoading) {
     return (

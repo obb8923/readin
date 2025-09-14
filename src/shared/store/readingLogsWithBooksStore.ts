@@ -10,6 +10,9 @@ interface ReadingLogsState {
   
   // 액션
   fetchReadingLogs: (userId: string) => Promise<void>;
+  addReadingLog: (log: ReadingLogWithBook) => void;
+  updateReadingLog: (logId: string, updates: Partial<ReadingLogWithBook>) => void;
+  removeReadingLog: (logId: string) => void;
 }
 
 export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) => ({
@@ -38,6 +41,32 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
       });
     }
   },
+
+  // 새 독서 기록 추가
+  addReadingLog: (log: ReadingLogWithBook) => {
+    console.log('[ReadingLogsStore] 새 독서기록 추가:', log.id);
+    set((state) => ({
+      readingLogs: [log, ...state.readingLogs]
+    }));
+  },
+
+  // 독서 기록 수정
+  updateReadingLog: (logId: string, updates: Partial<ReadingLogWithBook>) => {
+    console.log('[ReadingLogsStore] 독서기록 수정:', logId);
+    set((state) => ({
+      readingLogs: state.readingLogs.map(log => 
+        log.id === logId ? { ...log, ...updates } : log
+      )
+    }));
+  },
+
+  // 독서 기록 삭제
+  removeReadingLog: (logId: string) => {
+    console.log('[ReadingLogsStore] 독서기록 삭제:', logId);
+    set((state) => ({
+      readingLogs: state.readingLogs.filter(log => log.id !== logId)
+    }));
+  },
 }));
 
 // 편의성 훅들
@@ -45,3 +74,6 @@ export const useReadingLogs = () => useReadingLogsWithBooksStore(state => state.
 export const useIsReadingLogsLoading = () => useReadingLogsWithBooksStore(state => state.isLoading);
 export const useReadingLogsError = () => useReadingLogsWithBooksStore(state => state.error);
 export const useFetchReadingLogs = () => useReadingLogsWithBooksStore(state => state.fetchReadingLogs);
+export const useAddReadingLog = () => useReadingLogsWithBooksStore(state => state.addReadingLog);
+export const useUpdateReadingLog = () => useReadingLogsWithBooksStore(state => state.updateReadingLog);
+export const useRemoveReadingLog = () => useReadingLogsWithBooksStore(state => state.removeReadingLog);

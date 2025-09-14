@@ -32,6 +32,7 @@ export type SavedBook = {
 // 독서 기록이 포함된 책 타입
 export type BookWithRecord = BookType & {
   record: {
+    id: string;
     rate: number;
     memo: string;
     startedAt?: string;
