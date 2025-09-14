@@ -1,10 +1,24 @@
-import React from 'react';
-import { View, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '@component/Text';
 import { BookVertical } from '@/shared/component/BookVertical';
-import { BookType } from '@/shared/type/bookType';
+import { BookType, BookWithRecord } from '@/shared/type/bookType';
+import { BookRecordModal } from '@/shared/component/BookRecordModal';
 
-export const BookShelf = ({books = []}: {books: BookType[]}) => {
+export const BookShelf = ({books = []}: {books: BookWithRecord[]}) => {
+  const [selectedBook, setSelectedBook] = useState<BookWithRecord | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleBookPress = (book: BookWithRecord) => {
+    setSelectedBook(book);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedBook(null);
+  };
+
   return (
     <View className="flex-1">
       {/* 책장 정보 */}
@@ -27,14 +41,19 @@ export const BookShelf = ({books = []}: {books: BookType[]}) => {
         <View 
         className="flex-row flex-wrap gap-2 items-end gap-y-8">
           {books.map((book) => (
-            <BookVertical
+            <TouchableOpacity
               key={book.id}
-              id={book.id}
-              title={book.title}
-              pages={book.pages}
-              height={book.height}
-              color={undefined}
-            />
+              onPress={() => handleBookPress(book)}
+              activeOpacity={0.8}
+            >
+              <BookVertical
+                id={book.id}
+                title={book.title}
+                pages={book.pages}
+                height={book.height}
+                color={undefined}
+              />
+            </TouchableOpacity>
           ))}
         </View>
         
@@ -52,6 +71,13 @@ export const BookShelf = ({books = []}: {books: BookType[]}) => {
           </View>
         )}
       </ScrollView>
+
+      {/* 책 기록 모달 */}
+      <BookRecordModal
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        book={selectedBook}
+      />
     </View>
   );
 };

@@ -17,7 +17,7 @@ export const BooksScreen = () => {
     setSelectedView(view);
   };
 
-  // 독서 기록에서 책 정보 추출
+  // readingLogs를 BookWithRecord 형태로 변환
   const books = readingLogs.map(log => ({
     id: log.book.id,
     title: log.book.title,
@@ -32,6 +32,15 @@ export const BooksScreen = () => {
     thickness: log.book.thickness || 0,
     weight: log.book.weight || 0,
     pages: log.book.pages || 0,
+    record: {
+      rate: log.rate,
+      memo: log.memo || '',
+      startedAt: log.started_at || undefined,
+      finishedAt: log.finished_at || undefined,
+    },
+    createdAt: log.created_at,
+    updatedAt: log.updated_at,
+    bookId: String(log.book_id),
   }));
 
   if (isLoading) {

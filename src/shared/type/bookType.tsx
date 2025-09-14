@@ -28,3 +28,16 @@ export type SavedBook = {
   updatedAt: string;       // ISO
   bookId: string;          // book.id 또는 isbn
 };
+
+// 독서 기록이 포함된 책 타입
+export type BookWithRecord = BookType & {
+  record: {
+    rate: number;
+    memo: string;
+    startedAt?: string;
+    finishedAt?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  bookId: string;
+};

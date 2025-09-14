@@ -1,10 +1,23 @@
-import React from 'react';
-import { View, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Text } from '@component/Text';
-import { BookType } from '@/shared/type/bookType';
+import { BookType, BookWithRecord } from '@/shared/type/bookType';
+import { BookRecordModal } from '@/shared/component/BookRecordModal';
 
-export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
-  console.log(books);
+export const BookGrid = ({ books = [] }: { books: BookWithRecord[] }) => {
+  const [selectedBook, setSelectedBook] = useState<BookWithRecord | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleBookPress = (book: BookWithRecord) => {
+    setSelectedBook(book);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedBook(null);
+  };
+
   return (
     <View className="flex-1">
       {/* 책장 정보 */}
@@ -26,7 +39,12 @@ export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
         {/* 그리드 형태로 책들을 3열로 배치 - 책 표지 비율 고려 */}
         <View className="flex-row flex-wrap gap-2 justify-between">
           {books.map((book) => (
-            <View key={book.id} className="w-[31%] mb-6">
+            <TouchableOpacity 
+              key={book.id} 
+              className="w-[31%] mb-6"
+              onPress={() => handleBookPress(book)}
+              activeOpacity={0.8}
+            >
               {/* 책 표지 이미지 영역 (2:3 비율 - 일반적인 책 비율) */}
               <View className="w-full aspect-[2/3] bg-gray-700 rounded-lg mb-2 overflow-hidden">
                 {book.imageUrl ? (
@@ -42,12 +60,12 @@ export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
               </View>
               
               {/* 책 제목 */}
-              {/* <Text 
+              <Text 
                 text={book.title}
                 className="text-white text-xs text-center"
                 numberOfLines={2}
-              /> */}
-            </View>
+              />
+            </TouchableOpacity>
           ))}
         </View>
         
@@ -65,6 +83,13 @@ export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
           </View>
         )}
       </ScrollView>
+
+      {/* 책 기록 모달 */}
+      <BookRecordModal
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        book={selectedBook}
+      />
     </View>
   );
 };
