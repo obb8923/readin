@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Image } from 'react-native';
 import { Text } from '@component/Text';
 import { BookType } from '@/shared/type/bookType';
 
 export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
+  console.log(books);
   return (
     <View className="flex-1">
       {/* 책장 정보 */}
@@ -26,17 +27,26 @@ export const BookGrid = ({ books = [] }: { books: BookType[] }) => {
         <View className="flex-row flex-wrap gap-2 justify-between">
           {books.map((book) => (
             <View key={book.id} className="w-[31%] mb-6">
-              {/* 책 표지 이미지 영역 (3:4 비율) */}
-              <View className="w-full aspect-[3/4] bg-gray-700 rounded-lg mb-2 overflow-hidden">
-              
+              {/* 책 표지 이미지 영역 (2:3 비율 - 일반적인 책 비율) */}
+              <View className="w-full aspect-[2/3] bg-gray-700 rounded-lg mb-2 overflow-hidden">
+                {book.imageUrl ? (
+                  <Image
+                    source={{ uri: book.imageUrl }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View className="w-full h-full bg-gray-600 flex items-center justify-center">
+                  </View>
+                )}
               </View>
               
               {/* 책 제목 */}
-              <Text 
+              {/* <Text 
                 text={book.title}
                 className="text-white text-xs text-center"
                 numberOfLines={2}
-              />
+              /> */}
             </View>
           ))}
         </View>
