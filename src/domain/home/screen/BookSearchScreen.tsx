@@ -6,13 +6,16 @@ import { useNavigation } from "@react-navigation/native";
 import { HomeStackParamList } from "@nav/stack/Home";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SearchBar } from "@/shared/component/SearchBar";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { searchBooks } from "@/shared/libs/supabase/bookSearch";
 import { BookType } from "@/shared/type/bookType";
 import {Colors} from "@constant/Colors";
 import { useShowTabBar } from '@/shared/store/tabStore';
 import { fetchPhysicalInfoWithPerplexity } from '@/shared/libs/supabase/enrichBook';
+import { createBook } from '@/shared/libs/supabase/books';
+import { createReadingLog } from '@/shared/libs/supabase/reading_logs';
+import { supabase } from '@/shared/libs/supabase/supabase';
 import RNHorizontalSlider from "@/shared/component/Slider";
 export const BookSearchScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
@@ -23,6 +26,8 @@ export const BookSearchScreen = () => {
   const [selectedBook, setSelectedBook] = useState<BookType | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEnrichLoading, setIsEnrichLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const enrichPromiseRef = useRef<Promise<any> | null>(null);
   const [enriched, setEnriched] = useState<{ width: number; height: number; thickness: number; pages: number; weight: number } | null>(null);
   const [rating, setRating] = useState(100);
   const [memo, setMemo] = useState('');
@@ -80,7 +85,7 @@ export const BookSearchScreen = () => {
     setShowMemoEditor(false);
     // Perplexity로 보강 정보 조회
     setIsEnrichLoading(true);
-    fetchPhysicalInfoWithPerplexity({
+    const p = fetchPhysicalInfoWithPerplexity({
       title: book.title,
       authors: book.author,
       publisher: book.publisher,
@@ -91,6 +96,7 @@ export const BookSearchScreen = () => {
         console.warn('물리 정보 조회 실패:', e);
       })
       .finally(() => setIsEnrichLoading(false));
+    enrichPromiseRef.current = p;
   };
 
   const handleCloseModal = () => {
@@ -485,8 +491,54 @@ export const BookSearchScreen = () => {
                     <TouchableOpacity onPress={handleCloseModal} className="flex-1 mr-2 bg-gray700 rounded-xl py-3 items-center" activeOpacity={0.8}>
                       <Text text="취소" type="body2" className="text-white" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => { /* 저장 콜백 연결 예정: selectedBook + enriched + rating + memo + startDate + endDate */ handleCloseModal(); }} className="flex-1 ml-2 bg-primary rounded-xl py-3 items-center" activeOpacity={0.8}>
-                      <Text text="저장" type="body2" className="text-white" />
+                    <TouchableOpacity onPress={async () => {
+                      if (!selectedBook || isSaving) return;
+                      try {
+                        setIsSaving(true);
+                        // 물리 정보가 로딩 중이면 완료까지 대기
+                        if (isEnrichLoading && enrichPromiseRef.current) {
+                          try { await enrichPromiseRef.current; } catch (_) {}
+                        }
+                        // 사용자 정보 먼저 확인
+                        const { data: userInfo, error: userErr } = await supabase.auth.getUser();
+                        if (userErr || !userInfo?.user) {
+                          throw new Error('로그인이 필요합니다.');
+                        }
+                        console.log('사용자 인증 확인됨:', userInfo.user.id);
+
+                        const book = await createBook({ book: selectedBook, physical: enriched ?? undefined });
+                        const bookId = book?.id ?? selectedBook.isbn;
+                        console.log('책 생성 완료, bookId:', bookId);
+
+                        const toISO = (d?: Date | null) => (d ? d.toISOString().split('T')[0] : null);
+                        await createReadingLog({
+                          userId: userInfo.user.id,
+                          bookId,
+                          rate: rating,
+                          memo,
+                          startedAt: toISO(startDate),
+                          finishedAt: toISO(endDate),
+                        });
+
+                        Alert.alert('저장 완료', '기록이 저장되었습니다.');
+                        handleCloseModal();
+                        showTabBar();
+                        navigation.goBack();
+                      } catch (e: any) {
+                        console.error('save error', e);
+                        Alert.alert('저장 실패', e?.message ?? '잠시 후 다시 시도해주세요.');
+                      } finally {
+                        setIsSaving(false);
+                      }
+                    }} className="flex-1 ml-2 bg-primary rounded-xl py-3 items-center" activeOpacity={0.8}>
+                      {isSaving ? (
+                        <View className="flex-row items-center">
+                          <ActivityIndicator size="small" color={Colors.white || '#fff'} />
+                          <Text text="  저장 중..." type="body2" className="text-white" />
+                        </View>
+                      ) : (
+                        <Text text="저장" type="body2" className="text-white" />
+                      )}
                     </TouchableOpacity>
                   </View>
                 </View>
