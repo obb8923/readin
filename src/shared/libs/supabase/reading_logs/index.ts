@@ -107,17 +107,27 @@ export async function getUserReadingLogs(userId: string) {
 }
 
 export async function getUserReadingLogsWithBookInfo(userId: string) {
+  console.log('[getUserReadingLogsWithBookInfo] 시작, userId:', userId);
+  
   // 사용자 인증 확인
   const { data: userInfo, error: userError } = await supabase.auth.getUser();
   if (userError || !userInfo?.user) {
+    console.error('[getUserReadingLogsWithBookInfo] 인증 실패:', userError);
     throw new Error('로그인이 필요합니다.');
   }
   
+  console.log('[getUserReadingLogsWithBookInfo] 인증된 사용자:', userInfo.user.id);
+  
   // 사용자 ID 검증
   if (userInfo.user.id !== userId) {
+    console.error('[getUserReadingLogsWithBookInfo] 사용자 ID 불일치:', { 
+      requested: userId, 
+      authenticated: userInfo.user.id 
+    });
     throw new Error('권한이 없습니다.');
   }
   
+  console.log('[getUserReadingLogsWithBookInfo] Supabase 쿼리 실행 중...');
   const { data, error } = await supabase
     .from('reading_logs')
     .select(`
@@ -127,7 +137,12 @@ export async function getUserReadingLogsWithBookInfo(userId: string) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
   
-  if (error) throw error;
+  if (error) {
+    console.error('[getUserReadingLogsWithBookInfo] Supabase 쿼리 에러:', error);
+    throw error;
+  }
+  
+  console.log('[getUserReadingLogsWithBookInfo] 쿼리 성공, 결과:', data?.length || 0, '개');
   return data as ReadingLogWithBook[];
 }
 

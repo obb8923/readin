@@ -14,13 +14,39 @@ export const BookVertical = ({ title, pages, height, color }: BookVerticalProps)
   const bookHeight = height * 2;
   const bookThicknessPx = bookThickness * 2;
   const bookColor = color || Colors.orange400;
+  title = '인간실격 - 인간사와 역사와 고뇌와 철학 1123 asd ASD';
+  
+  // 텍스트를 글자 단위로 분리
+  const characters = title.split('');
+  
   return (
-    <View className="bg-orange400 rounded-md justify-center items-center px-4 overflow-hidden"  style={{
+    <View 
+    className="bg-orange400 rounded-md justify-center items-center overflow-hidden"
+    style={{
       width: bookThicknessPx,
       height: bookHeight,
       backgroundColor: bookColor,
     }}>
-      <Text text={title} className="text-white text-xs font-semibold text-center px-2" numberOfLines={2} />
+      <View 
+        className="items-center justify-start overflow-hidden"
+        style={{
+          height: bookHeight * (11/12),
+        }}
+      >
+        {characters.map((char, index) => (
+          <Text 
+            key={index}
+            text={char} 
+            className="text-white font-semibold text-center" 
+            style={{
+              fontSize: 16,
+              lineHeight: 18.4,
+              width: bookThicknessPx - 4, // 패딩 고려
+              textAlign: 'center',
+            }}
+          />
+        ))}
+      </View>
     </View>
   );
 };
