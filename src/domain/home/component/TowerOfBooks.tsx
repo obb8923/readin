@@ -5,6 +5,7 @@ import { BookHorizontal } from '@/shared/component/BookHorizontal';
 import { DEVICE_WIDTH } from '@/shared/constant/normal';
 import { Colors } from '@constant/Colors';
 import { useReadingLogs, useIsReadingLogsLoading } from '@/shared/store/readingLogsWithBooksStore';
+import { getReadingLevel } from '@/shared/constant/ReadingLevels';
 
 export const TowerOfBooks = () => {
   const readingLogs = useReadingLogs();
@@ -71,6 +72,9 @@ export const TowerOfBooks = () => {
     }
   };
   
+  // 총 높이에 따른 독서 레벨 계산
+  const readingLevel = getReadingLevel(totalThickness);
+  
   return (
     <View className="flex-1">
     
@@ -94,7 +98,7 @@ export const TowerOfBooks = () => {
           className="text-gray-300 text-xs mt-1 text-center"
         />
         <View className="flex-row">
-        <Text text="머그컵" type="body1" className="text-primary text-xs mt-1 text-center" />
+        <Text text={readingLevel.title} type="body1" className="text-primary text-xs mt-1 text-center" />
         <Text text=" 급 독서광" type="body1" className="text-gray-300 text-xs mt-1 text-center" />
 
         </View>
