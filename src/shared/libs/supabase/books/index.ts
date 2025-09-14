@@ -17,6 +17,34 @@ export async function createBook(input: BookCreateInput) {
   console.log('createBook - 사용자 인증 확인됨:', userInfo.user.id);
   
   const nowIso = new Date().toISOString();
+  
+  // 기본값 설정
+  const DEFAULT_THICKNESS = 15; // mm
+  const DEFAULT_HEIGHT = 225; // mm
+  const DEFAULT_WIDTH = 30; // mm
+  const DEFAULT_WEIGHT = 250; // g
+  
+  // 물리적 속성에 기본값 적용 (기존 값이 기본값보다 작으면 기본값 사용)
+  const getThickness = () => {
+    const value = physical?.thickness ?? book.thickness ?? null;
+    return value && value < DEFAULT_THICKNESS ? DEFAULT_THICKNESS : value;
+  };
+  
+  const getHeight = () => {
+    const value = physical?.height ?? book.height ?? null;
+    return value && value < DEFAULT_HEIGHT ? DEFAULT_HEIGHT : value;
+  };
+  
+  const getWidth = () => {
+    const value = physical?.width ?? book.width ?? null;
+    return value && value < DEFAULT_WIDTH ? DEFAULT_WIDTH : value;
+  };
+  
+  const getWeight = () => {
+    const value = physical?.weight ?? book.weight ?? null;
+    return value && value < DEFAULT_WEIGHT ? DEFAULT_WEIGHT : value;
+  };
+  
   const row: Record<string, any> = {
     // id는 자동 생성되므로 제외
     title: book.title || '',
@@ -26,10 +54,10 @@ export async function createBook(input: BookCreateInput) {
     isbn: book.isbn || null,
     description: book.description || '',
     image_url: book.imageUrl || null,
-    width: physical?.width ?? book.width ?? null,
-    height: physical?.height ?? book.height ?? null,
-    thickness: physical?.thickness ?? book.thickness ?? null,
-    weight: physical?.weight ?? book.weight ?? null,
+    width: getWidth(),
+    height: getHeight(),
+    thickness: getThickness(),
+    weight: getWeight(),
     pages: physical?.pages ?? book.pages ?? null,
     created_at: nowIso,
     updated_at: nowIso,

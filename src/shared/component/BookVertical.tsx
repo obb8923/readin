@@ -14,7 +14,6 @@ export const BookVertical = ({ title, pages, height, color }: BookVerticalProps)
   const bookHeight = height * 2;
   const bookThicknessPx = bookThickness * 2;
   const bookColor = color || Colors.orange400;
-  title = '인간실격 - 인간사와 역사와 고뇌와 철학 1123 asd ASD';
   
   // 텍스트를 글자 단위로 분리
   const characters = title.split('');
