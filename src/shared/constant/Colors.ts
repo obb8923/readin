@@ -27,3 +27,15 @@ export const Colors = {
   orange800: '#5F1202',
   orange900: '#2D0901',
 }
+
+// 책 색상 팔레트
+export const BOOK_COLOR_PALETTE = [
+  Colors.orange400,
+  Colors.orange600,
+  Colors.orange500,
+  Colors.orange300,
+  Colors.orange600,
+  Colors.orange500,
+  Colors.orange300,
+
+];

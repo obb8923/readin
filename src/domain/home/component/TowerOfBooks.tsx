@@ -44,7 +44,7 @@ export const TowerOfBooks = () => {
   const maxHeight = Math.max(...books.map(book => book.height));
   
   // 가장 높은 책을 DEVICE_WIDTH * 7/12로 설정하는 비례 상수 계산
-  const scaleFactor = (DEVICE_WIDTH * 7 / 12) / maxHeight;
+  const scaleFactor = (DEVICE_WIDTH * 9 / 12) / maxHeight;
   
   // 두께를 적절한 단위로 포맷팅하는 함수
   const formatThickness = (thicknessInMm: number): string => {
@@ -97,9 +97,9 @@ export const TowerOfBooks = () => {
                 pages={book.pages}
                 thickness={book.thickness}
                 height={book.height}
-                color={undefined}
                 scale={scaleFactor}
                 key={book.id}
+                index={index}
               />
           ))}
       </ScrollView>

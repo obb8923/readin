@@ -1,19 +1,20 @@
 import { View } from "react-native";
 import { Text } from "@/shared/component/Text";
 import { BookType } from "@/shared/type/bookType";
-import { Colors } from "@/shared/constant/Colors";
+import { Colors, BOOK_COLOR_PALETTE } from "@/shared/constant/Colors";
 
 interface BookVerticalProps extends Pick<BookType, 'id' | 'title' | 'pages' | 'height'> {
   color?: string;
+  index?: number;
 }
 
-export const BookVertical = ({ title, pages, height, color }: BookVerticalProps) => {
+export const BookVertical = ({ title, pages, height, color, index = 0 }: BookVerticalProps) => {
   // 페이지수를 기반으로 두께 계산 (1페이지 = 0.1mm = 0.01cm)
   const bookThickness = pages * 0.1; // cm 단위
   
   const bookHeight = height * 2;
   const bookThicknessPx = bookThickness * 2;
-  const bookColor = color || Colors.orange400;
+  const bookColor = color || BOOK_COLOR_PALETTE[index % BOOK_COLOR_PALETTE.length];
   
   // 텍스트를 글자 단위로 분리
   const characters = title.split('');
