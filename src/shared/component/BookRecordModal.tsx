@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView, 
   TouchableWithoutFeedback, 
   Keyboard,
-  ActivityIndicator,
   Alert
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -18,7 +17,6 @@ import { BookType, BookWithRecord } from '@/shared/type/bookType';
 import { Colors } from '@constant/Colors';
 import { BookImage } from '@/shared/component/BookImage';
 import RNHorizontalSlider from '@/shared/component/Slider';
-import { fetchPhysicalInfoWithPerplexity } from '@/shared/libs/supabase/enrichBook';
 import { updateLogById, deleteLogById } from '@/shared/libs/supabase/reading_logs';
 import { supabase } from '@/shared/libs/supabase/supabase';
 import { saveBookAndLog } from '@/shared/libs/supabase/saveBookAndReadingLog';
@@ -481,31 +479,29 @@ export const BookRecordModal = ({
             <Button 
             text="취소"
             onPress={handleCloseModal} 
-            className="" 
+            className="bg-gray700"
              />
             
             {mode === 'save' ? (
               <Button
               text="저장"
               onPress={handleSave}
-              className=""
+              className="ml-4 bg-primary"
               isLoading={isSaving}
               />
             ) : (
               <>
-                <TouchableOpacity onPress={handleDelete} className="flex-1 mr-2 bg-red-600 rounded-xl py-3 items-center" activeOpacity={0.8}>
-                  <Text text="삭제" type="body2" className="text-white" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleUpdate} className="flex-1 ml-2 bg-primary rounded-xl py-3 items-center" activeOpacity={0.8}>
-                  {isSaving ? (
-                    <View className="flex-row items-center">
-                      <ActivityIndicator size="small" color={Colors.white || '#fff'} />
-                      <Text text="  수정 중..." type="body2" className="text-white" />
-                    </View>
-                  ) : (
-                    <Text text="수정" type="body2" className="text-white" />
-                  )}
-                </TouchableOpacity>
+              <Button
+              text="삭제"
+              onPress={handleDelete}
+              className="ml-2 opacity-80"
+              />
+              <Button
+              text="수정"
+              onPress={handleUpdate}
+              className="ml-2 bg-primary"
+              isLoading={isSaving}
+              />
               </>
             )}
           </View>
