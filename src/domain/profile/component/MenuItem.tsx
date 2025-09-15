@@ -13,13 +13,13 @@ interface MenuItemProps {
 export const MenuItem = ({ title, subtitle, onPress, showArrow = true }: MenuItemProps) => (
   <TouchableOpacity
     onPress={onPress}
-    className="flex-row items-center justify-between py-4 px-6 border-b border-gray-800"
+    className="flex-row items-center justify-between py-4 px-6 border-b border-gray800"
     activeOpacity={0.7}
   >
     <View className="flex-1">
       <Text text={title} type="body2" className="text-white" />
       {subtitle && (
-        <Text text={subtitle} type="caption1" className="text-gray-400 mt-1" />
+        <Text text={subtitle} type="caption1" className="text-gray600 mt-1" />
       )}
     </View>
     {showArrow && (

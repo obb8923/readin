@@ -9,3 +9,4 @@ export const STORAGE_KEYS = {
 export const DEVICE_WIDTH = width;
 export const DEVICE_HEIGHT = height;
 
+export const MAIL_ADDRESS = 'companyjeong25@gmail.com';

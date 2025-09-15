@@ -6,7 +6,7 @@ const Stack = createNativeStackNavigator<ProfileStackParamList>();
 export type ProfileStackParamList = {
   Profile: undefined;
 
-  WebView: {
+  Webview: {
     url: string;
     title?: string;
   };
@@ -18,7 +18,7 @@ export const ProfileStack = () => {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       {/* <Stack.Screen name="UserInfo" component={UserInfoScreen} /> */}
     
-      <Stack.Screen name="WebView" component={WebviewScreen} />
+      <Stack.Screen name="Webview" component={WebviewScreen} />
     </Stack.Navigator>
   );
 };

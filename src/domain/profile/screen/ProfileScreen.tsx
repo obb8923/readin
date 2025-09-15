@@ -1,15 +1,41 @@
 
 import React from 'react';
-import { ScrollView, View, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View,Alert, Linking } from 'react-native';
 import { Background } from "@/shared/component/Background";
 import { Text } from "@/shared/component/Text";
 import { MenuItem } from "../component/MenuItem";
 import { useAuthStore } from '@/shared/store/authStore';
+import { useNavigation } from '@react-navigation/native';
+import { ProfileStackParamList } from '@/shared/nav/stack/Profile';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTabStore } from '@store/tabStore';
+import { MAIL_ADDRESS } from '@constant/normal';
+type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen = () => {
   const { logout, isLoading } = useAuthStore();
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const { hideTabBar } = useTabStore();
   const handleMenuPress = (menuName: string) => {
     console.log(`${menuName} 메뉴를 눌렀습니다.`);
+  };
+
+  const handleEmailPress = async () => {
+    const mailtoUrl = `mailto:${MAIL_ADDRESS}`;
+    try {
+      const supported = await Linking.canOpenURL(mailtoUrl);
+      if (supported) {
+        await Linking.openURL(mailtoUrl);
+        return;
+      }
+    } catch (error) {
+      Alert.alert(
+        '메일 열기 실패',
+        `메일 앱을 열 수 없습니다. 아래 주소로 메일을 보내주세요.\n\n${MAIL_ADDRESS}`,
+        [{ text: '확인' }],
+        { cancelable: true }
+      );
+    }
   };
 
   const handleLogoutConfirm = () => {
@@ -24,6 +50,13 @@ export const ProfileScreen = () => {
       { cancelable: true }
     );
   };
+  const handleInquiryPress = () => {
+    hideTabBar();
+    navigation.navigate('Webview', {
+      url: 'https://forms.gle/TM1tZhp27ytukWNKA',
+      title: '건의사항 및 의견 보내기'
+    })
+  }
 
   return (
     <Background>
@@ -36,7 +69,7 @@ export const ProfileScreen = () => {
         {/* 메뉴 리스트 */}
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* 사용자 정보 섹션 */}
-          <View className="mb-6">
+          {/* <View className="mb-6">
             <View className="px-6 py-4">
               <Text text="사용자 정보" type="body2" className="text-gray-400 uppercase tracking-wide" />
             </View>
@@ -45,20 +78,29 @@ export const ProfileScreen = () => {
               subtitle="프로필 수정 및 개인정보 관리"
               onPress={() => handleMenuPress('내 정보')}
             />
-            <MenuItem
-              title="계정 설정"
-              subtitle="비밀번호, 이메일 등 계정 관리"
-              onPress={() => handleMenuPress('계정 설정')}
+          </View> */}
+          <MenuItem
+              title="내 정보"
+              subtitle="프로필 수정 및 개인정보 관리"
+              onPress={() => handleMenuPress('내 정보')}
             />
-            <MenuItem
-              title="알림 설정"
-              subtitle="푸시 알림 및 이메일 알림 설정"
-              onPress={() => handleMenuPress('알림 설정')}
-            />
-          </View>
-
+          <MenuItem
+              title="독서 통계"
+              subtitle="월별, 연도별 독서 현황"
+              onPress={() => handleMenuPress('독서 통계')}
+          />
+          <MenuItem
+            title="문의하기"
+            subtitle="이메일로 문의하기"
+            onPress={handleEmailPress}
+          />
+          <MenuItem
+            title="건의하기"
+            subtitle="건의사항 및 의견 보내기"
+            onPress={handleInquiryPress}
+          />
           {/* 독서 관련 섹션 */}
-          <View className="mb-6">
+          {/* <View className="mb-6">
             <View className="px-6 py-4">
               <Text text="독서 관리" type="body2" className="text-gray-400 uppercase tracking-wide" />
             </View>
@@ -82,32 +124,12 @@ export const ProfileScreen = () => {
               subtitle="월별, 연도별 독서 현황"
               onPress={() => handleMenuPress('독서 통계')}
             />
-          </View>
+          </View> */}
 
-          {/* 앱 설정 섹션 */}
-          <View className="mb-6">
-            <View className="px-6 py-4">
-              <Text text="앱 설정" type="body2" className="text-gray-400 uppercase tracking-wide" />
-            </View>
-            <MenuItem
-              title="테마 설정"
-              subtitle="다크/라이트 모드 변경"
-              onPress={() => handleMenuPress('테마 설정')}
-            />
-            <MenuItem
-              title="폰트 설정"
-              subtitle="글꼴 크기 및 스타일 변경"
-              onPress={() => handleMenuPress('폰트 설정')}
-            />
-            <MenuItem
-              title="언어 설정"
-              subtitle="앱 언어 변경"
-              onPress={() => handleMenuPress('언어 설정')}
-            />
-          </View>
+          
 
           {/* 지원 섹션 */}
-          <View className="mb-6">
+          {/* <View className="mb-6">
             <View className="px-6 py-4">
               <Text text="지원" type="body2" className="text-gray-400 uppercase tracking-wide" />
             </View>
@@ -126,20 +148,7 @@ export const ProfileScreen = () => {
               subtitle="버전 정보 및 라이선스"
               onPress={() => handleMenuPress('앱 정보')}
             />
-          </View>
-
-          {/* 로그아웃 */}
-          <View className="px-6 py-4">
-            <TouchableOpacity
-              onPress={handleLogoutConfirm}
-              disabled={isLoading}
-              className="bg-red-600 rounded-lg py-4 items-center"
-              activeOpacity={0.7}
-            >
-              <Text text="로그아웃" type="body1" className="text-white font-semibold" />
-            </TouchableOpacity>
-          </View>
-
+          </View> */}
           {/* 하단 여백 */}
           <View className="h-8" />
         </ScrollView>
