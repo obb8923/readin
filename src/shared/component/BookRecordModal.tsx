@@ -19,11 +19,10 @@ import { Colors } from '@constant/Colors';
 import { BookImage } from '@/shared/component/BookImage';
 import RNHorizontalSlider from '@/shared/component/Slider';
 import { fetchPhysicalInfoWithPerplexity } from '@/shared/libs/supabase/enrichBook';
-import { createBook } from '@/shared/libs/supabase/books';
-import { createReadingLog, updateLogById, deleteLogById } from '@/shared/libs/supabase/reading_logs';
+import { updateLogById, deleteLogById } from '@/shared/libs/supabase/reading_logs';
 import { supabase } from '@/shared/libs/supabase/supabase';
 import { saveBookAndLog } from '@/shared/libs/supabase/saveBookAndReadingLog';
-
+import { Button } from '@/shared/component/Button';
 export type BookRecordModalMode = 'save' | 'view';
 
 interface BookRecordModalProps {
@@ -260,7 +259,7 @@ export const BookRecordModal = ({
           {/* 책 정보 섹션 */}
           <View className="flex-row mb-6">
             {/* 왼쪽 이미지 */}
-            <BookImage imageUrl={book.imageUrl} className="mr-4 w-[80px] h-[100px]" />
+            <BookImage imageUrl={book.imageUrl} className="w-[80] h-[100] mr-2" />
             {/* 오른쪽 책 정보 */}
             <View className="flex-1">
               <Text 
@@ -479,21 +478,19 @@ export const BookRecordModal = ({
 
           {/* 버튼 섹션 */}
           <View className="flex-row">
-            <TouchableOpacity onPress={handleCloseModal} className="flex-1 mr-2 bg-gray700 rounded-xl py-3 items-center" activeOpacity={0.8}>
-              <Text text="취소" type="body2" className="text-white" />
-            </TouchableOpacity>
+            <Button 
+            text="취소"
+            onPress={handleCloseModal} 
+            className="" 
+             />
             
             {mode === 'save' ? (
-              <TouchableOpacity onPress={handleSave} className="flex-1 ml-2 bg-primary rounded-xl py-3 items-center" activeOpacity={0.8}>
-                {isSaving ? (
-                  <View className="flex-row items-center">
-                    <ActivityIndicator size="small" color={Colors.white || '#fff'} />
-                    <Text text="  저장 중..." type="body2" className="text-white" />
-                  </View>
-                ) : (
-                  <Text text="저장" type="body2" className="text-white" />
-                )}
-              </TouchableOpacity>
+              <Button
+              text="저장"
+              onPress={handleSave}
+              className=""
+              isLoading={isSaving}
+              />
             ) : (
               <>
                 <TouchableOpacity onPress={handleDelete} className="flex-1 mr-2 bg-red-600 rounded-xl py-3 items-center" activeOpacity={0.8}>

@@ -9,10 +9,10 @@
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-readin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-readin.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		6DD220E8FF4B481DA9A634A5 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = C4B1D52C49644EA3AF6B79B4 /* Pretendard-Regular.otf */; };
-		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		1C31A16E7B7446149A3E9006 /* AppleSignInModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = F23636EE72B04C15A3359EDD /* AppleSignInModule.swift */; };
 		1C31A16F7B7446149A3E9007 /* AppleSignInModule.m in Sources */ = {isa = PBXBuildFile; fileRef = F23636EF72B04C15A3359EDE /* AppleSignInModule.m */; };
+		6DD220E8FF4B481DA9A634A5 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = C4B1D52C49644EA3AF6B79B4 /* Pretendard-Regular.otf */; };
+		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8991B76E62874230A9F26304 /* Pretendard-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4EDAF73E5F44475CB1128EE5 /* Pretendard-Black.otf */; };
 		A5085132E8404E0BAE3D6D96 /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8775A37585F141BF8B87370D /* Pretendard-SemiBold.otf */; };
@@ -32,8 +32,6 @@
 		5709B34CF0A7D63546082F79 /* Pods-readin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-readin.release.xcconfig"; path = "Target Support Files/Pods-readin/Pods-readin.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-readin.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-readin.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = readin/AppDelegate.swift; sourceTree = "<group>"; };
-		F23636EE72B04C15A3359EDD /* AppleSignInModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppleSignInModule.swift; path = readin/AppleSignInModule.swift; sourceTree = "<group>"; };
-		F23636EF72B04C15A3359EDE /* AppleSignInModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AppleSignInModule.m; path = readin/AppleSignInModule.m; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = readin/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		81BF36B3FED7441C9130E9D1 /* KyoboHandwriting2019.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = KyoboHandwriting2019.otf; path = ../assets/fonts/KyoboHandwriting2019.otf; sourceTree = "<group>"; };
 		8775A37585F141BF8B87370D /* Pretendard-SemiBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-SemiBold.otf"; path = "../assets/fonts/Pretendard-SemiBold.otf"; sourceTree = "<group>"; };
@@ -41,6 +39,8 @@
 		CE794BD02E72F276008792BC /* readin-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "readin-Bridging-Header.h"; sourceTree = "<group>"; };
 		CEF483D42E72EE3B00B85C69 /* readin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = readin.entitlements; path = readin/readin.entitlements; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F23636EE72B04C15A3359EDD /* AppleSignInModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppleSignInModule.swift; path = readin/AppleSignInModule.swift; sourceTree = "<group>"; };
+		F23636EF72B04C15A3359EDE /* AppleSignInModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AppleSignInModule.m; path = readin/AppleSignInModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

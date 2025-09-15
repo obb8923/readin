@@ -14,15 +14,20 @@ export async function fetchPhysicalInfoWithPerplexity(input: {
   publisher: string;
   isbn?: string;
 }): Promise<PhysicalInfo> {
-  const system = `너는 도서의 물리 정보를 찾아주는 도우미야.
-반드시 아래 JSON 형식으로만 답해:
+  const system = `
+  You are an assistant that retrieves the physical information of books.
+You must respond only in the following JSON format:
 {"width": number, "height": number, "thickness": number, "pages": number, "weight": number}
-단위는 mm(밀리미터), 무게는 g(그램), 페이지는 정수. 모르겠으면 합리적인 평균값을 넣지 말고 최대한 신뢰 가능한 값을 찾아.`;
+Units: mm (millimeters) for dimensions, g (grams) for weight, and pages must be an integer.
+Find the book’s physical information based on its title, author, publisher, and ISBN.
+Provide the most reliable values possible.
+If there is either too much or too little information about a book, find the most representative edition and make sure to always fill in numeric values for each key (width, height, thickness, pages, weight).
+`;
 
-  const user = `책 정보를 기반으로 실제 물리 정보를 알려줘.
-제목: ${input.title}
-저자: ${input.authors.join(', ')}
-출판사: ${input.publisher}
+  const user = `Find the book’s physical information based on its title, author, publisher, and ISBN.
+Title: ${input.title}
+Author: ${input.authors.join(', ')}
+Publisher: ${input.publisher}
 ISBN: ${input.isbn ?? ''}`;
 
   const request: PerplexityRequest = {

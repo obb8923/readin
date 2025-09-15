@@ -1,18 +1,20 @@
-import { View, Image } from "react-native";
+import { View, Image, StyleProp, ViewStyle, ImageStyle } from "react-native";
 import { BookType } from "@/shared/type/bookType";
 
 interface BookImageProps extends Pick<BookType, 'imageUrl'> {
   className?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const BookImage = ({ imageUrl, className }: BookImageProps) => {
+export const BookImage = ({ imageUrl, className, style }: BookImageProps) => {
   return (
-    <View className={`items-center justify-center overflow-hidden h-full w-20 ${className}`}>
+    <View className={`items-start justify-center overflow-hidden w-20 ${className}`}>
           {imageUrl ? (
             <Image 
               source={{ uri: imageUrl }} 
               className="w-full h-full aspect-[2/3] rounded-md"
               resizeMode="cover"
+              style={style as StyleProp<ImageStyle>}
             />
           ) : (
             <View className="w-full h-full aspect-[2/3] bg-gray-600 rounded-md">

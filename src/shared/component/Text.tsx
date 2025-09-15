@@ -18,10 +18,11 @@ const getTypographyStyle = (type: TypographyType): TextStyle => {
   switch(type){
     case 'title1':
       return {
-        fontFamily: 'Pretendard-Black',
+        fontFamily: 'Pretendard',
         fontSize: 28,
         lineHeight: 28 * 1.4, // 140%
         letterSpacing: -0.7, // -2.5%
+        fontWeight: '700', // Bold weight
       };
     case 'title2':
       return {
@@ -32,14 +33,14 @@ const getTypographyStyle = (type: TypographyType): TextStyle => {
       };
     case 'title3':
       return {
-        fontFamily: 'Pretendard-Black',
+        fontFamily: 'Pretendard-Bold',
         fontSize: 22,
-        lineHeight: 22 * 1.4,
+        lineHeight: 22 * 1.4, 
         letterSpacing: -0.55,
       };
     case 'title4':
       return {
-        fontFamily: 'Pretendard-Black',
+        fontFamily: 'Pretendard-Bold',
         fontSize: 18,
         lineHeight: 18 * 1.4,
         letterSpacing: -0.45,
@@ -53,7 +54,7 @@ const getTypographyStyle = (type: TypographyType): TextStyle => {
       };
     case 'body2':
       return {
-        fontFamily: 'Pretendard-Regular',
+        fontFamily: 'Pretendard-Medium',
         fontSize: 16,
         lineHeight: 16 * 1.4,
         letterSpacing: -0.4,

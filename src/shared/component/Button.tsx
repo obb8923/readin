@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, ViewStyle } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, ViewStyle } from 'react-native';
 import { Text, TypographyType } from './Text';
+import { Colors } from '../constant/Colors';
 
 export type ButtonProps = {
   text: string;
@@ -10,30 +11,39 @@ export type ButtonProps = {
   className?: string;
   textClassName?: string;
   style?: ViewStyle | ViewStyle[];
+  isLoading?: boolean;
 };
 
 export const Button = ({
   text,
   onPress,
-  textType = 'body2',
+  textType = 'title4',
   disabled = false,
   className = '',
   textClassName = '',
   style,
+  isLoading = false,
 }: ButtonProps) => {
-  
   return (
     <TouchableOpacity
       onPress={disabled ? undefined : onPress}
-      className={`w-auto rounded-full px-4 py-2 justify-center items-center ${disabled ? 'bg-disabled' : 'bg-blue-200'} ${className}`}
+      className={`flex-1 w-auto rounded-xl px-4 py-2 justify-center items-center 
+        ${disabled ? 'bg-disabled' : 'bg-primary'} 
+        ${className}`}
       style={style}
       activeOpacity={disabled ? 1 : 0.7}
     >
-      <Text 
-        text={text} 
-        type={textType} 
-        className={`text-center ${textClassName}`}
-      />
+      {isLoading ? (
+        <ActivityIndicator size="small" color={Colors.white} />
+      ) : (
+        <Text 
+          text={text} 
+          type={textType} 
+          className={`text-center text-white ${textClassName}`}
+        />
+      )}
     </TouchableOpacity>
   );
 };
+
+
