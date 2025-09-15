@@ -82,12 +82,12 @@ export const ProfileScreen = () => {
           <MenuItem
               title="내 정보"
               subtitle="프로필 수정 및 개인정보 관리"
-              onPress={() => handleMenuPress('내 정보')}
+              onPress={() => {hideTabBar(); navigation.navigate('MyInfo');}}
             />
           <MenuItem
               title="독서 통계"
               subtitle="월별, 연도별 독서 현황"
-              onPress={() => handleMenuPress('독서 통계')}
+              onPress={() => {hideTabBar(); navigation.navigate('Statistics');}}
           />
           <MenuItem
             title="문의하기"
