@@ -3,8 +3,7 @@ import {Text as RNText, TextStyle} from 'react-native';
 export type TypographyType = 
   | 'title1' | 'title2' | 'title3' | 'title4'
   | 'body1' | 'body2' | 'body3' 
-  | 'caption1'
-  | 'handwriting';
+  | 'caption1';
 
 export type TextProps = {
     text: string;
@@ -18,11 +17,10 @@ const getTypographyStyle = (type: TypographyType): TextStyle => {
   switch(type){
     case 'title1':
       return {
-        fontFamily: 'Pretendard',
+        fontFamily: 'Pretendard-Bold',
         fontSize: 28,
         lineHeight: 28 * 1.4, // 140%
         letterSpacing: -0.7, // -2.5%
-        fontWeight: '700', // Bold weight
       };
     case 'title2':
       return {
@@ -72,12 +70,6 @@ const getTypographyStyle = (type: TypographyType): TextStyle => {
         fontSize: 12,
         lineHeight: 12 * 1.4,
         letterSpacing: -0.3,
-      };
-    case 'handwriting':
-      return {
-        fontFamily: 'KyoboHandwriting2019',
-        fontSize: 16,
-        lineHeight: 16 * 1.4,
       };
     default:
       return {

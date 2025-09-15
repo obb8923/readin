@@ -12,8 +12,9 @@ module.exports = {
         'p-regular': ['Pretendard-Regular'],
         'p-semibold': ['Pretendard-SemiBold'],
         'p-extrabold': ['Pretendard-ExtraBold'],
+        'p-bold': ['Pretendard-Bold'],
+        'p-medium': ['Pretendard-Medium'],
         'p-black': ['Pretendard-Black'],
-        'kb2019': ['KyoboHandwriting2019'],
       },
       colors: {
         'primary': '#fb5531',

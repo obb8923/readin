@@ -83,21 +83,21 @@ export const BookRecordModal = ({
       setEnriched(null);
       
       // 저장 모드일 때만 물리 정보 조회
-      if (mode === 'save') {
-        setIsEnrichLoading(true);
-        const p = fetchPhysicalInfoWithPerplexity({
-          title: book.title,
-          authors: book.author,
-          publisher: book.publisher,
-          isbn: book.isbn,
-        })
-          .then((info) => setEnriched(info))
-          .catch((e) => {
-            console.warn('물리 정보 조회 실패:', e);
-          })
-          .finally(() => setIsEnrichLoading(false));
-        enrichPromiseRef.current = p;
-      }
+      // if (mode === 'save') {
+      //   setIsEnrichLoading(true);
+      //   const p = fetchPhysicalInfoWithPerplexity({
+      //     title: book.title,
+      //     authors: book.author,
+      //     publisher: book.publisher,
+      //     isbn: book.isbn,
+      //   })
+      //     .then((info) => setEnriched(info))
+      //     .catch((e) => {
+      //       console.warn('물리 정보 조회 실패:', e);
+      //     })
+      //     .finally(() => setIsEnrichLoading(false));
+      //   enrichPromiseRef.current = p;
+      // }
     }
   }, [visible, book, mode]);
 

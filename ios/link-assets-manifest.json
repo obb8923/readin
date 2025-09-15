@@ -2,16 +2,20 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "assets/fonts/KyoboHandwriting2019.otf",
-      "sha1": "cecfc316a9fe33e27b1ff4ad44bf5d3d88dd5b44"
-    },
-    {
       "path": "assets/fonts/Pretendard-Black.otf",
       "sha1": "b9162985d25a21b393185c6139d283fba46fd739"
     },
     {
+      "path": "assets/fonts/Pretendard-Bold.otf",
+      "sha1": "bd4ac82cc26cf93c89cfbfbbba8825c5198b5b99"
+    },
+    {
       "path": "assets/fonts/Pretendard-ExtraBold.otf",
       "sha1": "ea07e7375c62c8386f77431f0f62a2cbdea34618"
+    },
+    {
+      "path": "assets/fonts/Pretendard-Medium.otf",
+      "sha1": "eba1a37734a9c4fe3d84f540ce8d812d366b2b22"
     },
     {
       "path": "assets/fonts/Pretendard-Regular.otf",
