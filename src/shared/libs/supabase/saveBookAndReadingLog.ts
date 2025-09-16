@@ -36,7 +36,7 @@ export async function saveBookAndLog(params: SaveParams) {
   const DEFAULT_HEIGHT = 225; // mm
   const DEFAULT_WIDTH = 30; // mm
   const DEFAULT_WEIGHT = 250; // g
-
+  const DEFAULT_PAGES = 100;
   // 물리적 속성에 기본값 적용
   const getThickness = () => {
     const value = physical.thickness ?? params.book.thickness ?? null;
@@ -58,6 +58,11 @@ export async function saveBookAndLog(params: SaveParams) {
     return value && value < DEFAULT_WEIGHT ? DEFAULT_WEIGHT : value;
   };
 
+  const getPages = () => {
+    const value = physical.pages ?? params.book.pages ?? null;
+    return value && value < DEFAULT_PAGES ? DEFAULT_PAGES : value;
+  };
+
   const bookRow = {
     // id는 자동 생성되므로 제외
     title: params.book.title || '',
@@ -71,7 +76,7 @@ export async function saveBookAndLog(params: SaveParams) {
     height: getHeight(),
     thickness: getThickness(),
     weight: getWeight(),
-    pages: physical.pages ?? params.book.pages ?? null,
+    pages: getPages(),
     created_at: nowIso,
     updated_at: nowIso,
   } as Record<string, any>;
@@ -114,7 +119,7 @@ export async function saveBookAndLog(params: SaveParams) {
     height: getHeight(),
     thickness: getThickness(),
     weight: getWeight(),
-    pages: physical.pages ?? params.book.pages ?? null,
+    pages: getPages(),
   };
 
   // ReadingLogWithBook 형태로 변환하여 store에 추가
@@ -136,7 +141,7 @@ export async function saveBookAndLog(params: SaveParams) {
       height: getHeight(),
       thickness: getThickness(),
       weight: getWeight(),
-      pages: physical.pages ?? params.book.pages ?? null,
+      pages: getPages(),
     },
     record: {
       rate: params.rate,
