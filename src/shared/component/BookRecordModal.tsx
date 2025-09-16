@@ -708,7 +708,7 @@ export const BookRecordModal = ({
               onPress={handleSave}
               className="ml-4 bg-primary"
               disabled={isEnrichLoading || isSaving}
-              isLoading={isSaving}
+              isLoading={isEnrichLoading || isSaving}
               />
             ) : (
               <>
