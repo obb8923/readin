@@ -167,9 +167,9 @@ export const StatisticsScreen = () => {
   }, [readingLogs]);
 
   const chartConfig = {
-    backgroundColor: '#212121',
-    backgroundGradientFrom: '#212121',
-    backgroundGradientTo: '#212121',
+    backgroundColor: Colors.background,
+    backgroundGradientFrom: Colors.background,
+    backgroundGradientTo: Colors.background,
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(255,255,255,${opacity})`,
     labelColor: (opacity = 1) => `rgba(255,255,255,${opacity})`,
@@ -188,12 +188,16 @@ export const StatisticsScreen = () => {
 
   const chartWidth = screenWidth - 32; // padding 16 + 16
   const chartHeight = 220;
+  const BAR_MIN_COL_WIDTH = 40;
+  const LINE_MIN_POINT_WIDTH = 40;
+  const barContentWidth = Math.max(chartWidth, (yearlyData.length > 0 ? yearlyData.length : 1) * BAR_MIN_COL_WIDTH);
+  const lineContentWidth = Math.max(chartWidth, 12 * LINE_MIN_POINT_WIDTH);
 
   return (
     <Background>
       <View>
         <AppBar
-          title="Statistics"
+          title="독서 통계"
           onLeftPress={() => {
             showTabBar();
             navigation.goBack();
@@ -202,59 +206,63 @@ export const StatisticsScreen = () => {
         <ScrollView className="bg-background">
           <View className="px-4 pb-6">
           <View className="bg-gray800 rounded-xl p-4 mb-4 shadow-lg">
-            <Text text="Yearly Books Read" type="title2" className="text-white" />
-            <View className="mt-3 rounded-xl overflow-hidden">
-              <BarChart
-                width={chartWidth}
-                height={chartHeight}
-                data={{
-                  labels: yearlyData.length > 0 ? yearlyData.map(y => String(y.year)) : ['—'],
-                  datasets: [{ data: yearlyData.length > 0 ? yearlyData.map(y => y.count) : [0] }],
-                }}
-                fromZero
-                showValuesOnTopOfBars
-                yAxisLabel=""
-                yAxisSuffix=""
-                chartConfig={chartConfig}
-              />
-            </View>
+            <Text text="연도별 독서 현황" type="title2" className="text-white" />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} className="mt-3">
+              <View className="rounded-xl overflow-hidden">
+                <BarChart
+                  width={barContentWidth}
+                  height={chartHeight}
+                  data={{
+                    labels: yearlyData.length > 0 ? yearlyData.map(y => String(y.year)) : ['—'],
+                    datasets: [{ data: yearlyData.length > 0 ? yearlyData.map(y => y.count) : [0] }],
+                  }}
+                  fromZero
+                  showValuesOnTopOfBars
+                  yAxisLabel=""
+                  yAxisSuffix="권"
+                  chartConfig={chartConfig}
+                />
+              </View>
+            </ScrollView>
           </View>
 
           <View className="bg-gray800 rounded-xl p-4 mb-4 shadow-lg">
-            <Text text="Monthly Books Read" type="title2" className="text-white" />
-            <View className="mt-3 rounded-xl overflow-hidden">
-              <LineChart
-                width={chartWidth}
-                height={chartHeight}
-                data={{
-                  labels: Array.from({ length: 12 }, (_, i) => String(i + 1)),
-                  datasets: [{ data: monthlyData, color: () => Colors.primary }],
-                }}
-                withInnerLines
-                bezier
-                fromZero
-                yAxisLabel=""
-                yAxisSuffix=""
-                chartConfig={chartConfig}
-              />
-            </View>
+            <Text text="월별 독서 현황" type="title2" className="text-white" />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} className="mt-3">
+              <View className="rounded-xl overflow-hidden">
+                <LineChart
+                  width={lineContentWidth}
+                  height={chartHeight}
+                  data={{
+                    labels: Array.from({ length: 12 }, (_, i) => String(i + 1)),
+                    datasets: [{ data: monthlyData, color: () => Colors.primary }],
+                  }}
+                  withInnerLines
+                  bezier
+                  fromZero
+                  yAxisLabel=""
+                  yAxisSuffix="권"
+                  chartConfig={chartConfig}
+                />
+              </View>
+            </ScrollView>
           </View>
 
           <View className="bg-gray800 rounded-xl p-4 mb-4 shadow-lg">
-            <Text text="Category Ratio" type="title2" className="text-white" />
+            <Text text="카테고리별 비율" type="title2" className="text-white" />
             <View className="mt-3 rounded-xl overflow-hidden">
               <PieChart
                 width={chartWidth}
                 height={chartHeight}
-                accessor={'population'}
+                accessor={'count'}
                 backgroundColor={'transparent'}
                 paddingLeft={'0'}
                 chartConfig={chartConfig}
                 data={(categoryData.length > 0 ? categoryData : [{ name: '기타', count: 1 }]).map(c => ({
                   name: c.name,
-                  population: c.count,
-                  color: colorByCategory[c.name] ?? '#9e9e9e',
-                  legendFontColor: '#ffffff',
+                  count: c.count,
+                  color: colorByCategory[c.name] ?? Colors.gray400,
+                  legendFontColor: Colors.white,
                   legendFontSize: 12,
                 }))}
               />
