@@ -66,7 +66,7 @@ export async function createBook(input: BookCreateInput) {
     updated_at: nowIso,
   };
   
-  console.log('createBook - 삽입할 데이터:', JSON.stringify(row, null, 2));
+  if(__DEV__) console.log('createBook - 삽입할 데이터:', JSON.stringify(row, null, 2));
   
   const { data, error } = await supabase.from('books').upsert(row, { onConflict: 'isbn' }).select('*').limit(1);
   
@@ -75,7 +75,7 @@ export async function createBook(input: BookCreateInput) {
     throw error;
   }
   
-  console.log('createBook - 성공, 반환 데이터:', data);
+  if(__DEV__) console.log('createBook - 성공, 반환 데이터:', data);
   return Array.isArray(data) ? data[0] : data;
 }
 
