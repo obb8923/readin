@@ -14,7 +14,6 @@ export async function createBook(input: BookCreateInput) {
   if (userError || !userInfo?.user) {
     throw new Error('로그인이 필요합니다.');
   }
-  console.log('createBook - 사용자 인증 확인됨:', userInfo.user.id);
   
   const nowIso = new Date().toISOString();
   
@@ -74,8 +73,6 @@ export async function createBook(input: BookCreateInput) {
     console.error('createBook - Supabase 오류:', error);
     throw error;
   }
-  
-  if(__DEV__) console.log('createBook - 성공, 반환 데이터:', data);
   return Array.isArray(data) ? data[0] : data;
 }
 

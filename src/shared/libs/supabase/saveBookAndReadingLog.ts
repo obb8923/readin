@@ -132,8 +132,6 @@ export async function saveBookAndLog(params: SaveParams) {
   const addReadingLog = useReadingLogsWithBooksStore.getState().addReadingLog;
   addReadingLog(newLogWithBook);
 
-  console.log('saveBookAndLog - 독서 기록 생성 및 store 추가 완료');
-
   const saved: SavedBook = {
     book: {
       ...params.book,

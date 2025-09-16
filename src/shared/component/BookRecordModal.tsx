@@ -20,6 +20,7 @@ import RNHorizontalSlider from '@/shared/component/Slider';
 import { updateLogById, deleteLogById } from '@/shared/libs/supabase/reading_logs';
 import { supabase } from '@/shared/libs/supabase/supabase';
 import { saveBookAndLog } from '@/shared/libs/supabase/saveBookAndReadingLog';
+import { updateBookById } from '@/shared/libs/supabase/books';
 import { Button } from '@/shared/component/Button';
 import { fetchPhysicalInfoWithPerplexity } from '@/shared/libs/supabase/enrichBook';
 export type BookRecordModalMode = 'save' | 'view';
@@ -59,6 +60,15 @@ export const BookRecordModal = ({
   const [enriched, setEnriched] = useState<{ width: number; height: number; thickness: number; pages: number; weight: number } | null>(null);
   const enrichPromiseRef = useRef<Promise<any> | null>(null);
 
+  // 물리정보 편집 상태 (view 모드에서 인라인 편집)
+  const [widthVal, setWidthVal] = useState<number | null>(null);
+  const [heightVal, setHeightVal] = useState<number | null>(null);
+  const [thicknessVal, setThicknessVal] = useState<number | null>(null);
+  const [weightVal, setWeightVal] = useState<number | null>(null);
+  const [pagesVal, setPagesVal] = useState<number | null>(null);
+
+  const [editingField, setEditingField] = useState<null | 'width' | 'height' | 'thickness' | 'weight' | 'pages'>(null);
+
   // 모달이 열릴 때 초기화
   useEffect(() => {
     if (visible && book) {
@@ -68,18 +78,30 @@ export const BookRecordModal = ({
         setMemo(book.record.memo || '');
         setStartDate(book.record.startedAt ? new Date(book.record.startedAt) : new Date());
         setEndDate(book.record.finishedAt ? new Date(book.record.finishedAt) : new Date());
+        // 물리정보 상태 초기화
+        setWidthVal(book.width ?? null);
+        setHeightVal(book.height ?? null);
+        setThicknessVal(book.thickness ?? null);
+        setWeightVal(book.weight ?? null);
+        setPagesVal(book.pages ?? null);
       } else {
         // 저장 모드: 기본값으로 초기화
         setRating(100);
         setMemo('');
         setStartDate(new Date());
         setEndDate(new Date());
+        setWidthVal(null);
+        setHeightVal(null);
+        setThicknessVal(null);
+        setWeightVal(null);
+        setPagesVal(null);
       }
       setMemoDraft('');
       setShowStartDatePicker(false);
       setShowEndDatePicker(false);
       setShowMemoEditor(false);
       setEnriched(null);
+      setEditingField(null);
       
       // 저장 모드일 때만 물리 정보 조회
       if (mode === 'save') {
@@ -143,13 +165,14 @@ export const BookRecordModal = ({
 
   // 물리 정보 포맷팅 유틸
   const physical = enriched ?? book;
-  const formatValue = (n?: number) => (typeof n === 'number' && n > 0 ? `${n}` : '-');
-  const sizeLabel =
-    physical
-      ? `${formatValue(physical.width)} × ${formatValue(physical.height)} × ${formatValue(physical.thickness)} mm`
+  const formatValue = (n?: number | null) => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? `${n}` : '-');
+  const sizeDisplay = `${formatValue(widthVal ?? physical?.width)} mm  ×  ${formatValue(heightVal ?? physical?.height)} mm  ×  ${formatValue(thicknessVal ?? physical?.thickness)} mm`;
+  const weightDisplay = typeof (weightVal ?? physical?.weight) === 'number' && Number.isFinite(weightVal ?? physical?.weight) && (weightVal ?? physical?.weight)! > 0
+    ? `${weightVal ?? physical?.weight} g`
+    : '-';
+  const pagesDisplay = typeof (pagesVal ?? physical?.pages) === 'number' && Number.isFinite(pagesVal ?? physical?.pages) && (pagesVal ?? physical?.pages)! > 0
+    ? `${pagesVal ?? physical?.pages} p`
       : '-';
-  const weightLabel = physical ? (typeof physical.weight === 'number' && physical.weight > 0 ? `${physical.weight} g` : '-') : '-';
-  const pagesLabel = physical ? (typeof physical.pages === 'number' && physical.pages > 0 ? `${physical.pages} p` : '-') : '-';
 
   const formatDate = (date: Date | null) => {
     if (!date) return '날짜 선택';
@@ -213,6 +236,27 @@ export const BookRecordModal = ({
         started_at: toISO(startDate),
         finished_at: toISO(endDate),
       });
+
+      // 물리 정보 업데이트 (books 테이블)
+      const physicalUpdates: Record<string, any> = {};
+      const applyIfNumber = (key: 'width' | 'height' | 'thickness' | 'weight' | 'pages', value: number | null | undefined) => {
+        if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+          physicalUpdates[key] = value;
+        }
+      };
+      applyIfNumber('width', widthVal ?? book.width);
+      applyIfNumber('height', heightVal ?? book.height);
+      applyIfNumber('thickness', thicknessVal ?? book.thickness);
+      applyIfNumber('weight', weightVal ?? book.weight);
+      applyIfNumber('pages', pagesVal ?? book.pages);
+
+      if (Object.keys(physicalUpdates).length > 0) {
+        try {
+          await updateBookById(book.id, physicalUpdates);
+        } catch (e) {
+          console.warn('물리 정보 업데이트 실패:', e);
+        }
+      }
 
       Alert.alert('수정 완료', '기록이 수정되었습니다.');
       handleCloseModal();
@@ -291,25 +335,177 @@ export const BookRecordModal = ({
               />
             </View>
           </View>
+
             {/* 물리 치수 섹션 */}
             {mode === 'view' && (
-            <View className="mb-6 w-full">
-            <View className="bg-gray700 rounded-lg p-3">
-              <View className="flex-row justify-between mb-2">
-                <Text text="사이즈" type="body3" className="text-gray300" />
-                <Text text={sizeLabel} type="body3" className="text-white" />
-              </View>
-              <View className="flex-row justify-between mb-2">
-                <Text text="무게" type="body3" className="text-gray300" />
-                <Text text={weightLabel} type="body3" className="text-white" />
-              </View>
-              <View className="flex-row justify-between">
-                <Text text="페이지" type="body3" className="text-gray300" />
-                <Text text={pagesLabel} type="body3" className="text-white" />
-              </View>
+              <View className="mb-6 w-full rounded-lg py">
+                {/* 사이즈: 너비, 높이, 두께 - 한 행에 가로 배치, 각 부분 인라인 편집 */}
+                <View className="flex-row items-center justify-evenly mb-2 gap-x-2">
+                  {/* 너비 */}
+                  <TouchableOpacity
+                    className="flex-1"
+                    activeOpacity={0.8}
+                    onPress={() => setEditingField('width')}
+                  >
+                      <View className="flex-row items-center">
+                        <Text text="너비" type="body3" className="text-gray300 mr-1" />
+                        {editingField === 'width'?
+                        (<TextInput
+                          keyboardType="numeric"
+                          value={widthVal != null ? String(widthVal) : ''}
+                          onChangeText={(t) => {
+                            const n = Number(t.replace(/[^0-9.]/g, ''));
+                            if (Number.isFinite(n)) setWidthVal(n);
+                            if (t === '') setWidthVal(null);
+                          }}
+                          onBlur={() => { setEditingField(null); }}
+                          onSubmitEditing={() => { setEditingField(null); Keyboard.dismiss(); }}
+                          returnKeyType="done"
+                          className="text-white text-sm"
+                          placeholder="-"
+                          placeholderTextColor={Colors.gray400}
+                          autoFocus
+                        />):
+                        (
+                          <Text text={`${formatValue(widthVal ?? physical?.width)}`} type="body3" className="text-white" />
+                      )}
+                        <Text text= "mm" type="body3" className="text-white" />
+                      </View>
+                  </TouchableOpacity>
+
+                  {/* 높이 */}
+                  <TouchableOpacity
+                    className="flex-1"
+                    activeOpacity={0.8}
+                    onPress={() => setEditingField('height')}
+                  >
+                    <View className="flex-row items-center">
+                      <Text text="높이" type="body3" className="text-gray300 mr-1" />
+                      {editingField === 'height' ? (
+                        <TextInput
+                          keyboardType="numeric"
+                          value={heightVal != null ? String(heightVal) : ''}
+                          onChangeText={(t) => {
+                            const n = Number(t.replace(/[^0-9.]/g, ''));
+                            if (Number.isFinite(n)) setHeightVal(n);
+                            if (t === '') setHeightVal(null);
+                          }}
+                          onBlur={() => { setEditingField(null); }}
+                          onSubmitEditing={() => { setEditingField(null); Keyboard.dismiss(); }}
+                          returnKeyType="done"
+                          className="text-white text-sm"
+                          placeholder="-"
+                          placeholderTextColor={Colors.gray400}
+                          autoFocus
+                        />
+                      ) : (
+                        <Text text={`${formatValue(heightVal ?? physical?.height)}`} type="body3" className="text-white" />
+                      )}
+                      <Text text="mm" type="body3" className="text-white" />
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* 두께 */}
+                  <TouchableOpacity
+                    className="flex-1"
+                    activeOpacity={0.8}
+                    onPress={() => setEditingField('thickness')}
+                  >
+                    <View className="flex-row items-center">
+                      <Text text="두께" type="body3" className="text-gray300 mr-1" />
+                      {editingField === 'thickness' ? (
+                        <TextInput
+                          keyboardType="numeric"
+                          value={thicknessVal != null ? String(thicknessVal) : ''}
+                          onChangeText={(t) => {
+                            const n = Number(t.replace(/[^0-9.]/g, ''));
+                            if (Number.isFinite(n)) setThicknessVal(n);
+                            if (t === '') setThicknessVal(null);
+                          }}
+                          onBlur={() => { setEditingField(null); }}
+                          onSubmitEditing={() => { setEditingField(null); Keyboard.dismiss(); }}
+                          returnKeyType="done"
+                          className="text-white text-sm"
+                          placeholder="-"
+                          placeholderTextColor={Colors.gray400}
+                          autoFocus
+                        />
+                      ) : (
+                        <Text text={`${formatValue(thicknessVal ?? physical?.thickness)}`} type="body3" className="text-white" />
+                      )}
+                      <Text text="mm" type="body3" className="text-white" />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                {/* 무게, 페이지도 동일한 인라인 편집 레이아웃 */}
+                <View className="flex-row items-center justify-evenly gap-x-4">
+                  {/* 무게 */}
+                  <TouchableOpacity
+                    className="flex-1"
+                    activeOpacity={0.8}
+                    onPress={() => setEditingField('weight')}
+                  >
+                    <View className="flex-row items-center">
+                      <Text text="무게" type="body3" className="text-gray300 mr-1" />
+                      {editingField === 'weight' ? (
+                        <TextInput
+                          keyboardType="numeric"
+                          value={weightVal != null ? String(weightVal) : ''}
+                          onChangeText={(t) => {
+                            const n = Number(t.replace(/[^0-9.]/g, ''));
+                            if (Number.isFinite(n)) setWeightVal(n);
+                            if (t === '') setWeightVal(null);
+                          }}
+                          onBlur={() => { setEditingField(null); }}
+                          onSubmitEditing={() => { setEditingField(null); Keyboard.dismiss(); }}
+                          returnKeyType="done"
+                          className="text-white text-sm"
+                          placeholder="-"
+                          placeholderTextColor={Colors.gray400}
+                          autoFocus
+                        />
+                      ) : (
+                        <Text text={`${formatValue(weightVal ?? physical?.weight)}`} type="body3" className="text-white" />
+                      )}
+                      <Text text="g" type="body3" className="text-white" />
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* 페이지 */}
+                  <TouchableOpacity
+                    className="flex-1"
+                    activeOpacity={0.8}
+                    onPress={() => setEditingField('pages')}
+                  >
+                    <View className="flex-row items-center">
+                      <Text text="페이지" type="body3" className="text-gray300 mr-1" />
+                      {editingField === 'pages' ? (
+                        <TextInput
+                          keyboardType="numeric"
+                          value={pagesVal != null ? String(pagesVal) : ''}
+                          onChangeText={(t) => {
+                            const n = Number(t.replace(/[^0-9.]/g, ''));
+                            if (Number.isFinite(n)) setPagesVal(n);
+                            if (t === '') setPagesVal(null);
+                          }}
+                          onBlur={() => { setEditingField(null); }}
+                          onSubmitEditing={() => { setEditingField(null); Keyboard.dismiss(); }}
+                          returnKeyType="done"
+                          className="text-white text-sm"
+                          placeholder="-"
+                          placeholderTextColor={Colors.gray400}
+                          autoFocus
+                        />
+                      ) : (
+                        <Text text={`${formatValue(pagesVal ?? physical?.pages)}`} type="body3" className="text-white" />
+                      )}
+                      <Text text="p" type="body3" className="text-white" />
+                    </View>
+                  </TouchableOpacity>
             </View>
           </View>
             )}
+
 
           {/* Rating 섹션 */}
           <View 
@@ -319,15 +515,10 @@ export const BookRecordModal = ({
             <Text text="평점" type="body2" className="text-white mb-3" />
             <View className="flex-row items-center relative justify-center items-center">
               <RNHorizontalSlider
-                min={0}
-                max={100}
-                step={1}
                 width={ratingWidth}
                 height={36}
                 value={rating}
                 onChange={setRating}
-                minimumTrackTintColor={Colors.primary}
-                maximumTrackTintColor={Colors.gray200}
               />
               <View pointerEvents="none" className="absolute left-4 justify-center items-center">
                 <Text text={`${rating}점`} type="body3" className="text-gray900 font-bold" />

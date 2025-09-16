@@ -18,8 +18,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 export type TSliderProps = {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   step?: number;
   width: number;
   height: number;
@@ -68,7 +68,7 @@ const RNHorizontalSlider = React.forwardRef<TSliderRef, TSliderProps>(
       width = 300,
       height = 10,
       borderRadius = 5,
-      maximumTrackTintColor = Colors.gray200,
+      maximumTrackTintColor = Colors.gray700,
       minimumTrackTintColor = Colors.primary,
       disabled = false,
       onChange = () => {},

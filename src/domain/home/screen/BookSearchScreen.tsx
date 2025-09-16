@@ -32,7 +32,6 @@ export const BookSearchScreen = () => {
     try {
       const results = await searchBooks(query);
       setSearchResults(results);
-      console.log("results: ",results);
     } catch (error) {
       console.error('검색 오류:', error);
       Alert.alert('검색 오류', '책을 검색하는 중 오류가 발생했습니다. 다시 시도해주세요.');

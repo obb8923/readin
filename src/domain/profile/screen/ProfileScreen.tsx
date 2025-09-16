@@ -16,9 +16,6 @@ export const ProfileScreen = () => {
   const { logout, isLoading } = useAuthStore();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { hideTabBar } = useTabStore();
-  const handleMenuPress = (menuName: string) => {
-    console.log(`${menuName} 메뉴를 눌렀습니다.`);
-  };
 
   const handleEmailPress = async () => {
     const mailtoUrl = `mailto:${MAIL_ADDRESS}`;

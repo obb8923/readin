@@ -28,9 +28,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoggedIn: true,
           userId: session.user.id
         });
-        if (__DEV__) {
-          console.log('[AuthStore] isLoggedIn set to true in checkLoginStatus()');
-        }
       } else {
         set({ 
           isLoggedIn: false,
@@ -49,9 +46,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   login: () => {
     set({ isLoggedIn: true, isLoading: false });
-    if (__DEV__) {
-      console.log('[AuthStore] isLoggedIn set to true in login()');
-    }
   },
   logout: async () => {
     set({ isLoading: true });
@@ -76,11 +70,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo: any = await GoogleSignin.signIn();
-      console.log('Google UserInfo:', JSON.stringify(userInfo, null, 2));
 
       if (userInfo && userInfo.data && userInfo.data.idToken) {
         const idToken = userInfo.data.idToken;
-        console.log('Google ID Token received:', idToken);
 
         const { data, error } = await supabase.auth.signInWithIdToken({
           provider: 'google',
@@ -108,15 +100,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           Alert.alert('Google 로그인 오류', errorMessage);
           set({ isLoggedIn: false });
         } else if (data.session) {
-          console.log('구글 로그인 성공, 현재 사용자 정보:', data.user);
           
           set({ 
             isLoggedIn: true,
             userId: data.user.id 
           });
-          if (__DEV__) {
-            console.log('[AuthStore] isLoggedIn set to true in handleGoogleLogin()');
-          }
         }
       } else {
         console.error('Google ID 토큰을 받지 못했습니다:', userInfo);
@@ -125,12 +113,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (error: any) {
       if (error.code) {
-        console.log('Google Sign-In error code:', error.code, error.message);
         if (String(error.code) !== '12501' && String(error.code) !== 'SIGN_IN_CANCELLED') {
           Alert.alert('Google 로그인 오류', `오류 코드: ${error.code} - ${error.message}`);
         }
       } else {
-        console.log('Google Sign-In unexpected error:', error);
         Alert.alert('Google 로그인 오류', '알 수 없는 오류가 발생했습니다.');
       }
       set({ isLoggedIn: false });
@@ -144,7 +130,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // 네이티브 모듈에서 idToken 받아오기
       const { signInWithAppleNative } = await import('../libs/native/AppleSignIn');
       const idToken = await signInWithAppleNative();
-      // console.log('Apple idToken:',idToken)
       if (!idToken) {
         Alert.alert('Apple 로그인 오류', 'idToken을 받아오지 못했습니다.');
         set({ isLoggedIn: false });
@@ -155,7 +140,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         provider: 'apple',
         token: idToken,
       });
-      // console.log('data: ',data)
 
       if (error) {
         Alert.alert('Apple 로그인 오류', error.message || '로그인 중 오류가 발생했습니다.');
@@ -165,9 +149,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoggedIn: true,
           userId: data.user.id,
         });
-        if (__DEV__) {
-          console.log('[AuthStore] isLoggedIn set to true in handleAppleLogin()');
-        }
+      
       }
     } catch (error: any) {
       Alert.alert('Apple 로그인 오류', error.message || '알 수 없는 오류가 발생했습니다.');
@@ -200,9 +182,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoggedIn: true,
           userId: data.user.id,
         });
-        if (__DEV__) {
-          console.log('[AuthStore] isLoggedIn set to true in handleEmailLogin()');
-        }
+       
         return true;
       }
       return false;

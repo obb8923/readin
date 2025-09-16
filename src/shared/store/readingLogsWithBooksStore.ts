@@ -23,11 +23,9 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
 
   // 사용자의 모든 reading logs 가져오기 (책 정보 포함)
   fetchReadingLogs: async (userId: string) => {
-    console.log('[ReadingLogsStore] fetchReadingLogs 시작:', userId);
     set({ isLoading: true, error: null });
     try {
       const logs = await getUserReadingLogsWithBookInfo(userId);
-      console.log('[ReadingLogsStore] 독서기록 가져오기 성공:', logs?.length || 0, '개');
       set({ 
         readingLogs: logs,
         isLoading: false 
@@ -44,7 +42,6 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
 
   // 새 독서 기록 추가
   addReadingLog: (log: ReadingLogWithBook) => {
-    console.log('[ReadingLogsStore] 새 독서기록 추가:', log.id);
     set((state) => ({
       readingLogs: [log, ...state.readingLogs]
     }));
@@ -52,7 +49,6 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
 
   // 독서 기록 수정
   updateReadingLog: (logId: string, updates: Partial<ReadingLogWithBook>) => {
-    console.log('[ReadingLogsStore] 독서기록 수정:', logId);
     set((state) => ({
       readingLogs: state.readingLogs.map(log => 
         log.id === logId ? { ...log, ...updates } : log
@@ -62,7 +58,6 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
 
   // 독서 기록 삭제
   removeReadingLog: (logId: string) => {
-    console.log('[ReadingLogsStore] 독서기록 삭제:', logId);
     set((state) => ({
       readingLogs: state.readingLogs.filter(log => log.id !== logId)
     }));
