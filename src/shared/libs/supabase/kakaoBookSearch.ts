@@ -98,7 +98,7 @@ export async function searchBooks(searchQuery: string): Promise<BookType[]> {
   const response = await searchBooksWithKakao(cleanedQuery);
   // 1단계: BookType으로 변환하지 않고, 기존 호출부 유지 위해 최소 매핑만 수행
   const books: BookType[] = response.documents.map((doc, index) => ({
-    id: doc.isbn || `kakao_${index}_${Date.now()}`,
+    id: `kakao_${index}_${Date.now()}`,
     title: doc.title || '제목 없음',
     author: doc.authors || [],
     publisher: doc.publisher || '출판사 정보 없음',
@@ -109,6 +109,7 @@ export async function searchBooks(searchQuery: string): Promise<BookType[]> {
     height: 200,
     width: 140,
     thickness: 20,
+    weight: 250,
     pages: 300,
   }));
   return books;

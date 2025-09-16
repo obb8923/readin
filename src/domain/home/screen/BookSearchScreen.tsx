@@ -1,4 +1,4 @@
-import { View, FlatList, ActivityIndicator, Alert, Image, TouchableOpacity } from "react-native";
+import { View, FlatList, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import { Text } from "@component/Text";
 import { Background } from "@/shared/component/Background";
 import { AppBar } from "@/shared/component/AppBar";
@@ -125,7 +125,7 @@ export const BookSearchScreen = () => {
           {isLoading ? (
             <View className="flex-1 justify-center items-center">
               <ActivityIndicator size="large" color={Colors.primary} />
-              <Text text="검색 중..." className="mt-2 text-gray-600" />
+              <Text text="검색 중..." className="mt-2 text-gray500" />
             </View>
           ) : searchResults.length > 0 ? (
             <FlatList
@@ -139,7 +139,7 @@ export const BookSearchScreen = () => {
             <View className="flex-1 justify-center items-center">
               <Text 
                 text="책 제목, 저자, 또는 키워드를 입력해주세요."
-                className="text-gray-500 text-center" 
+                className="text-gray500 text-center" 
               />
             </View>
           )}
