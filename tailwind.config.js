@@ -21,6 +21,7 @@ module.exports = {
         'background': '#212121',
         'white': '#fafafa',
         'black': '#212121',
+        'realblack': '#000000',
         'gray100': '#E6E6E6',
         'gray200': '#CCCCCC',
         'gray300': '#B3B3B3',
@@ -39,6 +40,18 @@ module.exports = {
         'orange700': '#911C03',
         'orange800': '#5F1202',
         'orange900': '#2D0901',
+        'kdc1': '#fda896',
+        'kdc2': '#fb5531',
+        'kdc3': '#911c03',
+        'kdc4': '#FDDC96',
+        'kdc5': '#fbbb31',
+        'kdc6': '#916403',
+        'kdc7': '#cccccc',
+        'kdc8': '#808080',
+        'kdc9': '#fafafa',
+        'kdc10': '#212121',
+
+
       },
 
     },

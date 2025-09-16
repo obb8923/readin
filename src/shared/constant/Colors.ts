@@ -4,7 +4,7 @@ export const Colors = {
   background: '#212121',
   white: '#fafafa',
   black: '#212121',
-  
+  realblack: '#000000',
   // Gray scale 
   gray100: '#E6E6E6',
   gray200: '#CCCCCC',
@@ -26,6 +26,18 @@ export const Colors = {
   orange700: '#911C03',
   orange800: '#5F1202',
   orange900: '#2D0901',
+
+  // KDC colors (mirrors tailwind.config.js)
+  kdc1: '#fda896',
+  kdc2: '#fb5531',
+  kdc3: '#911c03',
+  kdc4: '#FDDC96',
+  kdc5: '#fbbb31',
+  kdc6: '#916403',
+  kdc7: '#cccccc',
+  kdc8: '#808080',
+  kdc9: '#fafafa',
+  kdc10: '#212121',
 }
 
 // 책 색상 팔레트
