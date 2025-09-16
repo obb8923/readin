@@ -6,7 +6,7 @@ const TAB_NAME = {
 
 const TAB_NAME_KOR = {
   HOME: '홈',
-  BOOKS: '내책들',
+  BOOKS: '책장',
   PROFILE: '프로필',
 } as const;
 
