@@ -41,9 +41,9 @@ export const BookGrid = ({ books = [] }: { books: BookWithRecord[] }) => {
       >
         {/* 그리드 형태로 책들을 3열로 배치 - 책 표지 비율 고려 */}
         <View className="flex-row flex-wrap gap-2 justify-between">
-          {books.map((book) => (
+          {books.map((book, index) => (
             <TouchableOpacity 
-              key={book.id} 
+              key={`${book.id}-${index}`} 
               className="w-[31%] mb-6"
               onPress={() => handleBookPress(book)}
               activeOpacity={0.8}

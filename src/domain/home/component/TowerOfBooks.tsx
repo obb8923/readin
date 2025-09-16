@@ -98,7 +98,7 @@ export const TowerOfBooks = () => {
                 thickness={book.thickness}
                 height={book.height}
                 scale={scaleFactor}
-                key={book.id}
+                key={`${book.id}-${index}`}
                 index={index}
               />
           ))}

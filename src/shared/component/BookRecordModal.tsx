@@ -21,6 +21,7 @@ import { updateLogById, deleteLogById } from '@/shared/libs/supabase/reading_log
 import { supabase } from '@/shared/libs/supabase/supabase';
 import { saveBookAndLog } from '@/shared/libs/supabase/saveBookAndReadingLog';
 import { Button } from '@/shared/component/Button';
+import { fetchPhysicalInfoWithPerplexity } from '@/shared/libs/supabase/enrichBook';
 export type BookRecordModalMode = 'save' | 'view';
 
 interface BookRecordModalProps {
@@ -81,21 +82,21 @@ export const BookRecordModal = ({
       setEnriched(null);
       
       // 저장 모드일 때만 물리 정보 조회
-      // if (mode === 'save') {
-      //   setIsEnrichLoading(true);
-      //   const p = fetchPhysicalInfoWithPerplexity({
-      //     title: book.title,
-      //     authors: book.author,
-      //     publisher: book.publisher,
-      //     isbn: book.isbn,
-      //   })
-      //     .then((info) => setEnriched(info))
-      //     .catch((e) => {
-      //       console.warn('물리 정보 조회 실패:', e);
-      //     })
-      //     .finally(() => setIsEnrichLoading(false));
-      //   enrichPromiseRef.current = p;
-      // }
+      if (mode === 'save') {
+        setIsEnrichLoading(true);
+        const p = fetchPhysicalInfoWithPerplexity({
+          title: book.title,
+          authors: book.author,
+          publisher: book.publisher,
+          isbn: book.isbn,
+        })
+          .then((info) => setEnriched(info))
+          .catch((e) => {
+            console.warn('물리 정보 조회 실패:', e);
+          })
+          .finally(() => setIsEnrichLoading(false));
+        enrichPromiseRef.current = p;
+      }
     }
   }, [visible, book, mode]);
 
@@ -139,6 +140,16 @@ export const BookRecordModal = ({
       }
     }
   };
+
+  // 물리 정보 포맷팅 유틸
+  const physical = enriched ?? book;
+  const formatValue = (n?: number) => (typeof n === 'number' && n > 0 ? `${n}` : '-');
+  const sizeLabel =
+    physical
+      ? `${formatValue(physical.width)} × ${formatValue(physical.height)} × ${formatValue(physical.thickness)} mm`
+      : '-';
+  const weightLabel = physical ? (typeof physical.weight === 'number' && physical.weight > 0 ? `${physical.weight} g` : '-') : '-';
+  const pagesLabel = physical ? (typeof physical.pages === 'number' && physical.pages > 0 ? `${physical.pages} p` : '-') : '-';
 
   const formatDate = (date: Date | null) => {
     if (!date) return '날짜 선택';
@@ -280,6 +291,25 @@ export const BookRecordModal = ({
               />
             </View>
           </View>
+            {/* 물리 치수 섹션 */}
+            {mode === 'view' && (
+            <View className="mb-6 w-full">
+            <View className="bg-gray700 rounded-lg p-3">
+              <View className="flex-row justify-between mb-2">
+                <Text text="사이즈" type="body3" className="text-gray300" />
+                <Text text={sizeLabel} type="body3" className="text-white" />
+              </View>
+              <View className="flex-row justify-between mb-2">
+                <Text text="무게" type="body3" className="text-gray300" />
+                <Text text={weightLabel} type="body3" className="text-white" />
+              </View>
+              <View className="flex-row justify-between">
+                <Text text="페이지" type="body3" className="text-gray300" />
+                <Text text={pagesLabel} type="body3" className="text-white" />
+              </View>
+            </View>
+          </View>
+            )}
 
           {/* Rating 섹션 */}
           <View 
@@ -304,7 +334,6 @@ export const BookRecordModal = ({
               </View>
             </View>
           </View>
-
           {/* 날짜 섹션 */}
           <View className="w-full mb-6">
             <Text text="독서 기간" type="body2" className="text-white mb-3" />

@@ -45,7 +45,7 @@ export const BookShelf = ({books = []}: {books: BookWithRecord[]}) => {
         className="flex-row flex-wrap gap-2 items-end gap-y-8">
           {books.map((book, index) => (
             <TouchableOpacity
-              key={book.id}
+              key={`${book.id}-${index}`}
               onPress={() => handleBookPress(book)}
               activeOpacity={0.8}
             >

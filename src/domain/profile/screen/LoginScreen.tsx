@@ -4,11 +4,13 @@ import { Background } from '@/shared/component/Background';
 import { Text } from '@/shared/component/Text';
 import { useHideTabBar, useShowTabBar } from '@/shared/store/tabStore';
 import { useAuthStore } from '@/shared/store/authStore';
-
+import LogoIcon from '@assets/svgs/LogoReadIn.svg';
+import { AuthButton } from '../component/AuthButton';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export const LoginScreen = () => {
   const hideTabBar = useHideTabBar();
   const showTabBar = useShowTabBar();
-
+  const insets = useSafeAreaInsets();
   useEffect(() => {
     hideTabBar();
     return () => {
@@ -59,73 +61,27 @@ export const LoginScreen = () => {
   }, [handleAppleLogin]);
 
   return (
-    <Background>
-      <View className="flex-1 px-6 py-8">
-        <Text text="로그인" type="title1" className="text-white mb-6" />
-        <View className="gap-3">
-          <TextInput
-            placeholder="이메일"
-            placeholderTextColor="#9CA3AF"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            className="bg-background text-white rounded-xl px-4 py-3 border border-primary"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <TextInput
-            placeholder="비밀번호"
-            placeholderTextColor="#9CA3AF"
-            secureTextEntry
-            className="bg-background text-white rounded-xl px-4 py-3 border border-primary"
-            value={password}
-            onChangeText={setPassword}
-          />
-          {error ? (
-            <Text text={error} type="caption1" className="text-red-400" />
-          ) : null}
-          <TouchableOpacity
-            onPress={onLogin}
-            disabled={loading || isLoading}
-            className="bg-primary rounded-xl py-4 items-center mt-2"
-            activeOpacity={0.7}
-          >
-            {loading ? (
-              <ActivityIndicator color="#ffffff" />
-            ) : (
-              <Text text="로그인" type="body1" className="text-white font-semibold" />
-            )}
-          </TouchableOpacity>
+    <Background isBottomGap={false}>
+      <View className="flex-1">
+        {/* 로고 , 문구 */}
+        <View className="flex-1 items-center justify-center">
+          <LogoIcon width={100} height={100} />
+          <Text text="Read" type="title1" className="text-white" />
+          <Text text="Record" type="title1" className="text-white" />
+          <Text text="Remember" type="title1" className="text-white" />
         </View>
-        <View className="mt-6">
-          <TouchableOpacity
-            onPress={signInWithGoogle}
-            disabled={loading || isLoading}
-            className="bg-white rounded-xl py-4 items-center"
-            activeOpacity={0.7}
-          >
-            {loading ? (
-              <ActivityIndicator color="#111827" />
-            ) : (
-              <Text text="Google로 로그인" type="body1" className="text-black font-semibold" />
-            )}
-          </TouchableOpacity>
-        </View>
+        {/* 로그인 버튼 */}
+        <View className="py-10 px-12 w-full h-auto bg-gray900 justify-end"
+        style={{paddingBottom: insets.bottom + 16}}>
+          <Text text="터치 한 번으로 시작하기" type="title1" className="text-white mb-6" />
+          <AuthButton handleLogin={signInWithGoogle} loading={loading} type="google" />
+          
         {Platform.OS === 'ios' && (
           <View className="mt-3">
-            <TouchableOpacity
-              onPress={signInWithApple}
-              disabled={loading || isLoading}
-              className="bg-black rounded-xl py-4 items-center"
-              activeOpacity={0.7}
-            >
-              {loading ? (
-                <ActivityIndicator color="#ffffff" />
-              ) : (
-                <Text text="Apple로 로그인" type="body1" className="text-white font-semibold" />
-              )}
-            </TouchableOpacity>
+          <AuthButton handleLogin={signInWithApple} loading={loading} type="apple" />
           </View>
-        )}
+          )}
+          </View>
       </View>
     </Background>
   );
