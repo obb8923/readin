@@ -52,7 +52,7 @@ export async function createBook(input: BookCreateInput) {
     title: book.title || '',
     author: book.author || [], // 배열 타입, 빈 배열로 기본값 설정
     publisher: book.publisher || '',
-    category: book.category || [], // 배열 타입, 빈 배열로 기본값 설정
+    kdc: book.kdc ?? null,
     isbn: book.isbn || null,
     description: book.description || '',
     image_url: book.imageUrl || null,

@@ -57,7 +57,7 @@ export const BookRecordModal = ({
   const [ratingWidth, setRatingWidth] = useState(0);
   const [isEnrichLoading, setIsEnrichLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [enriched, setEnriched] = useState<{ width: number; height: number; thickness: number; pages: number; weight: number } | null>(null);
+  const [enriched, setEnriched] = useState<{ width: number; height: number; thickness: number; pages: number; weight: number; kdc?: string } | null>(null);
   const enrichPromiseRef = useRef<Promise<any> | null>(null);
 
   // 물리정보 편집 상태 (view 모드에서 인라인 편집)
@@ -201,6 +201,7 @@ export const BookRecordModal = ({
       const saved = await saveBookAndLog({
         book,
         physical: enriched ?? undefined,
+        kdc: enriched?.kdc ?? undefined,
         rate: rating,
         memo,
         startedAt: startDate,

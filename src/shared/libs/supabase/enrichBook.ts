@@ -41,15 +41,15 @@ export async function fetchPhysicalInfoWithPerplexity(input: {
   authors: string[];
   publisher: string;
   isbn?: string;
-}): Promise<PhysicalInfo> {
+}): Promise<PhysicalInfo & { kdc?: string }> {
   const system = `
   You are an assistant that retrieves the physical information of books.
 You must respond only in the following JSON format:
-{"width": number, "height": number, "thickness": number, "pages": number, "weight": number}
+{"width": number, "height": number, "thickness": number, "pages": number, "weight": number, "kdc": string}
 Units: mm (millimeters) for dimensions, g (grams) for weight, and pages must be an integer.
-Find the book’s physical information based on its title, author, publisher, and ISBN.
+Find the book’s physical information and the representative KDC classification code/text based on its title, author, publisher, and ISBN.
 Provide the most reliable values possible.
-If there is either too much or too little information about a book, find the most representative edition and make sure to always fill in numeric values for each key (width, height, thickness, pages, weight).
+If there is either too much or too little information about a book, find the most representative edition and make sure to always fill in numeric values for each key (width, height, thickness, pages, weight). For kdc, return a concise KDC text (e.g.,"813").
 response_format: {
     type: 'json_schema',
     json_schema: {
@@ -60,7 +60,8 @@ response_format: {
           height: { type: 'number' },
           thickness: { type: 'number' },
           pages: { type: 'integer' },
-          weight: { type: 'number' }
+          weight: { type: 'number' },
+          kdc: { type: 'string' }
         },
         required: ['width','height','thickness','pages','weight'],
         additionalProperties: false
@@ -69,7 +70,7 @@ response_format: {
   }
 `;
 
-  const user = `Find the book’s physical information based on its title, author, publisher, and ISBN.
+  const user = `Find the book’s physical information and the representative KDC classification based on its title, author, publisher, and ISBN.
 Title: ${input.title}
 Author: ${input.authors.join(', ')}
 Publisher: ${input.publisher}
@@ -99,10 +100,13 @@ ISBN: ${input.isbn ?? ''}`;
     const thickness = Number(data?.thickness);
     const pages = Number(data?.pages);
     const weight = Number(data?.weight);
+    // kdc는 선택적
+    const kdc = typeof data?.kdc === 'string' ? data.kdc.trim() : undefined;
+
     if ([width, height, thickness, pages, weight].some((v) => !Number.isFinite(v))) {
       throw new Error('파싱된 물리 정보가 유효하지 않습니다.');
     }
-    return { width, height, thickness, pages, weight };
+    return { width, height, thickness, pages, weight, kdc };
   } catch (e) {
     console.error('Perplexity JSON 파싱 실패:', e, content);
     throw new Error('물리 정보 파싱 실패');

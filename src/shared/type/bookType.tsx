@@ -3,7 +3,7 @@ export type BookType = {
   title: string;
   author: string[]; // 저자
   publisher: string; // 출판사
-  category: string[]; // 카테고리
+  kdc?: string; // KDC 분류 (텍스트)
   isbn: string; // ISBN
   description: string; // 설명
   imageUrl: string; // 이미지url

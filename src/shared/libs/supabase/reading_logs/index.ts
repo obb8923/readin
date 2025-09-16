@@ -27,7 +27,7 @@ export type ReadingLogWithBook = ReadingLog & {
     title: string;
     author: string[];
     publisher: string;
-    category: string[];
+    kdc: string | null;
     isbn: string | null;
     description: string;
     image_url: string | null;

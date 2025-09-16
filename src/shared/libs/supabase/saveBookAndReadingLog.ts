@@ -12,6 +12,7 @@ export type SaveParams = {
   memo: string;
   startedAt?: Date | null;
   finishedAt?: Date | null;
+  kdc?: string | null;
 };
 
 function toISODateOnly(input?: Date | null): string | undefined {
@@ -68,7 +69,7 @@ export async function saveBookAndLog(params: SaveParams) {
     title: params.book.title || '',
     author: params.book.author || [], // 배열 타입, 빈 배열로 기본값 설정
     publisher: params.book.publisher || '',
-    category: params.book.category || [], // 배열 타입, 빈 배열로 기본값 설정
+    kdc: (params.kdc ?? params.book.kdc) ?? null,
     isbn: params.book.isbn || null,
     description: params.book.description || '',
     image_url: params.book.imageUrl || null,

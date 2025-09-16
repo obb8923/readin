@@ -102,7 +102,7 @@ export async function searchBooks(searchQuery: string): Promise<BookType[]> {
     title: doc.title || '제목 없음',
     author: doc.authors || [],
     publisher: doc.publisher || '출판사 정보 없음',
-    category: [],
+    kdc: undefined,
     isbn: doc.isbn || '',
     description: doc.contents || '설명 없음',
     imageUrl: doc.thumbnail || '',
