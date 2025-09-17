@@ -1,5 +1,5 @@
 import {Background} from '@component/Background';
-import {Alert, ScrollView, TextInput, TouchableOpacity, View, Switch, Platform, Modal} from 'react-native';
+import {Alert, ScrollView, TextInput, TouchableOpacity, View, Switch, Platform, Modal, ActivityIndicator, Animated} from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import {Text} from '@component/Text';
 import {AppBar} from '@component/AppBar';
@@ -7,7 +7,7 @@ import {useTabStore} from '@store/tabStore';
 import { useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState, useEffect, useRef} from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '@libs/supabase/supabase';
 import { useAuthStore } from '@/shared/store/authStore';
@@ -28,6 +28,23 @@ export const MyInfoScreen = () => {
   const [isBirthdayPickerVisible, setBirthdayPickerVisible] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // 애니메이션을 위한 ref
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // 로딩이 완료되면 페이드인 애니메이션 실행
+  useEffect(() => {
+    if (!loading) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // 로딩 시작 시 투명도 초기화
+      fadeAnim.setValue(0);
+    }
+  }, [loading, fadeAnim]);
 
   const isValid = useMemo(() => {
     const emailOk = /.+@.+\..+/.test(email);
@@ -197,7 +214,13 @@ export const MyInfoScreen = () => {
             navigation.goBack();
           }}
         />
-        <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
+        {loading ? (
+          <View className="flex-1 justify-center items-center">
+            <Text text="정보를 불러오는 중..." type="body2" className="text-gray500 mt-4" />
+          </View>
+        ) : (
+          <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+            <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
           <View className="mt-4">
             <Text text="이메일" type="caption1" className="text-gray500 mb-2" />
             <TextInput
@@ -318,7 +341,9 @@ export const MyInfoScreen = () => {
 
           <View className="h-10" />
 
-        </ScrollView>
+            </ScrollView>
+          </Animated.View>
+        )}
       </View>
     </Background>
   );
