@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { TAB_NAME } from '@/shared/constant/tab';
+import { supabase } from '@/shared/libs/supabase/supabase';
 // 탭 이름 타입 정의
 export type TabName = typeof TAB_NAME[keyof typeof TAB_NAME];
 
@@ -53,3 +54,14 @@ export const useIsTabBarVisible = () => useTabStore(state => state.isTabBarVisib
 export const useShowTabBar = () => useTabStore(state => state.showTabBar);
 export const useHideTabBar = () => useTabStore(state => state.hideTabBar);
 export const useToggleTabBar = () => useTabStore(state => state.toggleTabBar);
+
+// 인증 상태 변화에 따라 탭을 초기화한다.
+// 세션이 사라지면(로그아웃) 항상 HOME 탭으로 전환한다.
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (!session) {
+    useTabStore.setState({
+      activeTab: TAB_NAME.HOME,
+      isTabBarVisible: true,
+    });
+  }
+});
