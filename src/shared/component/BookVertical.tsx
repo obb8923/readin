@@ -11,9 +11,9 @@ interface BookVerticalProps extends Pick<BookType, 'id' | 'title' | 'pages' | 'h
 export const BookVertical = ({ title, pages, height, color, index = 0 }: BookVerticalProps) => {
   // 페이지수를 기반으로 두께 계산 (1페이지 = 0.1mm = 0.01cm)
   const bookThickness = pages * 0.1; // cm 단위
-  
-  const bookHeight = height * 2;
-  const bookThicknessPx = bookThickness * 2;
+  const SCALE_FACTOR = 1.5;
+  const bookHeight = height * SCALE_FACTOR;
+  const bookThicknessPx = bookThickness * SCALE_FACTOR;
   const bookColor = color || BOOK_COLOR_PALETTE[index % BOOK_COLOR_PALETTE.length];
   
   // 텍스트를 글자 단위로 분리

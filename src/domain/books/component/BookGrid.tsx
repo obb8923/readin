@@ -44,7 +44,7 @@ export const BookGrid = ({ books = [] }: { books: BookWithRecord[] }) => {
           {books.map((book, index) => (
             <TouchableOpacity 
               key={`${book.id}-${index}`} 
-              className="w-[31%] mb-6"
+              className="w-[23%] mb-6"
               onPress={() => handleBookPress(book)}
               activeOpacity={0.8}
             >

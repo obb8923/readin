@@ -89,7 +89,7 @@ ISBN: ${input.isbn ?? ''}`;
 
   const resp = await callPerplexityViaEdge(request);
   const content = resp?.choices?.[0]?.message?.content;
-  // console.log('content:',content);
+  if(__DEV__) console.log('content:',content);
   if (!content) {
     throw new Error('Perplexity 응답이 비어 있습니다.');
   }
