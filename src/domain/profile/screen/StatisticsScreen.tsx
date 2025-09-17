@@ -20,6 +20,8 @@ export const StatisticsScreen = () => {
   const readingLogs = useReadingLogs();
   const isLoading = useIsReadingLogsLoading();
 
+  // ISO 문자열 또는 null 값을 받아서, 유효하면 Date 객체로 변환하여 반환합니다.
+  // isoOrNull이 없을 경우 fallback 값을 사용하며, 둘 다 없으면 null을 반환합니다.
   const getEffectiveDate = (isoOrNull?: string | null, fallback?: string) => {
     if (isoOrNull) return new Date(isoOrNull);
     if (fallback) return new Date(fallback);
@@ -110,7 +112,6 @@ export const StatisticsScreen = () => {
     const finalCats = othersSum > 0
       ? [...top, { name: '기타', count: othersSum }]
       : top;
-
     return {
       yearlyData: yearlyPairs,
       monthlyData: monthCount,
@@ -145,6 +146,13 @@ export const StatisticsScreen = () => {
   const barContentWidth = Math.max(chartWidth, (yearlyData.length > 0 ? yearlyData.length : 1) * BAR_MIN_COL_WIDTH);
   const lineContentWidth = Math.max(chartWidth, 12 * LINE_MIN_POINT_WIDTH);
 
+  // y축 눈금 개수를 데이터 최대값에 맞춰 동적으로 조절
+  const yearlyMaxCount = yearlyData.length > 0 ? Math.max(...yearlyData.map(y => y.count)) : 0;
+  const monthlyMaxCount = monthlyData.length > 0 ? Math.max(...monthlyData) : 0;
+  const yearlySegments = yearlyMaxCount <= 1 ? 1 : Math.min(5, yearlyMaxCount);
+  const monthlySegments = monthlyMaxCount <= 1 ? 2 : Math.min(5, monthlyMaxCount);
+
+ 
   return (
     <Background>
         <AppBar
@@ -173,6 +181,7 @@ export const StatisticsScreen = () => {
                   showValuesOnTopOfBars
                   yAxisLabel=""
                   yAxisSuffix="권"
+                  segments={yearlySegments}
                   chartConfig={chartConfig}
                 />
               </View>
@@ -196,6 +205,7 @@ export const StatisticsScreen = () => {
                   fromZero
                   yAxisLabel=""
                   yAxisSuffix="권"
+                  segments={monthlySegments}
                   chartConfig={chartConfig}
                 />
               </View>
@@ -229,5 +239,3 @@ export const StatisticsScreen = () => {
     </Background>
   );
 };
-
-// removed StyleSheet in favor of Tailwind className
