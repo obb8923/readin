@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { View, Platform, Alert } from 'react-native';
 import { Background } from '@/shared/component/Background';
 import { Text } from '@/shared/component/Text';
 import { useHideTabBar, useShowTabBar } from '@/shared/store/tabStore';
@@ -17,32 +17,16 @@ export const LoginScreen = () => {
       showTabBar();
     };
   }, [hideTabBar, showTabBar]);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { handleEmailLogin, handleGoogleLogin, handleAppleLogin, isLoading } = useAuthStore();
-  const [error, setError] = useState<string | null>(null);
+  const { handleGoogleLogin, handleAppleLogin } = useAuthStore();
 
-  const onLogin = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const ok = await handleEmailLogin(email, password);
-      if (!ok) setError('이메일 또는 비밀번호가 올바르지 않습니다.');
-    } catch (e: any) {
-      setError(e?.message ?? '로그인 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }, [email, password, handleEmailLogin]);
 
   const signInWithGoogle = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       await handleGoogleLogin();
     } catch (e: any) {
-      setError(e?.message ?? '구글 로그인 중 오류가 발생했습니다.');
+      Alert.alert('로그인 오류', e?.message ?? '구글 로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -50,11 +34,10 @@ export const LoginScreen = () => {
 
   const signInWithApple = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       await handleAppleLogin();
     } catch (e: any) {
-      setError(e?.message ?? 'Apple 로그인 중 오류가 발생했습니다.');
+      Alert.alert('로그인 오류', e?.message ?? 'Apple 로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -71,7 +54,7 @@ export const LoginScreen = () => {
           <Text text="Remember" type="title1" className="text-white" />
         </View>
         {/* 로그인 버튼 */}
-        <View className="py-10 px-12 w-full h-auto bg-gray900 justify-end"
+        <View className="py-10 pb-14 px-12 w-full h-auto bg-gray900 justify-end"
         style={{paddingBottom: insets.bottom + 16}}>
           <Text text="터치 한 번으로 시작하기" type="title1" className="text-white mb-6" />
           <AuthButton handleLogin={signInWithGoogle} loading={loading} type="google" />

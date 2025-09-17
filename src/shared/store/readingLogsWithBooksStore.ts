@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { ReadingLogWithBook } from '@libs/supabase/reading_logs';
 import { getUserReadingLogsWithBookInfo } from '@libs/supabase/reading_logs';
+import { supabase } from '@libs/supabase/supabase';
 
 interface ReadingLogsState {
   // 상태
@@ -26,6 +27,19 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
   fetchReadingLogs: async (userId: string) => {
     set({ isLoading: true, error: null });
     try {
+      // 세션 확인: 로그인 상태가 아니면 조용히 중단
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) {
+        set({ isLoading: false, error: null });
+        return;
+      }
+
+      // 요청한 사용자와 세션 사용자 일치 확인
+      if (session.user.id !== userId) {
+        set({ isLoading: false, error: '권한이 없습니다.' });
+        return;
+      }
+
       const logs = await getUserReadingLogsWithBookInfo(userId);
       set({ 
         readingLogs: logs,
@@ -97,6 +111,18 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
     }));
   },
 }));
+
+// 인증 상태 변화에 따라 스토어를 정리한다.
+// 세션이 사라지면(로그아웃) 목록과 에러, 로딩 상태를 초기화한다.
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (!session) {
+    useReadingLogsWithBooksStore.setState({
+      readingLogs: [],
+      isLoading: false,
+      error: null,
+    });
+  }
+});
 
 // 편의성 훅들
 export const useReadingLogs = () => useReadingLogsWithBooksStore(state => state.readingLogs);
