@@ -100,6 +100,7 @@ export async function getUserReadingLogs(userId: string) {
     .from('reading_logs')
     .select('*')
     .eq('user_id', userId)
+    .order('finished_at', { ascending: false })
     .order('created_at', { ascending: false });
   
   if (error) throw error;
@@ -132,7 +133,10 @@ export async function getUserReadingLogsWithBookInfo(userId: string) {
       book:books(*)
     `)
     .eq('user_id', userId)
+    .order('finished_at', { ascending: false })
     .order('created_at', { ascending: false });
+
+    console.log("data:", data);
   
   if (error) {
     console.error('[getUserReadingLogsWithBookInfo] Supabase 쿼리 에러:', error);

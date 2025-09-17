@@ -23,6 +23,7 @@ import { saveBookAndLog } from '@/shared/libs/supabase/saveBookAndReadingLog';
 import { updateBookById } from '@/shared/libs/supabase/books';
 import { Button } from '@/shared/component/Button';
 import { fetchPhysicalInfoWithPerplexity } from '@/shared/libs/supabase/enrichBook';
+import { useReadingLogsWithBooksStore } from '@/shared/store/readingLogsWithBooksStore';
 export type BookRecordModalMode = 'save' | 'view';
 
 interface BookRecordModalProps {
@@ -259,6 +260,25 @@ export const BookRecordModal = ({
         }
       }
 
+      // 전역 store 업데이트 (rate/memo/기간 및 물리정보 반영)
+      try {
+        const store = useReadingLogsWithBooksStore.getState();
+        const current = store.readingLogs.find((l) => l.id === String(book.record!.id));
+        const toISO = (d?: Date | null) => (d ? d.toISOString().split('T')[0] : null);
+        const updatesForStore: any = {
+          rate: rating,
+          memo,
+          started_at: toISO(startDate),
+          finished_at: toISO(endDate),
+        };
+        if (current?.book && Object.keys(physicalUpdates).length > 0) {
+          updatesForStore.book = { ...current.book, ...physicalUpdates };
+        }
+        store.updateReadingLog(String(book.record.id), updatesForStore);
+      } catch (e) {
+        console.warn('store 업데이트 실패 (무시 가능):', e);
+      }
+
       Alert.alert('수정 완료', '기록이 수정되었습니다.');
       handleCloseModal();
       onUpdateSuccess?.();
@@ -284,6 +304,13 @@ export const BookRecordModal = ({
           onPress: async () => {
             try {
               await deleteLogById(book.record!.id);
+              // 전역 store에서도 제거
+              try {
+                const store = useReadingLogsWithBooksStore.getState();
+                store.removeReadingLog(String(book.record!.id));
+              } catch (e) {
+                console.warn('store 제거 실패 (무시 가능):', e);
+              }
               Alert.alert('삭제 완료', '기록이 삭제되었습니다.');
               handleCloseModal();
               onDeleteSuccess?.();
