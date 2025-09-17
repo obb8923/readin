@@ -1,5 +1,5 @@
 import {Background} from '@component/Background';
-import {Dimensions, ScrollView, View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import {Text} from '@component/Text';
 import {AppBar} from '@component/AppBar';
 import {useTabStore} from '@store/tabStore';
@@ -9,14 +9,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
 import React, { useMemo } from 'react';
 import { useIsReadingLogsLoading, useReadingLogs } from '@store/readingLogsWithBooksStore';
-import { ReadingLogWithBook } from '@libs/supabase/reading_logs';
+// import { ReadingLogWithBook } from '@libs/supabase/reading_logs';
 import {Colors} from '@constant/Colors';
+import {DEVICE_WIDTH} from '@constant/normal';
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const StatisticsScreen = () => {
   const { showTabBar } = useTabStore();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const screenWidth = Dimensions.get('window').width;
   const readingLogs = useReadingLogs();
   const isLoading = useIsReadingLogsLoading();
 
@@ -70,55 +70,7 @@ export const StatisticsScreen = () => {
   };
 
   const { yearlyData, monthlyData, categoryData } = useMemo(() => {
-    const enableDevMock = __DEV__ === true;
-
-    const generateMockReadingLogs = (count: number): ReadingLogWithBook[] => {
-      const categories = ['0','1','2','3','4','5','6','7','8','9'];
-      const now = new Date();
-      const twoYearsAgo = new Date(now.getFullYear() - 2, 0, 1).getTime();
-      const nowTs = now.getTime();
-      const logs: ReadingLogWithBook[] = [];
-      for (let i = 0; i < count; i++) {
-        const createdAtTs = Math.floor(Math.random() * (nowTs - twoYearsAgo)) + twoYearsAgo;
-        const created = new Date(createdAtTs);
-        const finished = Math.random() < 0.85 ? new Date(createdAtTs + Math.random() * 1000 * 60 * 60 * 24 * 30) : null;
-        const kdcFirst = categories[Math.floor(Math.random() * categories.length)];
-        const kdc = Math.random() < 0.9 ? `${kdcFirst}00` : null;
-        logs.push({
-          id: `mock-${i}`,
-          user_id: 'dev-user',
-          book_id: `mock-book-${i}`,
-          rate: Math.floor(Math.random() * 5) + 1,
-          memo: 'mock',
-          started_at: created.toISOString(),
-          finished_at: finished ? finished.toISOString() : null,
-          created_at: created.toISOString(),
-          updated_at: created.toISOString(),
-          book: {
-            id: `mock-book-${i}`,
-            title: `Mock Book ${i + 1}`,
-            author: ['Author'],
-            publisher: 'Publisher',
-            kdc,
-            isbn: null,
-            description: 'mock',
-            image_url: null,
-            width: null,
-            height: null,
-            thickness: null,
-            weight: null,
-            pages: 200,
-            created_at: created.toISOString(),
-            updated_at: created.toISOString(),
-          },
-        });
-      }
-      return logs;
-    };
-
-    const sourceLogs = enableDevMock || readingLogs.length === 0
-      ? generateMockReadingLogs(120)
-      : readingLogs;
+    const sourceLogs = readingLogs;
 
     // 연도별 집계
     const yearCount: Record<string, number> = {};
@@ -186,7 +138,7 @@ export const StatisticsScreen = () => {
     },
   } as const;
 
-  const chartWidth = screenWidth - 32; // padding 16 + 16
+  const chartWidth = DEVICE_WIDTH - 32; // padding 16 + 16
   const chartHeight = 220;
   const BAR_MIN_COL_WIDTH = 40;
   const LINE_MIN_POINT_WIDTH = 40;
@@ -195,7 +147,6 @@ export const StatisticsScreen = () => {
 
   return (
     <Background>
-      <View>
         <AppBar
           title="독서 통계"
           onLeftPress={() => {
@@ -204,9 +155,11 @@ export const StatisticsScreen = () => {
           }}
         />
         <ScrollView className="bg-background">
-          <View className="px-4 pb-6">
-          <View className="bg-gray800 rounded-xl p-4 mb-4 shadow-lg">
-            <Text text="연도별 독서 현황" type="title2" className="text-white" />
+          <View className="py-6">
+          <View className="bg-gray800 p-4 mb-4">
+            <Text text="연도별 독서 현황" type="title3" className="text-white mb-1" />
+            <Text text="한 해 동안 얼마나 많은 책을 읽었는지 확인할 수 있어요." type="caption1" className="text-gray400" />
+
             <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} className="mt-3">
               <View className="rounded-xl overflow-hidden">
                 <BarChart
@@ -226,8 +179,9 @@ export const StatisticsScreen = () => {
             </ScrollView>
           </View>
 
-          <View className="bg-gray800 rounded-xl p-4 mb-4 shadow-lg">
-            <Text text="월별 독서 현황" type="title2" className="text-white" />
+          <View className="bg-gray800 p-4 mb-4">
+            <Text text="월별 독서 현황" type="title3" className="text-white mb-1" />
+            <Text text="월별 독서 패턴과 활동량을 확인할 수 있어요." type="caption1" className="text-gray400" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false} className="mt-3">
               <View className="rounded-xl overflow-hidden">
                 <LineChart
@@ -248,8 +202,10 @@ export const StatisticsScreen = () => {
             </ScrollView>
           </View>
 
-          <View className="bg-gray800 rounded-xl p-4 mb-4 shadow-lg">
-            <Text text="카테고리별 비율" type="title2" className="text-white" />
+          <View className="bg-gray800 p-4 mb-4">
+            <Text text="카테고리별 비율" type="title3" className="text-white" />
+            <Text text="내 독서 취향이 어느 분야에 몰려 있는지 확인할 수 있어요." type="caption1" className="text-gray400" />
+
             <View className="mt-3 rounded-xl overflow-hidden">
               <PieChart
                 width={chartWidth}
@@ -270,7 +226,6 @@ export const StatisticsScreen = () => {
           </View>
           </View>
         </ScrollView>
-      </View>
     </Background>
   );
 };
