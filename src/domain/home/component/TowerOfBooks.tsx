@@ -51,7 +51,7 @@ export const TowerOfBooks = () => {
     if (thicknessInMm >= 1000) {
       const meters = thicknessInMm / 1000;
       return `${Math.round(meters)}m`;
-    } else if (thicknessInMm >= 100) {
+    } else if (thicknessInMm >= 500) {
       const centimeters = thicknessInMm / 100;
       return `${Math.round(centimeters)}cm`;
     } else {

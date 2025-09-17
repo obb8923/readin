@@ -56,7 +56,7 @@ export default function App() {
       <SafeAreaProvider>
         <SafeAreaView style={{flex:1}} edges={[ 'left', 'right']} >
               <NavigationContainer>
-                <StatusBar barStyle="dark-content" translucent={true}/>
+                <StatusBar barStyle="light-content" translucent={true}/>
                 {showTabBar && <TabBar/>}
                 {isLoading ? (
                   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
