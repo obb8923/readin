@@ -1,22 +1,19 @@
 import "./global.css"
 import React, { useEffect } from 'react';
-import { StatusBar, View, ActivityIndicator } from 'react-native';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {RootStack} from './src/shared/nav/stack/Root';
 import { TabBar } from './src/shared/component/TabBar';
 import { useIsTabBarVisible } from './src/shared/store/tabStore';
-import { useFirstVisitStore } from '@store/firstVisitStore';
 import { useAuthStore } from '@store/authStore';
 import { useFetchReadingLogs } from '@store/readingLogsWithBooksStore';
-import { OnboardingStack } from '@nav/stack/Onboarding';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { SUPABASE_WEB_CLIENT_KEY, SUPABASE_IOS_CLIENT_KEY } from '@env';
 
 export default function App() {
   const isTabBarVisible = useIsTabBarVisible();
-  const { isFirstVisit, isLoading, checkFirstVisit } = useFirstVisitStore();
   const { isLoggedIn, userId, checkLoginStatus } = useAuthStore();
   const fetchReadingLogs = useFetchReadingLogs();
 
@@ -32,10 +29,6 @@ export default function App() {
       console.error('[App.tsx] Google Sign-In configuration error:', error);
     }
   }, []);
-  
-  useEffect(() => {
-    checkFirstVisit();
-  }, [checkFirstVisit]);
 
   // 앱 시작 시 로그인 상태 확인
   useEffect(() => {
@@ -49,24 +42,14 @@ export default function App() {
     }
   }, [isLoggedIn, userId, fetchReadingLogs]);
 
-  const showTabBar = !isLoading && !isFirstVisit && isTabBarVisible;
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <SafeAreaView style={{flex:1}} edges={[ 'left', 'right']} >
               <NavigationContainer>
                 <StatusBar barStyle="light-content" translucent={true}/>
-                {showTabBar && <TabBar/>}
-                {isLoading ? (
-                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <ActivityIndicator />
-                  </View>
-                ) : isFirstVisit ? (
-                  <OnboardingStack />
-                ) : (
+                {isTabBarVisible && <TabBar/>}
                   <RootStack />
-                )}
               </NavigationContainer>
         </SafeAreaView>
       </SafeAreaProvider>

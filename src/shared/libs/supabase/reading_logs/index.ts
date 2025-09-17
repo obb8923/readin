@@ -135,9 +135,7 @@ export async function getUserReadingLogsWithBookInfo(userId: string) {
     .eq('user_id', userId)
     .order('finished_at', { ascending: false })
     .order('created_at', { ascending: false });
-
-    console.log("data:", data);
-  
+      
   if (error) {
     console.error('[getUserReadingLogsWithBookInfo] Supabase 쿼리 에러:', error);
     throw error;

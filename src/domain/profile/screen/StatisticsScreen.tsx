@@ -20,11 +20,16 @@ export const StatisticsScreen = () => {
   const readingLogs = useReadingLogs();
   const isLoading = useIsReadingLogsLoading();
 
-  // ISO 문자열 또는 null 값을 받아서, 유효하면 Date 객체로 변환하여 반환합니다.
-  // isoOrNull이 없을 경우 fallback 값을 사용하며, 둘 다 없으면 null을 반환합니다.
-  const getEffectiveDate = (isoOrNull?: string | null, fallback?: string) => {
-    if (isoOrNull) return new Date(isoOrNull);
-    if (fallback) return new Date(fallback);
+  // 여러 날짜 문자열 중 유효한 첫 번째 값을 Date로 변환해 반환합니다.
+  // 사용 우선순위: finished_at → started_at → created_at
+  const getEffectiveDate = (
+    ...dates: Array<string | null | undefined>
+  ) => {
+    for (const dateLike of dates) {
+      if (!dateLike) continue;
+      const d = new Date(dateLike);
+      if (!isNaN(d.getTime())) return d;
+    }
     return null;
   };
 
@@ -77,7 +82,7 @@ export const StatisticsScreen = () => {
     // 연도별 집계
     const yearCount: Record<string, number> = {};
     for (const log of sourceLogs) {
-      const d = getEffectiveDate(log.finished_at, log.created_at);
+      const d = getEffectiveDate(log.finished_at, log.started_at, log.created_at);
       if (!d || isNaN(d.getTime())) continue;
       const y = String(d.getFullYear());
       yearCount[y] = (yearCount[y] ?? 0) + 1;
@@ -91,7 +96,7 @@ export const StatisticsScreen = () => {
     const currentYear = now.getFullYear();
     const monthCount = Array.from({ length: 12 }, () => 0);
     for (const log of sourceLogs) {
-      const d = getEffectiveDate(log.finished_at, log.created_at);
+      const d = getEffectiveDate(log.finished_at);
       if (!d || isNaN(d.getTime())) continue;
       if (d.getFullYear() !== currentYear) continue;
       const m = d.getMonth(); // 0-11

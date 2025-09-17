@@ -82,17 +82,6 @@ export const BookShelf = ({books = []}: {books: BookWithRecord[]}) => {
         onClose={handleCloseModal}
         book={selectedBook}
         mode="view"
-        onUpdateSuccess={() => {
-          // 수정 성공 시 store에서 해당 항목을 업데이트
-          if (selectedBook) {
-            updateReadingLog(selectedBook.record.id, {
-              rate: selectedBook.record.rate,
-              memo: selectedBook.record.memo,
-              started_at: selectedBook.record.startedAt,
-              finished_at: selectedBook.record.finishedAt,
-            });
-          }
-        }}
         onDeleteSuccess={() => {
           // 삭제 성공 시 store에서 해당 항목을 제거
           if (selectedBook) {

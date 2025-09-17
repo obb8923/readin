@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Background } from '@/shared/component/Background';
 import { Text } from '@/shared/component/Text';
@@ -20,7 +20,6 @@ export const BooksScreen = () => {
 
   // readingLogs를 BookWithRecord 형태로 변환 (공통 함수 사용)
   const books = readingLogs.map(transformReadingLogToBookWithRecord);
-
   if (isLoading) {
     return (
       <Background isTabBarGap={true}>
