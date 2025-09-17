@@ -155,9 +155,10 @@ export const BookRecordModal = ({
       setShowEndDatePicker(false);
     }
     if (selectedDate) {
-      // 선택된 종료 날짜가 시작 날짜보다 이전이면 시작 날짜로 보정
+      // 끝난 날이 시작날보다 더 이전이면 시작날을 끝난날과 같은 날짜로 자동 매핑
       if (startDate && selectedDate < startDate) {
-        setEndDate(startDate);
+        setStartDate(selectedDate);
+        setEndDate(selectedDate);
       } else {
         setEndDate(selectedDate);
       }
@@ -167,13 +168,6 @@ export const BookRecordModal = ({
   // 물리 정보 포맷팅 유틸
   const physical = enriched ?? book;
   const formatValue = (n?: number | null) => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? `${n}` : '-');
-  const sizeDisplay = `${formatValue(widthVal ?? physical?.width)} mm  ×  ${formatValue(heightVal ?? physical?.height)} mm  ×  ${formatValue(thicknessVal ?? physical?.thickness)} mm`;
-  const weightDisplay = typeof (weightVal ?? physical?.weight) === 'number' && Number.isFinite(weightVal ?? physical?.weight) && (weightVal ?? physical?.weight)! > 0
-    ? `${weightVal ?? physical?.weight} g`
-    : '-';
-  const pagesDisplay = typeof (pagesVal ?? physical?.pages) === 'number' && Number.isFinite(pagesVal ?? physical?.pages) && (pagesVal ?? physical?.pages)! > 0
-    ? `${pagesVal ?? physical?.pages} p`
-      : '-';
 
   const formatDate = (date: Date | null) => {
     if (!date) return '날짜 선택';
@@ -549,7 +543,7 @@ export const BookRecordModal = ({
                 onChange={setRating}
               />
               <View pointerEvents="none" className="absolute left-4 justify-center items-center">
-                <Text text={`${rating}점`} type="body3" className="text-gray900 font-bold" />
+                <Text text={`${rating}점`} type="body3" className="text-gray100 font-bold" />
               </View>
             </View>
           </View>
@@ -685,8 +679,9 @@ export const BookRecordModal = ({
             onRequestClose={() => setShowMemoEditor(false)}
           >
             <View className="flex-1 justify-end bg-black/50">
-              <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <KeyboardAvoidingView 
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
                   <View className="bg-gray800 rounded-t-3xl p-6">
                     <View className="flex-row justify-between items-center mb-4">
                       <Text text="메모" type="title3" className="text-white" />
@@ -717,7 +712,6 @@ export const BookRecordModal = ({
                       <Text text={`${memoDraft.length}/${MEMO_MAX}`} type="caption1" className="text-gray400" />
                     </View>
                   </View>
-                </TouchableWithoutFeedback>
               </KeyboardAvoidingView>
             </View>
           </Modal>

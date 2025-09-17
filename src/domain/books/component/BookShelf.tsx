@@ -42,7 +42,7 @@ export const BookShelf = ({books = []}: {books: BookWithRecord[]}) => {
       >
         {/* 책들을 flexRow와 flexWrap으로 배치 */}
         <View 
-        className="flex-row flex-wrap gap-2 items-end gap-y-8">
+        className="flex-row flex-wrap items-end gap-x-1 gap-y-8">
           {books.map((book, index) => (
             <TouchableOpacity
               key={`${book.id}-${index}`}
