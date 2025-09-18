@@ -22,14 +22,22 @@ export const ProfileScreen = () => {
     const mailtoUrl = `mailto:${MAIL_ADDRESS}`;
     try {
       const supported = await Linking.canOpenURL(mailtoUrl);
+      console.log('supported', supported);
       if (supported) {
         await Linking.openURL(mailtoUrl);
         return;
+      } else {
+        Alert.alert(
+          '문의하기',
+          `아래 주소로 메일을 보내주세요.\n\n${MAIL_ADDRESS}`,
+          [{ text: '확인' }],
+          { cancelable: true }
+        );
       }
     } catch (error) {
       Alert.alert(
-        '메일 열기 실패',
-        `메일 앱을 열 수 없습니다. 아래 주소로 메일을 보내주세요.\n\n${MAIL_ADDRESS}`,
+        '문의하기',
+        `아래 주소로 메일을 보내주세요.\n\n${MAIL_ADDRESS}`,
         [{ text: '확인' }],
         { cancelable: true }
       );
