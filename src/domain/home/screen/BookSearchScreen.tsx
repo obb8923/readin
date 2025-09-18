@@ -139,7 +139,7 @@ export const BookSearchScreen = () => {
             <View className="flex-1 justify-center items-center">
               <Text 
                 text="책 제목, 저자, 또는 키워드를 입력해주세요."
-                className="text-gray500 text-center" 
+                className="text-gray500 text-center mb-24" 
               />
             </View>
           )}

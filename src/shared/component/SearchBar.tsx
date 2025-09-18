@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, ViewStyle } from 'react-native';
+import { View, TextInput, TouchableOpacity, ViewStyle, Platform } from 'react-native';
 import { Text } from './Text';
 import SearchIcon from '@assets/svgs/Search.svg';
+import CrossIcon from '@assets/svgs/CrossMark.svg';
 import { Colors } from '../constant/Colors';
 export type SearchBarProps = {
   placeholder?: string;
@@ -51,7 +52,7 @@ export const SearchBar = ({
 
   return (
     <View 
-      className={`h-14 flex-row items-center bg-background rounded-full px-4 py-3 border border-primary ${className}`}
+      className={`flex-row items-center bg-background rounded-full px-4 border border-primary ${className}`}
       style={style}
     >
       {/* 검색 아이콘 */}
@@ -61,6 +62,7 @@ export const SearchBar = ({
       {/* 검색 입력 필드 */}
       <TextInput
         value={currentValue}
+        cursorColor={Colors.white}
         onChangeText={handleChangeText}
         onSubmitEditing={handleSubmitEditing}
         placeholder={placeholder}
@@ -68,13 +70,13 @@ export const SearchBar = ({
         editable={!disabled}
         autoFocus={autoFocus}
         className="flex-1 text-white"
-        style={{
-          height: 20,
-          fontFamily: 'Pretendard-Regular',
-          fontSize: 16,
-          lineHeight: 16 * 1.4,
-          letterSpacing: -0.4,
-        }}
+       style={{
+        height: 50,
+        fontFamily: 'Pretendard-Regular',
+        fontSize: 16,
+        lineHeight: 20,
+        letterSpacing: -0.4,
+       }}
         returnKeyType="search"
       />
       
@@ -85,7 +87,7 @@ export const SearchBar = ({
           className="ml-3 p-1"
           activeOpacity={0.7}
         >
-          <Text text="✕" type="body2" className="text-gray-500" />
+          <CrossIcon width={14} height={14} color={Colors.gray500} />
         </TouchableOpacity>
       )}
     </View>
