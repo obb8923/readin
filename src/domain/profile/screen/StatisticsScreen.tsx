@@ -2,8 +2,8 @@ import {Background} from '@component/Background';
 import {ScrollView, View} from 'react-native';
 import {Text} from '@component/Text';
 import {AppBar} from '@component/AppBar';
-import {useTabStore} from '@store/tabStore';
-import { useNavigation } from '@react-navigation/native';
+import {useHideTabBar} from '@store/tabStore';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BarChart, LineChart, PieChart } from 'react-native-chart-kit';
@@ -15,7 +15,10 @@ import {DEVICE_WIDTH} from '@constant/normal';
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const StatisticsScreen = () => {
-  const { showTabBar } = useTabStore();
+  const hideTabBar = useHideTabBar();
+  useFocusEffect(() => {
+    hideTabBar();
+  });
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const readingLogs = useReadingLogs();
   const isLoading = useIsReadingLogsLoading();
@@ -163,7 +166,6 @@ export const StatisticsScreen = () => {
         <AppBar
           title="독서 통계"
           onLeftPress={() => {
-            showTabBar();
             navigation.goBack();
           }}
         />

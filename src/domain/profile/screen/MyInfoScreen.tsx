@@ -1,9 +1,9 @@
 import {Background} from '@component/Background';
-import {Alert, ScrollView, TextInput, TouchableOpacity, View, Switch, Platform, Modal, ActivityIndicator, Animated} from 'react-native';
+import {Alert, ScrollView, TextInput, TouchableOpacity, View, Switch, Platform, Modal, Animated} from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import {Text} from '@component/Text';
 import {AppBar} from '@component/AppBar';
-import {useTabStore} from '@store/tabStore';
+import {useHideTabBar} from '@store/tabStore';
 import { useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,7 +16,10 @@ import {Button} from '@component/Button';
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const MyInfoScreen = () => {
-  const { showTabBar } = useTabStore();
+  const hideTabBar = useHideTabBar();
+  useFocusEffect(() => {
+    hideTabBar();
+  });
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { userId } = useAuthStore();
 
@@ -165,7 +168,6 @@ export const MyInfoScreen = () => {
         }
 
         Alert.alert('저장 완료', '내 정보가 저장되었습니다.');
-        showTabBar();
         navigation.goBack();
       } catch (e: any) {
         Alert.alert('저장 실패', e?.message || '정보 저장 중 오류가 발생했습니다.');
@@ -210,7 +212,6 @@ export const MyInfoScreen = () => {
         <AppBar
           title="내 정보"
           onLeftPress={() => {
-            showTabBar();
             navigation.goBack();
           }}
         />

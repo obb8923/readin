@@ -2,11 +2,11 @@ import React from 'react';
 import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppBar } from '@component/AppBar';
-import {useTabStore} from '@store/tabStore';
+import {useHideTabBar} from '@store/tabStore';
 import {Background} from '@component/Background';
 import {Colors} from '@constant/Colors';
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
@@ -23,7 +23,10 @@ interface WebviewScreenProps {
 export const WebviewScreen = ({ route }: WebviewScreenProps) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { url, title } = route.params;
-  const { showTabBar } = useTabStore();
+  const hideTabBar = useHideTabBar();
+  useFocusEffect(() => {
+    hideTabBar();
+  });
  
   return (
     <Background>
@@ -33,7 +36,6 @@ export const WebviewScreen = ({ route }: WebviewScreenProps) => {
         title={title}
         onLeftPress={() => {
           navigation.goBack();
-          showTabBar();
         }}
       />
       

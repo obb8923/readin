@@ -7,10 +7,11 @@ import { HomeStackParamList } from "@nav/stack/Home";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SearchBar } from "@/shared/component/SearchBar";
 import { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { searchBooks } from "@/shared/libs/supabase/bookSearch";
 import { BookType } from "@/shared/type/bookType";
 import {Colors} from "@constant/Colors";
-import { useShowTabBar } from '@/shared/store/tabStore';
+import { useHideTabBar } from '@/shared/store/tabStore';
 import { BookImage } from "@/shared/component/BookImage";
 import { BookRecordModal } from "@/shared/component/BookRecordModal";
 export const BookSearchScreen = () => {
@@ -20,7 +21,10 @@ export const BookSearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState<BookType | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const showTabBar = useShowTabBar();
+  const hideTabBar = useHideTabBar();
+  useFocusEffect(() => {
+    hideTabBar();
+  });
   // 검색 실행 함수
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
@@ -63,8 +67,6 @@ export const BookSearchScreen = () => {
   };
 
   const handleSaveSuccess = (saved: any) => {
-    // saveBookAndLog에서 이미 store에 추가되었으므로 별도 처리 불필요
-    showTabBar();
     navigation.goBack();
   };
 
@@ -107,7 +109,6 @@ export const BookSearchScreen = () => {
         <AppBar 
         title="책 검색" 
         onLeftPress={() => {
-          showTabBar();
           navigation.goBack();
         }}
         />

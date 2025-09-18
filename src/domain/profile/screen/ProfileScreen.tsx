@@ -5,18 +5,19 @@ import { Background } from "@/shared/component/Background";
 import { Text } from "@/shared/component/Text";
 import { MenuItem } from "../component/MenuItem";
 import { useAuthStore } from '@/shared/store/authStore';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@/shared/nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTabStore } from '@store/tabStore';
+import { useShowTabBar} from '@store/tabStore';
 import { MAIL_ADDRESS } from '@constant/normal';
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen = () => {
-  const { logout, isLoading } = useAuthStore();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { hideTabBar } = useTabStore();
-
+  const showTabBar = useShowTabBar();
+  useFocusEffect(() => {
+    showTabBar();
+  });
   const handleEmailPress = async () => {
     const mailtoUrl = `mailto:${MAIL_ADDRESS}`;
     try {
@@ -34,21 +35,7 @@ export const ProfileScreen = () => {
       );
     }
   };
-
-  const handleLogoutConfirm = () => {
-    if (isLoading) return;
-    Alert.alert(
-      '로그아웃',
-      '정말 로그아웃 하시겠습니까?',
-      [
-        { text: '취소', style: 'cancel' },
-        { text: '로그아웃', style: 'destructive', onPress: () => logout() },
-      ],
-      { cancelable: true }
-    );
-  };
   const handleInquiryPress = () => {
-    hideTabBar();
     navigation.navigate('Webview', {
       url: 'https://forms.gle/TM1tZhp27ytukWNKA',
       title: '건의사항 및 의견 보내기'
@@ -79,12 +66,12 @@ export const ProfileScreen = () => {
           <MenuItem
               title="내 정보"
               subtitle="프로필 수정 및 개인정보 관리"
-              onPress={() => {hideTabBar(); navigation.navigate('MyInfo');}}
+              onPress={() => { navigation.navigate('MyInfo');}}
             />
           <MenuItem
               title="독서 통계"
               subtitle="월별, 연도별 독서 현황"
-              onPress={() => {hideTabBar(); navigation.navigate('Statistics');}}
+              onPress={() => { navigation.navigate('Statistics');}}
           />
           <MenuItem
             title="문의하기"

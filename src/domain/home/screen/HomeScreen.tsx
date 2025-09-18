@@ -8,10 +8,14 @@ import { Text } from '@component/Text';
 import { useNavigation } from '@react-navigation/native';
 import { HomeStackParamList } from '@nav/stack/Home';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useHideTabBar } from '@/shared/store/tabStore';
+import { useShowTabBar } from '@/shared/store/tabStore';
+import { useFocusEffect } from '@react-navigation/native';
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
-  const hideTabBar = useHideTabBar();
+  const showTabBar = useShowTabBar();
+  useFocusEffect(() => {
+    showTabBar();
+  });
   return (
     <Background isTabBarGap={true}>
       {/* 검색 페이지 이동 버튼 */}
@@ -19,7 +23,6 @@ export const HomeScreen = () => {
         <View 
         className="flex-row items-center justify-start h-14 bg-background rounded-full px-4 py-3 border border-primary overflow-hidden"
         onTouchEnd={() => {
-          hideTabBar();
           navigation.navigate('BookSearch');
         }}
         >
