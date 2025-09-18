@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, ViewStyle, Platform } from 'react-native';
-import { Text } from './Text';
+import { View, TextInput, TouchableOpacity, ViewStyle } from 'react-native';
 import SearchIcon from '@assets/svgs/Search.svg';
 import CrossIcon from '@assets/svgs/CrossMark.svg';
 import { Colors } from '../constant/Colors';
