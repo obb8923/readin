@@ -27,6 +27,28 @@ export const Colors = {
   orange800: '#5F1202',
   orange900: '#2D0901',
 
+  //채도 56 오렌지 색상
+  orange156: '#F3D9D3',
+  orange256: '#E7B6AB',
+  orange356: '#DC9384',
+  orange456: '#D1705B',
+  orange556: '#C35037',
+  orange656: '#9B402C',
+  orange756: '#732F21',
+  orange856: '#4C1F15',
+  orange956: '#240F0A',
+
+  //채도 76 오렌지 색상
+  orange176: '#F8D5CE',
+  orange276: '#F2AFA1',
+  orange376: '#EC8974',
+  orange476: '#E66346',
+  orange576: '#DC401E',
+  orange676: '#AF3318',
+  orange776: '#822612',
+  orange876: '#55190C',
+  orange976: '#280C06',
+
   // KDC colors
   kdc1: '#cccccc',   // 총류
   kdc2: '#FF8651',   // 철학
@@ -40,14 +62,13 @@ export const Colors = {
   kdc10: '#FFD877',  // 역사
 }
 
-// 책 색상 팔레트
+// 책 색상 팔레트 (primary 색상에 50, 70, 60, 40, 70, 60, 40% opacity 적용)
 export const BOOK_COLOR_PALETTE = [
-  Colors.orange400,
-  Colors.orange600,
-  Colors.orange500,
-  Colors.orange300,
-  Colors.orange600,
-  Colors.orange500,
-  Colors.orange300,
-
+  'rgba(251, 85, 49, 0.6)',  // 50%
+  'rgba(251, 85, 49, 0.8)',  // 70%
+  'rgba(251, 85, 49, 0.7)',  // 60%
+  'rgba(251, 85, 49, 0.5)',  // 40%
+  'rgba(251, 85, 49, 0.7)',  // 70%
+  'rgba(251, 85, 49, 0.4)',  // 60%
+  'rgba(251, 85, 49, 0.3)',  // 40%
 ];

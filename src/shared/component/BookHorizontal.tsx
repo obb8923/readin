@@ -13,9 +13,9 @@ export const BookHorizontal = ({ title, pages, thickness, height, scale = 1, ind
   const bookWidth = Math.max(height * scale, 250); // 최소 250px 보장
   const bookHeight = Math.max(pages * 0.08 * scale, 20); // 최소 200px 보장
   
-  // index에 따라 색상 선택 (순환)
+
   const bookColor = BOOK_COLOR_PALETTE[index % BOOK_COLOR_PALETTE.length];
-  
+
   // index가 홀수면 왼쪽, 짝수면 오른쪽으로 오프셋
   const offsetValue = 15; // 15px 오프셋
   const offset = index % 2 === 0 ? offsetValue : -offsetValue; // 짝수면 오른쪽(+), 홀수면 왼쪽(-)
