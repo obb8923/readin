@@ -3,5 +3,8 @@
   "displayName": "readin",
   "android": {
     "package": "com.companyjeong.readin"
+  },
+  "ios": {
+    "bundleIdentifier": "com.companyjeong.readin"
   }
 }
