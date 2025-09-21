@@ -33,7 +33,7 @@ export const WebviewScreen = ({ route }: WebviewScreenProps) => {
     <View className="flex-1 bg-white">
       {/* 헤더 */}
       <AppBar
-        title={title}
+        title={''}
         onLeftPress={() => {
           navigation.goBack();
         }}

@@ -79,7 +79,7 @@ const RNHorizontalSlider = React.forwardRef<TSliderRef, TSliderProps>(
       renderIndicator = () => null,
       containerStyle = {},
       sliderStyle = {},
-      animationConfig = { damping: 15 },
+      animationConfig = { damping: 45, stiffness: 300 },
     },
     ref
   ) => {
