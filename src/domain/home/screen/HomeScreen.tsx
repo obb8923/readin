@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Background } from '@/shared/component/Background';
 import SearchIcon from "@assets/svgs/Search.svg"
 import { Colors } from '@constant/Colors';
@@ -8,11 +8,15 @@ import { Text } from '@component/Text';
 import { useNavigation } from '@react-navigation/native';
 import { HomeStackParamList } from '@nav/stack/Home';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useShowTabBar } from '@/shared/store/tabStore';
+import { useSetActiveTab, useShowTabBar } from '@/shared/store/tabStore';
+import { TAB_NAME } from '@/shared/constant/tab';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuthStore } from '@store/authStore';
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const showTabBar = useShowTabBar();
+  const setActiveTab = useSetActiveTab();
+  const { isLoggedIn } = useAuthStore();
   useFocusEffect(() => {
     showTabBar();
   });
@@ -23,6 +27,19 @@ export const HomeScreen = () => {
         <View 
         className="flex-row items-center justify-start h-14 bg-background rounded-full px-4 py-3 border border-primary overflow-hidden"
         onTouchEnd={() => {
+          if (!isLoggedIn) {
+            Alert.alert(
+              '로그인이 필요합니다',
+              '검색 기능은 로그인 후 이용할 수 있어요.',
+              [
+                {
+                  text: '확인',
+                  onPress: () => setActiveTab(TAB_NAME.PROFILE),
+                },
+              ],
+            );
+            return;
+          }
           navigation.navigate('BookSearch');
         }}
         >

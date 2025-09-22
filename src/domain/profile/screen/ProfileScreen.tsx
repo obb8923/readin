@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ScrollView, View,Alert, Linking } from 'react-native';
+import { ScrollView, View,Alert, Linking, Platform } from 'react-native';
 import { Background } from "@/shared/component/Background";
 import { Text } from "@/shared/component/Text";
 import { MenuItem } from "../component/MenuItem";
@@ -9,9 +9,12 @@ import { ProfileStackParamList } from '@/shared/nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useShowTabBar} from '@store/tabStore';
 import { MAIL_ADDRESS } from '@constant/normal';
-type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
+import { useAuthStore } from '@store/authStore';
+import {AuthButton} from '../component/AuthButton';
+  type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen = () => {
+  const { isLoggedIn } = useAuthStore();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const showTabBar = useShowTabBar();
   useFocusEffect(() => {
@@ -70,16 +73,33 @@ export const ProfileScreen = () => {
               onPress={() => handleMenuPress('내 정보')}
             />
           </View> */}
-          <MenuItem
+          {!isLoggedIn && (
+             <View 
+             className="w-full items-center justify-center p-6 border-b border-gray800"
+             >
+              <Text text="로그인 하기" type="title3" className="text-white mb-4" />
+              <View className="w-1/2 gap-y-4">
+              <AuthButton type="google" handleLogin={() => {}} loading={false} />
+              {Platform.OS === 'ios' && <AuthButton type="apple" handleLogin={() => {}} loading={false} />}
+              </View>
+
+             </View>
+          )}
+          {isLoggedIn && (
+            <>
+             <MenuItem
               title="내 정보"
               subtitle="프로필 수정 및 개인정보 관리"
               onPress={() => { navigation.navigate('MyInfo');}}
             />
-          <MenuItem
-              title="독서 통계"
-              subtitle="월별, 연도별 독서 현황"
-              onPress={() => { navigation.navigate('Statistics');}}
-          />
+            <MenuItem
+                title="독서 통계"
+                subtitle="월별, 연도별 독서 현황"
+                onPress={() => { navigation.navigate('Statistics');}}
+            />
+            </>
+          )}
+         
           <MenuItem
             title="문의하기"
             subtitle="이메일로 문의하기"

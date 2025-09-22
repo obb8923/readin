@@ -5,7 +5,7 @@ import AppleLogo from '@assets/svgs/LogoApple.svg';
 export const AuthButton = ({handleLogin, loading, type}: {handleLogin: () => void, loading: boolean, type: 'google' | 'apple'}) => {   
   return (
     <TouchableOpacity
-            className={`w-auto h-auto rounded-lg px-2 py-4 flex-row items-center justify-center bg-white`}
+            className={`w-full h-auto rounded-lg px-2 py-4 flex-row items-center justify-center bg-white`}
             onPress={handleLogin}
             disabled={loading}
           >

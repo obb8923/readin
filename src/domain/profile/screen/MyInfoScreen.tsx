@@ -21,7 +21,7 @@ export const MyInfoScreen = () => {
     hideTabBar();
   });
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { userId } = useAuthStore();
+  const { userId, logout } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -179,7 +179,7 @@ export const MyInfoScreen = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
       { text: '취소', style: 'cancel' },
       { text: '확인', style: 'destructive', onPress: async () => {
-            await supabase.auth.signOut();
+            await logout();
         } },
     ]);
   };
