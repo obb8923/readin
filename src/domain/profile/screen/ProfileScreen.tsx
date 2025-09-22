@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, View,Alert, Linking, Platform } from 'react-native';
 import { Background } from "@/shared/component/Background";
 import { Text } from "@/shared/component/Text";
@@ -16,6 +15,31 @@ import {AuthButton} from '../component/AuthButton';
 export const ProfileScreen = () => {
   const { isLoggedIn } = useAuthStore();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const [loading, setLoading] = useState(false);
+  const { handleGoogleLogin, handleAppleLogin } = useAuthStore();
+
+
+  const signInWithGoogle = useCallback(async () => {
+    setLoading(true);
+    try {
+      await handleGoogleLogin();
+    } catch (e: any) {
+      Alert.alert('로그인 오류', e?.message ?? '구글 로그인 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, [handleGoogleLogin]);
+
+  const signInWithApple = useCallback(async () => {
+    setLoading(true);
+    try {
+      await handleAppleLogin();
+    } catch (e: any) {
+      Alert.alert('로그인 오류', e?.message ?? 'Apple 로그인 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, [handleAppleLogin]); 
   const showTabBar = useShowTabBar();
   useFocusEffect(() => {
     showTabBar();
@@ -79,8 +103,8 @@ export const ProfileScreen = () => {
              >
               <Text text="로그인 하기" type="title3" className="text-white mb-4" />
               <View className="w-1/2 gap-y-4">
-              <AuthButton type="google" handleLogin={() => {}} loading={false} />
-              {Platform.OS === 'ios' && <AuthButton type="apple" handleLogin={() => {}} loading={false} />}
+              <AuthButton type="google" handleLogin={signInWithGoogle} loading={loading} />
+              {Platform.OS === 'ios' && <AuthButton type="apple" handleLogin={signInWithApple} loading={loading} />}
               </View>
 
              </View>
