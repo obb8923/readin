@@ -4,7 +4,6 @@ import { ScrollView, View,Alert, Linking } from 'react-native';
 import { Background } from "@/shared/component/Background";
 import { Text } from "@/shared/component/Text";
 import { MenuItem } from "../component/MenuItem";
-import { useAuthStore } from '@/shared/store/authStore';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@/shared/nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

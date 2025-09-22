@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Background } from '@/shared/component/Background';
-import { Text } from '@/shared/component/Text';
+import { Text } from '@component/Text';
 import { BookShelf } from '@/domain/books/component/BookShelf';
 import { BookGrid } from '@/domain/books/component/BookGrid';
 import { SegmentedControl, ViewType } from '@/domain/books/component/SegmentedControl';
