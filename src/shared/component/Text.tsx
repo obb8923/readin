@@ -45,14 +45,14 @@ const getTypographyStyle = (type: TypographyType): TextStyle => {
       };
     case 'body1':
       return {
-        fontFamily: 'Pretendard-Regular',
+        fontFamily: 'Pretendard-Medium',
         fontSize: 18,
         lineHeight: 18 * 1.4,
         letterSpacing: -0.45,
       };
     case 'body2':
       return {
-        fontFamily: 'Pretendard-Medium',
+        fontFamily: 'Pretendard-Regular',
         fontSize: 16,
         lineHeight: 16 * 1.4,
         letterSpacing: -0.4,

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, View,Alert, Linking, Platform } from 'react-native';
+import { ScrollView, View,Alert, Linking, Platform ,Text as RNText} from 'react-native';
 import { Background } from "@/shared/component/Background";
 import { Text } from "@/shared/component/Text";
 import { MenuItem } from "../component/MenuItem";
@@ -82,6 +82,13 @@ export const ProfileScreen = () => {
         {/* 헤더 */}
         <View className="px-6 py-4">
           <Text text="Profile" type="title1" className="text-white" />
+          <RNText style={{fontFamily:'Pretendard-Black'}} className="text-white">Profile</RNText>
+          <RNText style={{fontFamily:'Pretendard-Bold'}} className="text-white">Profile</RNText>
+          <RNText style={{fontFamily:'Pretendard-ExtraBold'}} className="text-white">Profile</RNText>
+          <RNText style={{fontFamily:'Pretendard-Medium'}} className="text-white">Profile</RNText>
+          <RNText style={{fontFamily:'Pretendard-Regular'}} className="text-white">Profile</RNText>
+          <RNText style={{fontFamily:'Pretendard-SemiBold'}} className="text-white">Profile</RNText>
+
         </View>
 
         {/* 메뉴 리스트 */}
