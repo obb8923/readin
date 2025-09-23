@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { View, TouchableOpacity, Alert } from 'react-native';
+import React from 'react';
+import { View, TouchableOpacity} from 'react-native';
 import { useActiveTab, TabName, useSetActiveTab } from '@store/tabStore';
-import { Colors } from '@/shared/constant/Colors';
+import { Colors } from '@constant/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeIcon from '@assets/svgs/Home.svg';
 import BooksIcon from '@assets/svgs/Books.svg';
 import ProfileIcon from '@assets/svgs/Profile.svg';
-import { TAB_NAME, TAB_NAME_KOR ,TAB_BAR_HEIGHT} from '@/shared/constant/tab';
+import { TAB_NAME, TAB_NAME_KOR ,TAB_BAR_HEIGHT} from '@constant/tab';
 import { Text } from './Text';
 
 // 탭 버튼 컴포넌트
