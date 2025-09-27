@@ -15,6 +15,7 @@ import {Colors} from "@constant/Colors";
 import { useHideTabBar } from '@/shared/store/tabStore';
 import { BookImage } from "@/shared/component/BookImage";
 import { BookRecordModal } from "@/shared/component/BookRecordModal";
+import { BulkAddModal } from "@/shared/component/BulkAddModal";
 export const BookSearchScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const [searchResults, setSearchResults] = useState<BookType[]>([]);
@@ -23,6 +24,7 @@ export const BookSearchScreen = () => {
   const [selectedBook, setSelectedBook] = useState<BookType | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<'save' | 'save2'>('save');
+  const [isBulkModalVisible, setIsBulkModalVisible] = useState(false);
   const hideTabBar = useHideTabBar();
   useFocusEffect(() => {
     hideTabBar();
@@ -80,6 +82,10 @@ export const BookSearchScreen = () => {
     navigation.goBack();
   };
 
+  const handleBulkSaveSuccess = (savedBooks: any[]) => {
+    navigation.goBack();
+  };
+
 
   const renderBookItem = ({ item }: { item: BookType }) => (
     <TouchableOpacity 
@@ -132,9 +138,8 @@ export const BookSearchScreen = () => {
             <View className="flex-row w-full h-14 items-center justify-center mt-4">
             <Button
               text="한번에 추가하기"
-              onPress={handleSearchSubmit}
+              onPress={() => setIsBulkModalVisible(true)}
               className=" flex-1 bg-[#302422] border border-primary mr-2"
-              isLoading={isLoading}
             />
             <Button
               text="책 직접 등록하기"
@@ -175,6 +180,13 @@ export const BookSearchScreen = () => {
           book={selectedBook}
           mode={modalMode}
           onSaveSuccess={handleSaveSuccess}
+        />
+        
+        {/* 한번에 추가하기 모달 */}
+        <BulkAddModal
+          visible={isBulkModalVisible}
+          onClose={() => setIsBulkModalVisible(false)}
+          onSaveSuccess={handleBulkSaveSuccess}
         />
     </Background>
   );
