@@ -78,11 +78,11 @@ export const BookSearchScreen = () => {
     setModalMode('save');
   };
 
-  const handleSaveSuccess = (saved: any) => {
+  const handleSaveSuccess = () => {
     navigation.goBack();
   };
 
-  const handleBulkSaveSuccess = (savedBooks: any[]) => {
+  const handleBulkSaveSuccess = () => {
     navigation.goBack();
   };
 

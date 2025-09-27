@@ -21,6 +21,7 @@ import { searchBooks } from '@libs/supabase/bookSearch';
 import { saveBookAndLog, save2BookAndLog } from '@libs/supabase/saveBookAndReadingLog';
 import { fetchPhysicalInfoWithPerplexity } from '@libs/supabase/enrichBook';
 import { DEFAULT_THICKNESS, DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_WEIGHT, DEFAULT_PAGES } from '@constant/defaultBook';
+import { useExecuteInAppReview } from '@store/reviewStore';
 
 interface BookSearchResult {
   title: string;
@@ -41,7 +42,7 @@ interface BookSearchResult {
 interface BulkAddModalProps {
   visible: boolean;
   onClose: () => void;
-  onSaveSuccess?: (savedBooks: any[]) => void;
+  onSaveSuccess?: () => void;
 }
 
 export const BulkAddModal = ({
@@ -56,6 +57,9 @@ export const BulkAddModal = ({
   const [currentStep, setCurrentStep] = useState<'input' | 'preview' | 'saving'>('input');
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const insets = useSafeAreaInsets();
+  
+  // 리뷰 관련 훅들
+  const executeInAppReview = useExecuteInAppReview();
 
   // 모달이 열릴 때 초기화
   useEffect(() => {
@@ -227,9 +231,11 @@ export const BulkAddModal = ({
         [
           {
             text: '확인',
-            onPress: () => {
+            onPress: async () => {
+              // 인앱 리뷰 실행 (3개월 경과 확인 포함)
+              await executeInAppReview();
               handleCloseModal();
-              onSaveSuccess?.(savedBooks);
+              onSaveSuccess?.();
             }
           }
         ]
@@ -451,6 +457,7 @@ export const BulkAddModal = ({
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
+      
     </Modal>
   );
 };

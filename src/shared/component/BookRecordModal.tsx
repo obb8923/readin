@@ -27,6 +27,7 @@ import { fetchPhysicalInfoWithPerplexity } from '@libs/supabase/enrichBook';
 import { useReadingLogsWithBooksStore, useMedianScore, useGetScoreStats } from '@store/readingLogsWithBooksStore';
 import { ScoreStatsModal } from '@component/ScoreStatsModal';
 import { DEFAULT_THICKNESS, DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_WEIGHT, DEFAULT_PAGES } from '@constant/defaultBook';
+import { useExecuteInAppReview } from '@store/reviewStore';
 export type BookRecordModalMode = 'save' | 'save2' | 'view';
 
 interface BookRecordModalProps {
@@ -34,7 +35,7 @@ interface BookRecordModalProps {
   onClose: () => void;
   book: BookType | BookWithRecord | null;
   mode: BookRecordModalMode;
-  onSaveSuccess?: (newLog: any) => void;
+  onSaveSuccess?: () => void;
   onUpdateSuccess?: () => void;
   onDeleteSuccess?: () => void;
 }
@@ -65,6 +66,9 @@ export const BookRecordModal = ({
   const enrichPromiseRef = useRef<Promise<any> | null>(null);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const scoreStats = useGetScoreStats();
+  
+  // 리뷰 관련 훅들
+  const executeInAppReview = useExecuteInAppReview();
   // 물리정보 편집 상태 (view 모드에서 인라인 편집)
   const [widthVal, setWidthVal] = useState<number | null>(null);
   const [heightVal, setHeightVal] = useState<number | null>(null);
@@ -227,7 +231,7 @@ export const BookRecordModal = ({
         try { await enrichPromiseRef.current; } catch (_) {}
       }
       // saveBookAndLog 함수 사용 (데이터베이스 저장 + store 추가까지 모두 처리)
-      const saved = await saveBookAndLog({
+      await saveBookAndLog({
         book,
         physical: enriched ?? undefined,
         kdc: enriched?.kdc ?? undefined,
@@ -237,9 +241,21 @@ export const BookRecordModal = ({
         finishedAt: endDate,
       });
 
-      Alert.alert('저장 완료', '기록이 저장되었습니다.');
-      handleCloseModal();
-      onSaveSuccess?.(saved);
+      Alert.alert(
+        '저장 완료', 
+        '기록이 저장되었습니다.',
+        [
+          {
+            text: '확인',
+            onPress: async () => {
+              // 인앱 리뷰 실행 (3개월 경과 확인 포함)
+              await executeInAppReview();
+              handleCloseModal();
+              onSaveSuccess?.();
+            }
+          }
+        ]
+      );
     } catch (e: any) {
       console.error('save error', e);
       Alert.alert('저장 실패', e?.message ?? '잠시 후 다시 시도해주세요.');
@@ -260,7 +276,7 @@ export const BookRecordModal = ({
     try {
       setIsSaving(true);
       
-      const saved = await save2BookAndLog({
+      await save2BookAndLog({
         title: customTitle.trim(),
         author: customAuthor.trim() || '',
         publisher: customPublisher.trim() || '',
@@ -277,9 +293,21 @@ export const BookRecordModal = ({
         finishedAt: endDate,
       });
 
-      Alert.alert('저장 완료', '기록이 저장되었습니다.');
-      handleCloseModal();
-      onSaveSuccess?.(saved);
+      Alert.alert(
+        '저장 완료', 
+        '기록이 저장되었습니다.',
+        [
+          {
+            text: '확인',
+            onPress: async () => {
+              // 인앱 리뷰 실행 (3개월 경과 확인 포함)
+              await executeInAppReview();
+              handleCloseModal();
+              onSaveSuccess?.();
+            }
+          }
+        ]
+      );
     } catch (e: any) {
       console.error('save2 error', e);
       Alert.alert('저장 실패', e?.message ?? '잠시 후 다시 시도해주세요.');
@@ -409,6 +437,8 @@ export const BookRecordModal = ({
             className="px-6 pt-8"
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{paddingBottom: mode === 'save2' && Platform.OS === 'android' ?  insets.bottom +24 : 0}}
+
           >
           {/* 책 정보 섹션 */}
           {mode === 'save2' ? (
@@ -1019,6 +1049,7 @@ export const BookRecordModal = ({
       stats={scoreStats}
     />
     )}
+    
     </Modal>
   );
 };
