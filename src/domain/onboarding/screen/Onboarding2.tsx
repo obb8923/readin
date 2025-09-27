@@ -1,6 +1,5 @@
 import { TouchableOpacity, View, Image } from "react-native";
 import { Text } from "@component/Text";
-import { useFirstVisitStore } from "@store/firstVisitStore";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Background } from "@component/Background";
 import { useHideTabBar} from "@store/tabStore";

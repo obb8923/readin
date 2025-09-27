@@ -8,7 +8,6 @@ import { Button } from "@component/Button";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { OnboardingStackParamList } from "@nav/stack/Onboarding";
-import { Dot } from "@domain/onboarding/component/Dot";
 import ChevronLeft from "@assets/svgs/ChevronLeft.svg";
 import { Colors } from "@/shared/constant/Colors";
 import { DEVICE_WIDTH } from "@/shared/constant/normal";
