@@ -1,5 +1,6 @@
 import { View, FlatList, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import { Text } from "@component/Text";
+import {Button} from "@component/Button";
 import { Background } from "@/shared/component/Background";
 import { AppBar } from "@/shared/component/AppBar";
 import { useNavigation } from "@react-navigation/native";
@@ -21,6 +22,7 @@ export const BookSearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState<BookType | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState<'save' | 'save2'>('save');
   const hideTabBar = useHideTabBar();
   useFocusEffect(() => {
     hideTabBar();
@@ -58,12 +60,20 @@ export const BookSearchScreen = () => {
   // 검색 결과 렌더링
   const handleOpenModal = (book: BookType) => {
     setSelectedBook(book);
+    setModalMode('save');
+    setIsModalVisible(true);
+  };
+
+  const handleOpenDirectRegisterModal = () => {
+    setSelectedBook(null); // save2 모드에서는 book이 null이어도 됨
+    setModalMode('save2');
     setIsModalVisible(true);
   };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
     setSelectedBook(null);
+    setModalMode('save');
   };
 
   const handleSaveSuccess = (saved: any) => {
@@ -119,6 +129,19 @@ export const BookSearchScreen = () => {
               onChangeText={handleSearchQueryChange}
               onSubmitEditing={handleSearchSubmit}
             />
+            <View className="flex-row w-full h-14 items-center justify-center mt-4">
+            <Button
+              text="한번에 추가하기"
+              onPress={handleSearchSubmit}
+              className=" flex-1 bg-[#302422] border border-primary mr-2"
+              isLoading={isLoading}
+            />
+            <Button
+              text="책 직접 등록하기"
+              onPress={handleOpenDirectRegisterModal}
+              className=" flex-1 bg-[#302422] border border-primary"
+            />
+            </View>
         </View>
         
         {/* 검색 결과 */}
@@ -150,7 +173,7 @@ export const BookSearchScreen = () => {
           visible={isModalVisible}
           onClose={handleCloseModal}
           book={selectedBook}
-          mode="save"
+          mode={modalMode}
           onSaveSuccess={handleSaveSuccess}
         />
     </Background>

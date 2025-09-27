@@ -8,7 +8,8 @@ import {
   LayoutChangeEvent, 
   KeyboardAvoidingView, 
   Keyboard,
-  Alert
+  Alert,
+  ScrollView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@component/Text';
@@ -19,13 +20,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import RNHorizontalSlider from '@component/Slider';
 import { updateLogById, deleteLogById } from '@libs/supabase/reading_logs';
 import { supabase } from '@libs/supabase/supabase';
-import { saveBookAndLog } from '@libs/supabase/saveBookAndReadingLog';
+import { saveBookAndLog, save2BookAndLog } from '@libs/supabase/saveBookAndReadingLog';
 import { updateBookById } from '@libs/supabase/books';
 import { Button } from '@component/Button';
 import { fetchPhysicalInfoWithPerplexity } from '@libs/supabase/enrichBook';
 import { useReadingLogsWithBooksStore, useMedianScore, useGetScoreStats } from '@store/readingLogsWithBooksStore';
 import { ScoreStatsModal } from '@component/ScoreStatsModal';
-export type BookRecordModalMode = 'save' | 'view';
+import { DEFAULT_THICKNESS, DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_WEIGHT, DEFAULT_PAGES } from '@constant/defaultBook';
+export type BookRecordModalMode = 'save' | 'save2' | 'view';
 
 interface BookRecordModalProps {
   visible: boolean;
@@ -72,10 +74,20 @@ export const BookRecordModal = ({
   const [editingField, setEditingField] = useState<null | 'width' | 'height' | 'thickness' | 'weight' | 'pages'>(null);
   const insets = useSafeAreaInsets();
   const medianScore = useMedianScore();
+  
+  // save2 모드를 위한 상태들
+  const [customTitle, setCustomTitle] = useState('');
+  const [customAuthor, setCustomAuthor] = useState('');
+  const [customPublisher, setCustomPublisher] = useState('');
+  const [customWidth, setCustomWidth] = useState<number | null>(null);
+  const [customHeight, setCustomHeight] = useState<number | null>(null);
+  const [customThickness, setCustomThickness] = useState<number | null>(null);
+  const [customWeight, setCustomWeight] = useState<number | null>(null);
+  const [customPages, setCustomPages] = useState<number | null>(null);
   // 모달이 열릴 때 초기화
   useEffect(() => {
-    if (visible && book) {
-      if (mode === 'view' && 'record' in book && book.record) {
+    if (visible && (book || mode === 'save2')) {
+      if (mode === 'view' && book && 'record' in book && book.record) {
         // 조회 모드: 기존 기록 데이터로 초기화
         setRating(book.record.rate || 100);
         setMemo(book.record.memo || '');
@@ -87,6 +99,20 @@ export const BookRecordModal = ({
         setThicknessVal(book.thickness ?? null);
         setWeightVal(book.weight ?? null);
         setPagesVal(book.pages ?? null);
+      } else if (mode === 'save2') {
+        // save2 모드: 커스텀 입력 필드 초기화
+        setRating(100);
+        setMemo('');
+        setStartDate(new Date());
+        setEndDate(new Date());
+        setCustomTitle('');
+        setCustomAuthor('');
+        setCustomPublisher('');
+        setCustomWidth(DEFAULT_WIDTH);
+        setCustomHeight(DEFAULT_HEIGHT);
+        setCustomThickness(DEFAULT_THICKNESS);
+        setCustomWeight(DEFAULT_WEIGHT);
+        setCustomPages(DEFAULT_PAGES);
       } else {
         // 저장 모드: 기본값으로 초기화
         setRating(100);
@@ -107,7 +133,7 @@ export const BookRecordModal = ({
       setEditingField(null);
       
       // 저장 모드일 때만 물리 정보 조회
-      if (mode === 'save') {
+      if (mode === 'save' && book) {
         setIsEnrichLoading(true);
         const p = fetchPhysicalInfoWithPerplexity({
           title: book.title,
@@ -168,7 +194,13 @@ export const BookRecordModal = ({
   };
 
   // 물리 정보 포맷팅 유틸
-  const physical = enriched ?? book;
+  const physical = enriched ?? (mode === 'save2' ? {
+    width: customWidth,
+    height: customHeight,
+    thickness: customThickness,
+    weight: customWeight,
+    pages: customPages
+  } : book);
   const formatValue = (n?: number | null) => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? `${n}` : '-');
 
   const formatDate = (date: Date | null) => {
@@ -210,6 +242,46 @@ export const BookRecordModal = ({
       onSaveSuccess?.(saved);
     } catch (e: any) {
       console.error('save error', e);
+      Alert.alert('저장 실패', e?.message ?? '잠시 후 다시 시도해주세요.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSave2 = async () => {
+    if (isSaving) return;
+    
+    // 필수 필드 검증 (제목만 필수)
+    if (!customTitle.trim()) {
+      Alert.alert('입력 오류', '제목은 필수 입력 항목입니다.');
+      return;
+    }
+    
+    try {
+      setIsSaving(true);
+      
+      const saved = await save2BookAndLog({
+        title: customTitle.trim(),
+        author: customAuthor.trim() || '',
+        publisher: customPublisher.trim() || '',
+        physical: {
+          width: customWidth ?? undefined,
+          height: customHeight ?? undefined,
+          thickness: customThickness ?? undefined,
+          weight: customWeight ?? undefined,
+          pages: customPages ?? undefined,
+        },
+        rate: rating,
+        memo,
+        startedAt: startDate,
+        finishedAt: endDate,
+      });
+
+      Alert.alert('저장 완료', '기록이 저장되었습니다.');
+      handleCloseModal();
+      onSaveSuccess?.(saved);
+    } catch (e: any) {
+      console.error('save2 error', e);
       Alert.alert('저장 실패', e?.message ?? '잠시 후 다시 시도해주세요.');
     } finally {
       setIsSaving(false);
@@ -320,7 +392,7 @@ export const BookRecordModal = ({
     );
   };
 
-  if (!book) return null;
+  if (!book && mode !== 'save2') return null;
   
   return (
     <Modal
@@ -332,36 +404,194 @@ export const BookRecordModal = ({
       <View className="flex-1 bg-black/80" style={{ paddingTop: insets.top }}>
         <View className="flex-1"/>
         {/* 모달 전체 컨테이너 */}
-        <View className="bg-gray800 rounded-t-2xl px-6 pt-8" style={{paddingBottom: insets.bottom + 24 }}>
+        <View className="bg-gray800 rounded-t-2xl" style={{paddingBottom: insets.bottom + 24, maxHeight: '95%' }}>
+          <ScrollView 
+            className="px-6 pt-8"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
           {/* 책 정보 섹션 */}
-          <View className="flex-row mb-6">
-            {/* 왼쪽 이미지 */}
-            <BookImage imageUrl={book.imageUrl} className="w-[80] h-[100] mr-2" />
-            {/* 오른쪽 책 정보 */}
-            <View className="flex-1">
-              <Text 
-                text={book.title} 
-                type="body1" 
-                className="text-white mb-2" 
-                numberOfLines={2}
-              />
-              <Text 
-                text={book.author.join(', ')} 
-                type="body3" 
-                className="text-gray300 mb-1" 
-                numberOfLines={1}
-              />
-              <Text 
-                text={book.publisher} 
-                type="caption1" 
-                className="text-gray400" 
-                numberOfLines={1}
-              />
+          {mode === 'save2' ? (
+            <View className="mb-6">
+              <Text text="책 정보를 입력해주세요" type="body2" className="text-white mb-3" />
+              <View className="flex-row">
+               
+                {/* 오른쪽 입력 필드들 */}
+                <View className="flex-1">
+                  {/* 제목 */}
+                  <View className="mb-3">
+                    <Text text="제목" type="body3" className="text-gray300 mb-1" />
+                    <TextInput
+                      value={customTitle}
+                      onChangeText={setCustomTitle}
+                      placeholder="책 제목을 입력하세요"
+                      placeholderTextColor={Colors.gray400}
+                      className="bg-gray700 rounded-lg p-3 text-white text-sm"
+                    />
+                  </View>
+                  {/* 작가 */}
+                  <View className="mb-3">
+                    <Text text="작가" type="body3" className="text-gray300 mb-1" />
+                    <TextInput
+                      value={customAuthor}
+                      onChangeText={setCustomAuthor}
+                      placeholder="작가명을 입력하세요 (선택)"
+                      placeholderTextColor={Colors.gray400}
+                      className="bg-gray700 rounded-lg p-3 text-white text-sm"
+                    />
+                  </View>
+                  {/* 출판사 */}
+                  <View className="mb-3">
+                    <Text text="출판사" type="body3" className="text-gray300 mb-1" />
+                    <TextInput
+                      value={customPublisher}
+                      onChangeText={setCustomPublisher}
+                      placeholder="출판사명을 입력하세요 (선택)"
+                      placeholderTextColor={Colors.gray400}
+                      className="bg-gray700 rounded-lg p-3 text-white text-sm"
+                    />
+                  </View>
+                 
+                </View>
+              </View>
             </View>
-          </View>
+          ) : (
+            <View className="flex-row mb-6">
+              {/* 왼쪽 이미지 */}
+              <BookImage imageUrl={book?.imageUrl || ''} className="w-[80] h-[100] mr-2" />
+              {/* 오른쪽 책 정보 */}
+              <View className="flex-1">
+                <Text 
+                  text={book?.title || ''} 
+                  type="body1" 
+                  className="text-white mb-2" 
+                  numberOfLines={2}
+                />
+                <Text 
+                  text={book?.author?.join(', ') || ''} 
+                  type="body3" 
+                  className="text-gray300 mb-1" 
+                  numberOfLines={1}
+                />
+                <Text 
+                  text={book?.publisher || ''} 
+                  type="caption1" 
+                  className="text-gray400" 
+                  numberOfLines={1}
+                />
+              </View>
+            </View>
+          )}
 
             {/* 물리 치수 섹션 */}
-            {mode === 'view' && (
+            {mode === 'save2' ? (
+              <View className="mb-6">
+                {/* 사이즈: 너비, 높이, 두께 - 한 행에 가로 배치 */}
+                <View className="flex-row items-center justify-evenly mb-4 gap-x-2">
+                  {/* 너비 */}
+                  <View className="flex-1">
+                    <Text text="너비" type="body3" className="text-gray300 mb-1" />
+                    <View className="flex-row items-center">
+                      <TextInput
+                        keyboardType="numeric"
+                        value={customWidth != null ? String(customWidth) : ''}
+                        onChangeText={(t) => {
+                          const n = Number(t.replace(/[^0-9.]/g, ''));
+                          if (Number.isFinite(n)) setCustomWidth(n);
+                          if (t === '') setCustomWidth(null);
+                        }}
+                        placeholder="-"
+                        placeholderTextColor={Colors.gray400}
+                        className="bg-gray700 rounded-lg p-3 text-white text-sm flex-1"
+                      />
+                      <Text text="mm" type="body3" className="text-white ml-1" />
+                    </View>
+                  </View>
+
+                  {/* 높이 */}
+                  <View className="flex-1">
+                    <Text text="높이" type="body3" className="text-gray300 mb-1" />
+                    <View className="flex-row items-center">
+                      <TextInput
+                        keyboardType="numeric"
+                        value={customHeight != null ? String(customHeight) : ''}
+                        onChangeText={(t) => {
+                          const n = Number(t.replace(/[^0-9.]/g, ''));
+                          if (Number.isFinite(n)) setCustomHeight(n);
+                          if (t === '') setCustomHeight(null);
+                        }}
+                        placeholder="-"
+                        placeholderTextColor={Colors.gray400}
+                        className="bg-gray700 rounded-lg p-3 text-white text-sm flex-1"
+                      />
+                      <Text text="mm" type="body3" className="text-white ml-1" />
+                    </View>
+                  </View>
+
+                  {/* 두께 */}
+                  <View className="flex-1">
+                    <Text text="두께" type="body3" className="text-gray300 mb-1" />
+                    <View className="flex-row items-center">
+                      <TextInput
+                        keyboardType="numeric"
+                        value={customThickness != null ? String(customThickness) : ''}
+                        onChangeText={(t) => {
+                          const n = Number(t.replace(/[^0-9.]/g, ''));
+                          if (Number.isFinite(n)) setCustomThickness(n);
+                          if (t === '') setCustomThickness(null);
+                        }}
+                        placeholder="-"
+                        placeholderTextColor={Colors.gray400}
+                        className="bg-gray700 rounded-lg p-3 text-white text-sm flex-1"
+                      />
+                      <Text text="mm" type="body3" className="text-white ml-1" />
+                    </View>
+                  </View>
+                </View>
+                {/* 무게, 페이지도 동일한 레이아웃 */}
+                <View className="flex-row items-center justify-evenly gap-x-4">
+                  {/* 무게 */}
+                  <View className="flex-1">
+                    <Text text="무게" type="body3" className="text-gray300 mb-1" />
+                    <View className="flex-row items-center">
+                      <TextInput
+                        keyboardType="numeric"
+                        value={customWeight != null ? String(customWeight) : ''}
+                        onChangeText={(t) => {
+                          const n = Number(t.replace(/[^0-9.]/g, ''));
+                          if (Number.isFinite(n)) setCustomWeight(n);
+                          if (t === '') setCustomWeight(null);
+                        }}
+                        placeholder="-"
+                        placeholderTextColor={Colors.gray400}
+                        className="bg-gray700 rounded-lg p-3 text-white text-sm flex-1"
+                      />
+                      <Text text="g" type="body3" className="text-white ml-1" />
+                    </View>
+                  </View>
+
+                  {/* 페이지 */}
+                  <View className="flex-1">
+                    <Text text="페이지" type="body3" className="text-gray300 mb-1" />
+                    <View className="flex-row items-center">
+                      <TextInput
+                        keyboardType="numeric"
+                        value={customPages != null ? String(customPages) : ''}
+                        onChangeText={(t) => {
+                          const n = Number(t.replace(/[^0-9.]/g, ''));
+                          if (Number.isFinite(n)) setCustomPages(n);
+                          if (t === '') setCustomPages(null);
+                        }}
+                        placeholder="-"
+                        placeholderTextColor={Colors.gray400}
+                        className="bg-gray700 rounded-lg p-3 text-white text-sm flex-1"
+                      />
+                      <Text text="p" type="body3" className="text-white ml-1" />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ) : mode === 'view' && (
               <View className="mb-6 w-full rounded-lg py">
                 {/* 사이즈: 너비, 높이, 두께 - 한 행에 가로 배치, 각 부분 인라인 편집 */}
                 <View className="flex-row items-center justify-evenly mb-2 gap-x-2">
@@ -755,6 +985,14 @@ export const BookRecordModal = ({
               disabled={isEnrichLoading || isSaving}
               isLoading={isEnrichLoading || isSaving}
               />
+            ) : mode === 'save2' ? (
+              <Button
+              text="저장"
+              onPress={handleSave2}
+              className="ml-4 bg-primary"
+              disabled={!customTitle.trim() || isSaving}
+              isLoading={isSaving}
+              />
             ) : (
               <>
               <Button
@@ -771,6 +1009,7 @@ export const BookRecordModal = ({
               </>
             )}
           </View>
+          </ScrollView>
         </View>
         </View>
   {mode==='save' &&(   

@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { BookType } from '@/shared/type/bookType';
+import { DEFAULT_THICKNESS, DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_WEIGHT, DEFAULT_PAGES } from '@constant/defaultBook';
 
 export type BookCreateInput = {
   book: BookType;
@@ -17,12 +18,6 @@ export async function createBook(input: BookCreateInput) {
   
   const nowIso = new Date().toISOString();
   
-  // 기본값 설정
-  const DEFAULT_THICKNESS = 15; // mm
-  const DEFAULT_HEIGHT = 225; // mm
-  const DEFAULT_WIDTH = 30; // mm
-  const DEFAULT_WEIGHT = 250; // g
-  const DEFAULT_PAGES = 100;
   // 물리적 속성에 기본값 적용 (기존 값이 기본값보다 작으면 기본값 사용)
   const getThickness = () => {
     const value = physical?.thickness ?? book.thickness ?? null;
