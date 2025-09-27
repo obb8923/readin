@@ -7,7 +7,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@/shared/nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useShowTabBar} from '@store/tabStore';
-import { MAIL_ADDRESS } from '@constant/normal';
+import { APP_STORE_URL, MAIL_ADDRESS, PLAY_STORE_URL} from '@constant/normal';
 import { useAuthStore } from '@store/authStore';
 import {AuthButton} from '../component/AuthButton';
   type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
@@ -134,6 +134,11 @@ export const ProfileScreen = () => {
             subtitle="건의사항 및 의견 보내기"
             onPress={handleInquiryPress}
           />
+          <MenuItem
+              title="스토어로 이동"
+              subtitle={`${Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'}로 이동`}
+              onPress={() => Linking.openURL(Platform.OS === 'ios' ? APP_STORE_URL : PLAY_STORE_URL)}
+            />
           {/* 독서 관련 섹션 */}
           {/* <View className="mb-6">
             <View className="px-6 py-4">
