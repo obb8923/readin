@@ -7,7 +7,7 @@ import { Colors } from '@constant/Colors';
 import { useReadingLogs, useIsReadingLogsLoading } from '@/shared/store/readingLogsWithBooksStore';
 import { getReadingLevel } from '@/shared/constant/ReadingLevels';
 import { transformReadingLogToBookInfo } from '@/shared/utils/bookDataTransform';
-
+import ArrowUpIcon from '@assets/svgs/ArrowUp.svg';
 export const TowerOfBooks = () => {
   const readingLogs = useReadingLogs();
   const isLoading = useIsReadingLogsLoading();
@@ -25,6 +25,9 @@ export const TowerOfBooks = () => {
   if (readingLogs.length === 0) {
     return (
       <View className="flex-1 items-center justify-center">
+      <View className="flex-row items-center justify-center mb-16">
+        <ArrowUpIcon width={40} height={45} color={Colors.gray500} />
+      </View>
         <Text text="아직 읽은 책이 없습니다" className="text-gray-300 text-sm" />
         <Text text="첫 번째 책을 읽어보세요!" className="text-gray-400 text-xs mt-1" />
       </View>
@@ -64,7 +67,7 @@ export const TowerOfBooks = () => {
   
   return (
     <View className="flex-1">
-    
+      
       
       <ScrollView 
         showsVerticalScrollIndicator={false}

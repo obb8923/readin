@@ -33,7 +33,7 @@ export const HomeScreen = () => {
               '검색 기능은 로그인 후 이용할 수 있어요.',
               [
                 {
-                  text: '확인',
+                  text: '로그인 하기',
                   onPress: () => setActiveTab(TAB_NAME.PROFILE),
                 },
               ],
