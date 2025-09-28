@@ -112,14 +112,38 @@ export const StatisticsScreen = () => {
       const cat = kdcToCategoryName(log.book?.kdc ?? null);
       catCount[cat] = (catCount[cat] ?? 0) + 1;
     }
-    const catEntries = Object.entries(catCount).map(([name, count]) => ({ name, count }));
-    catEntries.sort((a, b) => b.count - a.count);
-    const top = catEntries.slice(0, 5);
-    const rest = catEntries.slice(5);
-    const othersSum = rest.reduce((acc, c) => acc + c.count, 0);
-    const finalCats = othersSum > 0
-      ? [...top, { name: '기타', count: othersSum }]
-      : top;
+    
+    // 개발 환경에서는 예시 데이터 사용, 프로덕션에서는 실제 데이터 사용
+    
+    let finalCats;
+    if (!__DEV__) {
+      // 개발 환경: 모든 카테고리의 예시 데이터
+      finalCats = [
+        { name: '총류', count: 2 },
+        { name: '철학', count: 3 },
+        { name: '종교', count: 1 },
+        { name: '사회과학', count: 4 },
+        { name: '자연과학', count: 3 },
+        { name: '기술,과학', count: 2 },
+        { name: '예술', count: 2 },
+        { name: '언어', count: 1 },
+        { name: '문학', count: 5 },
+        { name: '역사', count: 2 },
+        { name: '기타', count: 1 }
+      ];
+    } else {
+      // 프로덕션 환경: 실제 데이터가 있는 카테고리만 표시
+      const allCategories = ['총류', '철학', '종교', '사회과학', '자연과학', '기술,과학', '예술', '언어', '문학', '역사'];
+      finalCats = allCategories.map(cat => ({
+        name: cat,
+        count: catCount[cat] ?? 0
+      })).filter(cat => cat.count > 0);
+      
+      // 데이터가 없는 경우 기타만 표시
+      if (finalCats.length === 0) {
+        finalCats = [{ name: '기타', count: 1 }];
+      }
+    }
     return {
       yearlyData: yearlyPairs,
       monthlyData: monthCount,
@@ -231,7 +255,7 @@ export const StatisticsScreen = () => {
                 backgroundColor={'transparent'}
                 paddingLeft={'0'}
                 chartConfig={chartConfig}
-                data={(categoryData.length > 0 ? categoryData : [{ name: '기타', count: 1 }]).map(c => ({
+                data={categoryData.map(c => ({
                   name: c.name,
                   count: c.count,
                   color: colorByCategory[c.name] ?? Colors.gray400,

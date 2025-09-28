@@ -51,16 +51,16 @@ export const Colors = {
   orange976: '#280C06',
 
   // KDC colors
-  kdc1: '#cccccc',   // 총류
-  kdc2: '#FF8651',   // 철학
-  kdc3: '#FFC794',   // 종교
-  kdc4: '#FFEFC5',   // 사회과학
-  kdc5: '#D6FFBD',   // 자연과학
-  kdc6: '#93CEFF',   // 기술,과학
-  kdc7: '#C5BDFF',   // 예술
-  kdc8: '#E3FF93',   // 언어
-  kdc9: '#FFC6B5',   // 문학
-  kdc10: '#FFD877',  // 역사
+  kdc1: '#fafafa',
+ kdc2: '#F8D5CE',
+ kdc3: '#F2AFA1',
+ kdc4: '#EC8974',
+ kdc5: '#E66346',
+ kdc6: '#DC401E',
+ kdc7: '#AF3318',
+ kdc8: '#822612',
+ kdc9: '#55190C',
+ kdc10: '#280C06',
 }
 
 // 책 색상 팔레트 (primary 색상에 50, 70, 60, 40, 70, 60, 40% opacity 적용)
