@@ -5,6 +5,7 @@ export const Colors = {
   white: '#fafafa',
   black: '#212121',
   realblack: '#000000',
+  buttonBackground: '#302422',
   // Gray scale 
   gray100: '#E6E6E6',
   gray200: '#CCCCCC',

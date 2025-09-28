@@ -22,6 +22,7 @@ module.exports = {
         'white': '#fafafa',
         'black': '#212121',
         'realblack': '#000000',
+        'buttonBackground': '#302422',
         'gray100': '#E6E6E6',
         'gray200': '#CCCCCC',
         'gray300': '#B3B3B3',
