@@ -139,12 +139,12 @@ export const BookSearchScreen = () => {
             <Button
               text="한번에 추가하기"
               onPress={() => setIsBulkModalVisible(true)}
-              className=" flex-1 bg-[#302422] border border-primary mr-2"
+              className=" flex-1 bg-buttonBackground border border-primary mr-2"
             />
             <Button
               text="책 직접 등록하기"
               onPress={handleOpenDirectRegisterModal}
-              className=" flex-1 bg-[#302422] border border-primary"
+              className=" flex-1 bg-buttonBackground border border-primary"
             />
             </View>
         </View>

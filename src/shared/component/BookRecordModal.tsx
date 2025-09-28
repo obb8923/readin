@@ -11,6 +11,7 @@ import {
   Alert,
   ScrollView
 } from 'react-native';
+import { SelectButton } from '@component/SelectButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@component/Text';
 import { BookType, BookWithRecord } from '@/shared/type/bookType';
@@ -54,6 +55,7 @@ export const BookRecordModal = ({
   const [rating, setRating] = useState(100);
   const [memo, setMemo] = useState('');
   const [memoDraft, setMemoDraft] = useState('');
+  const [readingStatus, setReadingStatus] = useState<'not_started' | 'reading' | 'finished'>('finished');
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
@@ -97,6 +99,28 @@ export const BookRecordModal = ({
         setMemo(book.record.memo || '');
         setStartDate(book.record.startedAt ? new Date(book.record.startedAt) : new Date());
         setEndDate(book.record.finishedAt ? new Date(book.record.finishedAt) : new Date());
+        
+        // 날짜 데이터에 따라 읽기 상태 판단
+        const startDateValue = book.record.startedAt ? new Date(book.record.startedAt) : new Date();
+        const endDateValue = book.record.finishedAt ? new Date(book.record.finishedAt) : new Date();
+        
+        // 1000년 1월 1일인지 확인하는 함수
+        const is1000Date = (date: Date) => {
+          return date.getFullYear() === 1000 && date.getMonth() === 0 && date.getDate() === 1;
+        };
+        
+        // 1001년 1월 1일인지 확인하는 함수  
+        const is1001Date = (date: Date) => {
+          return date.getFullYear() === 1001 && date.getMonth() === 0 && date.getDate() === 1;
+        };
+        
+        if (is1000Date(startDateValue) && is1000Date(endDateValue)) {
+          setReadingStatus('not_started'); // 읽기 전: 1000.01.01 / 1000.01.01
+        } else if (is1001Date(startDateValue) && is1001Date(endDateValue)) {
+          setReadingStatus('reading'); // 읽는 중: 1001.01.01 / 1001.01.01
+        } else {
+          setReadingStatus('finished'); // 다 읽음: 실제 날짜
+        }
         // 물리정보 상태 초기화
         setWidthVal(book.width ?? null);
         setHeightVal(book.height ?? null);
@@ -107,6 +131,7 @@ export const BookRecordModal = ({
         // save2 모드: 커스텀 입력 필드 초기화
         setRating(100);
         setMemo('');
+        setReadingStatus('finished'); // 기본값을 완료 상태로 설정
         setStartDate(new Date());
         setEndDate(new Date());
         setCustomTitle('');
@@ -121,6 +146,7 @@ export const BookRecordModal = ({
         // 저장 모드: 기본값으로 초기화
         setRating(100);
         setMemo('');
+        setReadingStatus('finished'); // 기본값을 완료 상태로 설정
         setStartDate(new Date());
         setEndDate(new Date());
         setWidthVal(null);
@@ -160,12 +186,32 @@ export const BookRecordModal = ({
     setRating(100);
     setMemo('');
     setMemoDraft('');
+    setReadingStatus('finished');
     setStartDate(new Date());
     setEndDate(new Date());
     setShowStartDatePicker(false);
     setShowEndDatePicker(false);
     setShowMemoEditor(false);
     setEnriched(null);
+  };
+
+  // 읽기 상태 변경 핸들러
+  const handleReadingStatusChange = (status: 'not_started' | 'reading' | 'finished') => {
+    setReadingStatus(status);
+    
+    if (status === 'not_started') {
+      // 읽기 전: 1000.01.01 / 1000.01.01
+      setStartDate(new Date('1000-01-01'));
+      setEndDate(new Date('1000-01-01'));
+    } else if (status === 'reading') {
+      // 읽는 중: 1001.01.01 / 1001.01.01
+      setStartDate(new Date('1001-01-01'));
+      setEndDate(new Date('1001-01-01'));
+    } else {
+      // 다 읽음: 현재 날짜로 설정
+      setStartDate(new Date());
+      setEndDate(new Date());
+    }
   };
 
   // 날짜 선택 핸들러
@@ -230,6 +276,22 @@ export const BookRecordModal = ({
       if (isEnrichLoading && enrichPromiseRef.current) {
         try { await enrichPromiseRef.current; } catch (_) {}
       }
+      
+      // 읽기 상태에 따라 날짜 값 결정
+      let finalStartDate: Date;
+      let finalEndDate: Date;
+      
+      if (readingStatus === 'not_started') {
+        finalStartDate = new Date('1000-01-01');
+        finalEndDate = new Date('1000-01-01');
+      } else if (readingStatus === 'reading') {
+        finalStartDate = new Date('1001-01-01');
+        finalEndDate = new Date('1001-01-01');
+      } else {
+        finalStartDate = startDate || new Date();
+        finalEndDate = endDate || new Date();
+      }
+      
       // saveBookAndLog 함수 사용 (데이터베이스 저장 + store 추가까지 모두 처리)
       await saveBookAndLog({
         book,
@@ -237,8 +299,8 @@ export const BookRecordModal = ({
         kdc: enriched?.kdc ?? undefined,
         rate: rating,
         memo,
-        startedAt: startDate,
-        finishedAt: endDate,
+        startedAt: finalStartDate,
+        finishedAt: finalEndDate,
       });
 
       Alert.alert(
@@ -276,6 +338,21 @@ export const BookRecordModal = ({
     try {
       setIsSaving(true);
       
+      // 읽기 상태에 따라 날짜 값 결정
+      let finalStartDate: Date;
+      let finalEndDate: Date;
+      
+      if (readingStatus === 'not_started') {
+        finalStartDate = new Date('1000-01-01');
+        finalEndDate = new Date('1000-01-01');
+      } else if (readingStatus === 'reading') {
+        finalStartDate = new Date('1001-01-01');
+        finalEndDate = new Date('1001-01-01');
+      } else {
+        finalStartDate = startDate || new Date();
+        finalEndDate = endDate || new Date();
+      }
+      
       await save2BookAndLog({
         title: customTitle.trim(),
         author: customAuthor.trim() || '',
@@ -289,8 +366,8 @@ export const BookRecordModal = ({
         },
         rate: rating,
         memo,
-        startedAt: startDate,
-        finishedAt: endDate,
+        startedAt: finalStartDate,
+        finishedAt: finalEndDate,
       });
 
       Alert.alert(
@@ -328,11 +405,27 @@ export const BookRecordModal = ({
       }
 
       const toISO = (d?: Date | null) => (d ? d.toISOString().split('T')[0] : null);
+      
+      // 읽기 상태에 따라 날짜 값 결정
+      let finalStartDate: Date;
+      let finalEndDate: Date;
+      
+      if (readingStatus === 'not_started') {
+        finalStartDate = new Date('1000-01-01');
+        finalEndDate = new Date('1000-01-01');
+      } else if (readingStatus === 'reading') {
+        finalStartDate = new Date('1001-01-01');
+        finalEndDate = new Date('1001-01-01');
+      } else {
+        finalStartDate = startDate || new Date();
+        finalEndDate = endDate || new Date();
+      }
+      
       await updateLogById(book.record.id, {
         rate: rating,
         memo,
-        started_at: toISO(startDate),
-        finished_at: toISO(endDate),
+        started_at: toISO(finalStartDate),
+        finished_at: toISO(finalEndDate),
       });
 
       // 물리 정보 업데이트 (books 테이블)
@@ -364,8 +457,8 @@ export const BookRecordModal = ({
         const updatesForStore: any = {
           rate: rating,
           memo,
-          started_at: toISO(startDate),
-          finished_at: toISO(endDate),
+          started_at: toISO(finalStartDate),
+          finished_at: toISO(finalEndDate),
         };
         if (current?.book && Object.keys(physicalUpdates).length > 0) {
           updatesForStore.book = { ...current.book, ...physicalUpdates };
@@ -833,35 +926,58 @@ export const BookRecordModal = ({
           {/* 날짜 섹션 */}
           <View className="w-full mb-6">
             <Text text="독서 기간" type="body2" className="text-white mb-3" />
-            <View className="w-full flex-row items-center justify-around">
-              {/* 읽기 시작 날짜 */}
-              <TouchableOpacity 
-                onPress={() => setShowStartDatePicker(true)}
-                className="bg-gray700 rounded-lg p-3 flex-1"
-                activeOpacity={0.8}
-              >
-                <Text 
-                  text={formatDate(startDate)} 
-                  type="body3" 
-                  className={startDate ? "text-white" : "text-gray400"} 
-                />
-              </TouchableOpacity>
+            <View className="flex-row w-full justify-start items-center mb-3 mr-2 gap-x-2">
+              <SelectButton 
+                text="읽기 전" 
+                onPress={() => handleReadingStatusChange('not_started')} 
+                isSelected={readingStatus === 'not_started'} 
+                className="" 
+              />
+              <SelectButton 
+                text="읽는 중" 
+                onPress={() => handleReadingStatusChange('reading')} 
+                isSelected={readingStatus === 'reading'} 
+                className="" 
+              />
+              <SelectButton 
+                text="다 읽음" 
+                onPress={() => handleReadingStatusChange('finished')} 
+                isSelected={readingStatus === 'finished'} 
+                className="" 
+              />
+              </View>
+            {/* 다 읽음 상태일 때만 날짜 선택 필드 표시 */}
+            {readingStatus === 'finished' && (
+              <View className="w-full flex-row items-center justify-around">
+                {/* 읽기 시작 날짜 */}
+                <TouchableOpacity 
+                  onPress={() => setShowStartDatePicker(true)}
+                  className="bg-gray700 rounded-lg p-3 flex-1"
+                  activeOpacity={0.8}
+                >
+                  <Text 
+                    text={formatDate(startDate)} 
+                    type="body3" 
+                    className={startDate ? "text-white" : "text-gray400"} 
+                  />
+                </TouchableOpacity>
 
-              <Text text="부터" type="body3" className="text-gray300 px-2" />
-              {/* 읽기 완료 날짜 */}
-              <TouchableOpacity 
-                onPress={() => setShowEndDatePicker(true)}
-                className="bg-gray700 rounded-lg p-3 flex-1"
-                activeOpacity={0.8}
-              >
-                <Text 
-                  text={formatDate(endDate)} 
-                  type="body3" 
-                  className={endDate ? "text-white" : "text-gray400"} 
-                />
-              </TouchableOpacity>
-              <Text text="까지" type="body3" className="text-gray300 px-2" />
-            </View>
+                <Text text="부터" type="body3" className="text-gray300 px-2" />
+                {/* 읽기 완료 날짜 */}
+                <TouchableOpacity 
+                  onPress={() => setShowEndDatePicker(true)}
+                  className="bg-gray700 rounded-lg p-3 flex-1"
+                  activeOpacity={0.8}
+                >
+                  <Text 
+                    text={formatDate(endDate)} 
+                    type="body3" 
+                    className={endDate ? "text-white" : "text-gray400"} 
+                  />
+                </TouchableOpacity>
+                <Text text="까지" type="body3" className="text-gray300 px-2" />
+              </View>
+            )}
             
             {/* 날짜 선택기 모달 */}
             <Modal
