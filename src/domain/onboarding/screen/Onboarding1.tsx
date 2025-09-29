@@ -2,12 +2,10 @@ import { View } from "react-native";
 import { Text } from "@component/Text";
 import { useNavigation } from "@react-navigation/native";
 import { Background } from "@component/Background";
-import { useHideTabBar} from "@store/tabStore";
 import { Button } from "@component/Button";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { OnboardingStackParamList } from "@nav/stack/Onboarding";
 import { BookHorizontal } from "@/shared/component/BookHorizontal";
-import { useEffect } from "react";
 export const demoBooks = [
   { id: '1', title: '코스모스', pages: 719, thickness: 12, height: 225, scale: 1 },
   { id: '2', title: '데일 카네기 인간관계론', pages: 256, thickness: 10, height: 225, scale: 1 },
@@ -19,12 +17,8 @@ export const demoBooks = [
   { id: '8', title: '데미안', pages: 248, thickness: 13, height: 225, scale: 1 },
 ];
 export const Onboarding1Screen = () => {
-  const hideTabBar = useHideTabBar();
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList>>();
 
-  useEffect(() => {
-    hideTabBar();
-  }, []);
   
   return (
     <Background>

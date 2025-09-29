@@ -8,15 +8,20 @@ import { SegmentedControl, ViewType } from '@/domain/books/component/SegmentedCo
 import { useReadingLogs, useIsReadingLogsLoading } from '@/shared/store/readingLogsWithBooksStore';
 import { Colors } from '@constant/Colors';
 import { transformReadingLogToBookWithRecord } from '@/shared/utils/bookDataTransform';
+import { useFocusEffect } from "@react-navigation/native";
+import { useShowTabBar } from "@store/tabStore";
 
 export const BooksScreen = () => {
   const [selectedView, setSelectedView] = useState<ViewType>('shelf');
   const readingLogs = useReadingLogs();
   const isLoading = useIsReadingLogsLoading();
-
+  const showTabBar = useShowTabBar();
   const handleViewChange = (view: ViewType) => {
     setSelectedView(view);
   };
+  useFocusEffect(() => {
+    showTabBar();
+  });
 
   // readingLogs를 BookWithRecord 형태로 변환 (공통 함수 사용)
   const books = readingLogs.map(transformReadingLogToBookWithRecord);

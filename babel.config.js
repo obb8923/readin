@@ -34,6 +34,6 @@ module.exports = {
         verbose: false,
       },
     ],
-    'react-native-reanimated/plugin',
+    'react-native-worklets/plugin',
   ],
 };

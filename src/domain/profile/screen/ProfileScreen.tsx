@@ -10,6 +10,7 @@ import { useShowTabBar} from '@store/tabStore';
 import { APP_STORE_URL, MAIL_ADDRESS, PLAY_STORE_URL} from '@constant/normal';
 import { useAuthStore } from '@store/authStore';
 import {AuthButton} from '../component/AuthButton';
+
   type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen = () => {
@@ -18,7 +19,9 @@ export const ProfileScreen = () => {
   const [loading, setLoading] = useState(false);
   const { handleGoogleLogin, handleAppleLogin } = useAuthStore();
 
-
+  useFocusEffect(() => {
+    showTabBar();
+  });
   const signInWithGoogle = useCallback(async () => {
     setLoading(true);
     try {

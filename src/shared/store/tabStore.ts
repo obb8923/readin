@@ -24,7 +24,7 @@ interface TabStore {
 export const useTabStore = create<TabStore>((set) => ({
   // 초기 상태
   activeTab: TAB_NAME.HOME,
-  isTabBarVisible: true,
+  isTabBarVisible: false,
 
   // 탭 이동
   setActiveTab: (tab: TabName) => {
