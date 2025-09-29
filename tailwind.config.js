@@ -41,17 +41,6 @@ module.exports = {
         'orange700': '#911C03',
         'orange800': '#5F1202',
         'orange900': '#2D0901',
-        // KDC 색상 (카테고리별)
-        'kdc1': '#cccccc',   // 총류
-        'kdc2': '#FF8651',   // 철학
-        'kdc3': '#FFC794',   // 종교
-        'kdc4': '#FFEFC5',   // 사회과학
-        'kdc5': '#D6FFBD',   // 자연과학
-        'kdc6': '#93CEFF',   // 기술,과학
-        'kdc7': '#C5BDFF',   // 예술
-        'kdc8': '#E3FF93',   // 언어
-        'kdc9': '#FFC6B5',   // 문학
-        'kdc10': '#FFD877',  // 역사
       },
 
     },

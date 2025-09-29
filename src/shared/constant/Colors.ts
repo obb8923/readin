@@ -28,28 +28,6 @@ export const Colors = {
   orange800: '#5F1202',
   orange900: '#2D0901',
 
-  //채도 56 오렌지 색상
-  orange156: '#F3D9D3',
-  orange256: '#E7B6AB',
-  orange356: '#DC9384',
-  orange456: '#D1705B',
-  orange556: '#C35037',
-  orange656: '#9B402C',
-  orange756: '#732F21',
-  orange856: '#4C1F15',
-  orange956: '#240F0A',
-
-  //채도 76 오렌지 색상
-  orange176: '#F8D5CE',
-  orange276: '#F2AFA1',
-  orange376: '#EC8974',
-  orange476: '#E66346',
-  orange576: '#DC401E',
-  orange676: '#AF3318',
-  orange776: '#822612',
-  orange876: '#55190C',
-  orange976: '#280C06',
-
   // KDC colors
   kdc1: '#fafafa',
  kdc2: '#F8D5CE',
