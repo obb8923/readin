@@ -3,6 +3,7 @@ import { ProfileScreen } from "@profile/screen/ProfileScreen";
 import { WebviewScreen } from "@profile/screen/WebviewScreen";
 import { MyInfoScreen } from "@/domain/profile/screen/MyInfoScreen";
 import { StatisticsScreen } from "@/domain/profile/screen/StatisticsScreen";
+import { ReadingListScreen } from "@/domain/profile/screen/ReadingListScreen";
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 export type ProfileStackParamList = {
   Profile: undefined;
@@ -13,6 +14,9 @@ export type ProfileStackParamList = {
   };
   MyInfo: undefined;
   Statistics: undefined;
+  ReadingList: {
+    mode: 'reading' | 'wishlist';
+  };
 };
 
 export const ProfileStack = () => {
@@ -21,6 +25,7 @@ export const ProfileStack = () => {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="MyInfo" component={MyInfoScreen} />
       <Stack.Screen name="Statistics" component={StatisticsScreen} />
+      <Stack.Screen name="ReadingList" component={ReadingListScreen} />
     
       <Stack.Screen name="Webview" component={WebviewScreen} />
     </Stack.Navigator>
