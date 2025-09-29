@@ -320,6 +320,7 @@ export const MyInfoScreen = () => {
               value={marketingConsent}
               onValueChange={setMarketingConsent}
               trackColor={{ false: Colors.gray600, true: Colors.primary }}
+              thumbColor={Colors.white}
             />
           </View>
 
