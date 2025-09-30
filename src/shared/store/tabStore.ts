@@ -16,8 +16,7 @@ interface TabStore {
   showTabBar: () => void;
   // 탭바 숨김
   hideTabBar: () => void;
-  // 탭바 표시 상태 토글
-  toggleTabBar: () => void;
+
 }
 
 // Zustand 스토어 생성
@@ -41,10 +40,6 @@ export const useTabStore = create<TabStore>((set) => ({
     set({ isTabBarVisible: false });
   },
 
-  // 탭바 표시 상태 토글
-  toggleTabBar: () => {
-    set((state) => ({ isTabBarVisible: !state.isTabBarVisible }));
-  },
 }));
 
 // 편의성 훅들
@@ -53,15 +48,3 @@ export const useSetActiveTab = () => useTabStore(state => state.setActiveTab);
 export const useIsTabBarVisible = () => useTabStore(state => state.isTabBarVisible);
 export const useShowTabBar = () => useTabStore(state => state.showTabBar);
 export const useHideTabBar = () => useTabStore(state => state.hideTabBar);
-export const useToggleTabBar = () => useTabStore(state => state.toggleTabBar);
-
-// 인증 상태 변화에 따라 탭을 초기화한다.
-// 세션이 사라지면(로그아웃) 항상 HOME 탭으로 전환한다.
-supabase.auth.onAuthStateChange((_event, session) => {
-  if (!session) {
-    useTabStore.setState({
-      activeTab: TAB_NAME.HOME,
-      isTabBarVisible: true,
-    });
-  }
-});

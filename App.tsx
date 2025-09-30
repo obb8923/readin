@@ -52,8 +52,8 @@ useEffect(() => {
               <NavigationContainer>
                 <StatusBar barStyle="light-content" translucent={true}/>
                 {isTabBarVisible && <TabBar/>}
-                  {!isFirstVisit&&<RootStack />}
-                  {isFirstVisit && <OnboardingStack />}
+                {!isFirstVisit&&<RootStack />}
+                {isFirstVisit && <OnboardingStack />}
               </NavigationContainer>
         </SafeAreaView>
       </SafeAreaProvider>

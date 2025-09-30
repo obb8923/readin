@@ -3,7 +3,7 @@ import {Alert, ScrollView, TextInput, TouchableOpacity, View, Switch, Platform, 
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import {Text} from '@component/Text';
 import {AppBar} from '@component/AppBar';
-import {useHideTabBar} from '@store/tabStore';
+import {useHideTabBar,useSetActiveTab, useShowTabBar} from '@store/tabStore';
 import { useNavigation } from '@react-navigation/native';
 import { ProfileStackParamList } from '@nav/stack/Profile';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,10 +13,13 @@ import { supabase } from '@libs/supabase/supabase';
 import { useAuthStore } from '@/shared/store/authStore';
 import { Colors } from '@constant/Colors';
 import {Button} from '@component/Button';
+import { TAB_NAME } from '@/shared/constant/tab';
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const MyInfoScreen = () => {
   const hideTabBar = useHideTabBar();
+  const setActiveTab = useSetActiveTab();
+  const showTabBar = useShowTabBar();
   useFocusEffect(() => {
     hideTabBar();
   });
@@ -180,6 +183,8 @@ export const MyInfoScreen = () => {
       { text: '취소', style: 'cancel' },
       { text: '확인', style: 'destructive', onPress: async () => {
             await logout();
+            setActiveTab(TAB_NAME.HOME);
+            showTabBar();
         } },
     ]);
   };
