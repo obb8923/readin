@@ -60,6 +60,9 @@ export const BookRecordModal = ({
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  // iOS에서 스피너 조작 중 임시 날짜 상태
+  const [tempStartDate, setTempStartDate] = useState<Date | null>(null);
+  const [tempEndDate, setTempEndDate] = useState<Date | null>(null);
   const [showMemoEditor, setShowMemoEditor] = useState(false);
   const [ratingWidth, setRatingWidth] = useState(0);
   const [isEnrichLoading, setIsEnrichLoading] = useState(false);
@@ -214,16 +217,28 @@ export const BookRecordModal = ({
     }
   };
 
+  // 날짜만 비교하는 헬퍼 함수 (시간 제거)
+  const compareDatesOnly = (date1: Date, date2: Date): number => {
+    const d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+    const d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+    return d1.getTime() - d2.getTime();
+  };
+
   // 날짜 선택 핸들러
   const handleStartDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShowStartDatePicker(false);
     }
     if (selectedDate) {
-      setStartDate(selectedDate);
-      // 종료 날짜가 시작 날짜보다 이전이면 종료 날짜를 시작 날짜로 보정
-      if (endDate && selectedDate && endDate < selectedDate) {
-        setEndDate(selectedDate);
+      if (Platform.OS === 'ios') {
+        // iOS에서는 임시 상태만 업데이트 (완료 버튼을 눌렀을 때만 실제 상태 적용)
+        setTempStartDate(selectedDate);
+      } else {
+        setStartDate(selectedDate);
+        // 종료 날짜가 시작 날짜보다 이전이면 종료 날짜를 시작 날짜로 보정
+        if (endDate && selectedDate && compareDatesOnly(endDate, selectedDate) < 0) {
+          setEndDate(selectedDate);
+        }
       }
     }
   };
@@ -233,14 +248,47 @@ export const BookRecordModal = ({
       setShowEndDatePicker(false);
     }
     if (selectedDate) {
-      // 끝난 날이 시작날보다 더 이전이면 시작날을 끝난날과 같은 날짜로 자동 매핑
-      if (startDate && selectedDate < startDate) {
-        setStartDate(selectedDate);
-        setEndDate(selectedDate);
+      if (Platform.OS === 'ios') {
+        // iOS에서는 임시 상태만 업데이트 (완료 버튼을 눌렀을 때만 실제 상태 적용)
+        setTempEndDate(selectedDate);
       } else {
-        setEndDate(selectedDate);
+        // 날짜만 비교 (시간 제거)
+        if (startDate && compareDatesOnly(selectedDate, startDate) < 0) {
+          setStartDate(selectedDate);
+          setEndDate(selectedDate);
+        } else {
+          setEndDate(selectedDate);
+        }
       }
     }
+  };
+
+  // iOS에서 시작 날짜 선택 완료 핸들러
+  const handleStartDateConfirm = () => {
+    if (Platform.OS === 'ios' && tempStartDate) {
+      setStartDate(tempStartDate);
+      // 종료 날짜가 시작 날짜보다 이전이면 종료 날짜를 시작 날짜로 보정
+      if (endDate && tempStartDate && compareDatesOnly(endDate, tempStartDate) < 0) {
+        setEndDate(tempStartDate);
+      }
+      setTempStartDate(null);
+    }
+    setShowStartDatePicker(false);
+  };
+
+  // iOS에서 종료 날짜 선택 완료 핸들러
+  const handleEndDateConfirm = () => {
+    if (Platform.OS === 'ios' && tempEndDate) {
+      // 날짜만 비교 (시간 제거)
+      if (startDate && compareDatesOnly(tempEndDate, startDate) < 0) {
+        setStartDate(tempEndDate);
+        setEndDate(tempEndDate);
+      } else {
+        setEndDate(tempEndDate);
+      }
+      setTempEndDate(null);
+    }
+    setShowEndDatePicker(false);
   };
 
   // 물리 정보 포맷팅 유틸
@@ -951,7 +999,12 @@ export const BookRecordModal = ({
               <View className="w-full flex-row items-center justify-around">
                 {/* 읽기 시작 날짜 */}
                 <TouchableOpacity 
-                  onPress={() => setShowStartDatePicker(true)}
+                  onPress={() => {
+                    if (Platform.OS === 'ios') {
+                      setTempStartDate(startDate);
+                    }
+                    setShowStartDatePicker(true);
+                  }}
                   className="bg-gray700 rounded-lg p-3 flex-1"
                   activeOpacity={0.8}
                 >
@@ -965,7 +1018,12 @@ export const BookRecordModal = ({
                 <Text text="부터" type="body3" className="text-gray300 px-2" />
                 {/* 읽기 완료 날짜 */}
                 <TouchableOpacity 
-                  onPress={() => setShowEndDatePicker(true)}
+                  onPress={() => {
+                    if (Platform.OS === 'ios') {
+                      setTempEndDate(endDate);
+                    }
+                    setShowEndDatePicker(true);
+                  }}
                   className="bg-gray700 rounded-lg p-3 flex-1"
                   activeOpacity={0.8}
                 >
@@ -984,14 +1042,19 @@ export const BookRecordModal = ({
               visible={showStartDatePicker}
               transparent
               animationType="slide"
-              onRequestClose={() => setShowStartDatePicker(false)}
+              onRequestClose={() => {
+                if (Platform.OS === 'ios') {
+                  setTempStartDate(null);
+                }
+                setShowStartDatePicker(false);
+              }}
             >
               <View className="flex-1 justify-end bg-black/50">
                 <View className="bg-gray800 rounded-t-3xl p-6">
                   <View className="flex-row justify-between items-center mb-4">
                     <Text text="읽기 시작한 날" type="title3" className="text-white" />
                     <TouchableOpacity 
-                      onPress={() => setShowStartDatePicker(false)}
+                      onPress={handleStartDateConfirm}
                       className="bg-gray700 rounded-full p-2"
                       activeOpacity={0.8}
                     >
@@ -999,7 +1062,7 @@ export const BookRecordModal = ({
                     </TouchableOpacity>
                   </View>
                   <DateTimePicker
-                    value={startDate || new Date()}
+                    value={Platform.OS === 'ios' && tempStartDate ? tempStartDate : (startDate || new Date())}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                     onChange={handleStartDateChange}
@@ -1014,14 +1077,19 @@ export const BookRecordModal = ({
               visible={showEndDatePicker}
               transparent
               animationType="slide"
-              onRequestClose={() => setShowEndDatePicker(false)}
+              onRequestClose={() => {
+                if (Platform.OS === 'ios') {
+                  setTempEndDate(null);
+                }
+                setShowEndDatePicker(false);
+              }}
             >
               <View className="flex-1 justify-end bg-black/50">
                 <View className="bg-gray800 rounded-t-3xl p-6">
                   <View className="flex-row justify-between items-center mb-4">
                     <Text text="다 읽은 날" type="title3" className="text-white" />
                     <TouchableOpacity 
-                      onPress={() => setShowEndDatePicker(false)}
+                      onPress={handleEndDateConfirm}
                       className="bg-gray700 rounded-full p-2"
                       activeOpacity={0.8}
                     >
@@ -1029,7 +1097,7 @@ export const BookRecordModal = ({
                     </TouchableOpacity>
                   </View>
                   <DateTimePicker
-                    value={endDate || new Date()}
+                    value={Platform.OS === 'ios' && tempEndDate ? tempEndDate : (endDate || new Date())}
                     mode="date"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                     onChange={handleEndDateChange}

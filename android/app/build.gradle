@@ -93,10 +93,10 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file(System.getenv("READIN_RELEASE_STORE_FILE") ?: (project.findProperty("READIN_RELEASE_STORE_FILE") ?: "readin-release.keystore"))
-            storePassword System.getenv("READIN_RELEASE_STORE_PASSWORD") ?: (project.findProperty("READIN_RELEASE_STORE_PASSWORD") ?: "")
-            keyAlias System.getenv("READIN_RELEASE_KEY_ALIAS") ?: (project.findProperty("READIN_RELEASE_KEY_ALIAS") ?: "readin")
-            keyPassword System.getenv("READIN_RELEASE_KEY_PASSWORD") ?: (project.findProperty("READIN_RELEASE_KEY_PASSWORD") ?: "")
+            storeFile file("release.keystore")
+            storePassword "androidreleasekey"
+            keyAlias "androidreleasekey"
+            keyPassword "androidreleasekey"
         }
     }
     buildTypes {
