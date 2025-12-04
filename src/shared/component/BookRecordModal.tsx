@@ -9,7 +9,8 @@ import {
   KeyboardAvoidingView, 
   Keyboard,
   Alert,
-  ScrollView
+  ScrollView,
+  Animated
 } from 'react-native';
 import { SelectButton } from '@component/SelectButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -63,6 +64,10 @@ export const BookRecordModal = ({
   // iOS에서 스피너 조작 중 임시 날짜 상태
   const [tempStartDate, setTempStartDate] = useState<Date | null>(null);
   const [tempEndDate, setTempEndDate] = useState<Date | null>(null);
+  // 날짜 유효성 검사 메시지
+  const [dateValidationMessage, setDateValidationMessage] = useState<string | null>(null);
+  const messageOpacity = useRef(new Animated.Value(0)).current;
+  const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showMemoEditor, setShowMemoEditor] = useState(false);
   const [ratingWidth, setRatingWidth] = useState(0);
   const [isEnrichLoading, setIsEnrichLoading] = useState(false);
@@ -164,6 +169,7 @@ export const BookRecordModal = ({
       setShowMemoEditor(false);
       setEnriched(null);
       setEditingField(null);
+      setDateValidationMessage(null);
       
       // 저장 모드일 때만 물리 정보 조회
       if (mode === 'save' && book) {
@@ -183,6 +189,50 @@ export const BookRecordModal = ({
       }
     }
   }, [visible, book, mode]);
+
+  // 날짜 유효성 검사 메시지 애니메이션 및 자동 제거
+  useEffect(() => {
+    // 이전 타이머 정리
+    if (messageTimeoutRef.current) {
+      clearTimeout(messageTimeoutRef.current);
+      messageTimeoutRef.current = null;
+    }
+
+    if (dateValidationMessage) {
+      // 메시지 표시: fade in
+      Animated.timing(messageOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+      
+      // 3초 후 fade out 후 메시지 제거
+      messageTimeoutRef.current = setTimeout(() => {
+        Animated.timing(messageOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          setDateValidationMessage(null);
+        });
+      }, 4000);
+    } else {
+      // 메시지 숨김: fade out
+      Animated.timing(messageOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+
+    // cleanup
+    return () => {
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+        messageTimeoutRef.current = null;
+      }
+    };
+  }, [dateValidationMessage, messageOpacity]);
 
   const handleCloseModal = () => {
     onClose();
@@ -238,6 +288,9 @@ export const BookRecordModal = ({
         // 종료 날짜가 시작 날짜보다 이전이면 종료 날짜를 시작 날짜로 보정
         if (endDate && selectedDate && compareDatesOnly(endDate, selectedDate) < 0) {
           setEndDate(selectedDate);
+          setDateValidationMessage('읽기 시작한 날 이후로 다 읽은 날을 맞춰드렸어요');
+        } else {
+          setDateValidationMessage(null);
         }
       }
     }
@@ -256,8 +309,10 @@ export const BookRecordModal = ({
         if (startDate && compareDatesOnly(selectedDate, startDate) < 0) {
           setStartDate(selectedDate);
           setEndDate(selectedDate);
+          setDateValidationMessage('다 읽은 날 이전으로 읽기 시작한 날을 맞춰드렸어요');
         } else {
           setEndDate(selectedDate);
+          setDateValidationMessage(null);
         }
       }
     }
@@ -270,6 +325,9 @@ export const BookRecordModal = ({
       // 종료 날짜가 시작 날짜보다 이전이면 종료 날짜를 시작 날짜로 보정
       if (endDate && tempStartDate && compareDatesOnly(endDate, tempStartDate) < 0) {
         setEndDate(tempStartDate);
+        setDateValidationMessage('다 읽은 날이 읽기 시작한 날로 자동 조정되었습니다');
+      } else {
+        setDateValidationMessage(null);
       }
       setTempStartDate(null);
     }
@@ -283,8 +341,10 @@ export const BookRecordModal = ({
       if (startDate && compareDatesOnly(tempEndDate, startDate) < 0) {
         setStartDate(tempEndDate);
         setEndDate(tempEndDate);
+        setDateValidationMessage('읽기 시작한 날이 다 읽은 날로 자동 조정되었습니다');
       } else {
         setEndDate(tempEndDate);
+        setDateValidationMessage(null);
       }
       setTempEndDate(null);
     }
@@ -972,7 +1032,7 @@ export const BookRecordModal = ({
           </View>
 
           {/* 날짜 섹션 */}
-          <View className="w-full mb-6">
+          <View className="w-full mb-2">
             <Text text="독서 기간" type="body2" className="text-white mb-3" />
             <View className="flex-row w-full justify-start items-center mb-3 mr-2 gap-x-2">
               <SelectButton 
@@ -1003,6 +1063,7 @@ export const BookRecordModal = ({
                     if (Platform.OS === 'ios') {
                       setTempStartDate(startDate);
                     }
+                    setDateValidationMessage(null);
                     setShowStartDatePicker(true);
                   }}
                   className="bg-gray700 rounded-lg p-3 flex-1"
@@ -1022,6 +1083,7 @@ export const BookRecordModal = ({
                     if (Platform.OS === 'ios') {
                       setTempEndDate(endDate);
                     }
+                    setDateValidationMessage(null);
                     setShowEndDatePicker(true);
                   }}
                   className="bg-gray700 rounded-lg p-3 flex-1"
@@ -1036,8 +1098,19 @@ export const BookRecordModal = ({
                 <Text text="까지" type="body3" className="text-gray300 px-2" />
               </View>
             )}
+            {/* 날짜 유효성 검사 메시지 - 항상 공간 유지 */}
+            <Animated.View 
+              className="mt-1"
+              style={{ opacity: messageOpacity }}
+            >
+              <Text 
+                text={dateValidationMessage || ' '} 
+                type="caption1" 
+                className="text-gray400" 
+              />
+            </Animated.View>
             
-            {/* 날짜 선택기 모달 */}
+            {/* 시작 날짜 선택기 모달 */}
             <Modal
               visible={showStartDatePicker}
               transparent
@@ -1072,7 +1145,7 @@ export const BookRecordModal = ({
                 </View>
               </View>
             </Modal>
-
+            {/* 종료 날짜 선택기 모달 */}
             <Modal
               visible={showEndDatePicker}
               transparent
