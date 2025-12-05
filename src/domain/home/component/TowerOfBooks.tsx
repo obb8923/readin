@@ -94,7 +94,7 @@ export const TowerOfBooks = () => {
           activeOpacity={0.7}
           className="flex-row justify-center"
         >
-          <Text text={readingLevel.title} type="body1" className="text-primary text-xs mt-1 text-center" />
+          <Text text={readingLevel.title} type="body1" className="text-primary text-xs mt-1 text-center underline" />
           <Text text=" 급 독서광" type="body1" className="text-gray-300 text-xs mt-1 text-center" />
         </TouchableOpacity>
       </View>
