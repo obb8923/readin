@@ -17,6 +17,7 @@ export const HomeScreen = () => {
   const showTabBar = useShowTabBar();
   const setActiveTab = useSetActiveTab();
   const { isLoggedIn } = useAuthStore();
+  
   useFocusEffect(() => {
     showTabBar();
   });

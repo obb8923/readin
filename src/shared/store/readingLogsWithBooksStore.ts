@@ -149,15 +149,21 @@ export const useReadingLogsWithBooksStore = create<ReadingLogsState>((set, get) 
 }));
 
 // 인증 상태 변화에 따라 스토어를 정리한다.
-// 세션이 사라지면(로그아웃) 목록과 에러, 로딩 상태를 초기화한다.
-supabase.auth.onAuthStateChange((_event, session) => {
+// 로그인 시 독서 기록을 가져오고, 로그아웃 시 목록과 에러, 로딩 상태를 초기화한다.
+supabase.auth.onAuthStateChange(async (event, session) => {
   if (!session) {
+    // 로그아웃 시 상태 초기화
     useReadingLogsWithBooksStore.setState({
       readingLogs: [],
       medianScore: null,
       isLoading: false,
       error: null,
     });
+  } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    // 로그인 시 또는 토큰 갱신 시 독서 기록 가져오기
+    const userId = session.user.id;
+    const { fetchReadingLogs } = useReadingLogsWithBooksStore.getState();
+    await fetchReadingLogs(userId);
   }
 });
 
