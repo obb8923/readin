@@ -45,3 +45,12 @@ export const getReadingLevel = (totalThickness: number): ReadingLevel => {
     title: READING_LEVELS_MAP.get(result)!
   };
 };
+
+// 모든 레벨 목록을 가져오는 함수
+export const getAllReadingLevels = (): ReadingLevel[] => {
+  const limits = Array.from(READING_LEVELS_MAP.keys()).sort((a, b) => a - b);
+  return limits.map(limit => ({
+    limit,
+    title: READING_LEVELS_MAP.get(limit)!
+  }));
+};

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Text } from '@/shared/component/Text';
 import { BookHorizontal } from '@/shared/component/BookHorizontal';
 import { DEVICE_WIDTH } from '@/shared/constant/normal';
@@ -7,10 +7,12 @@ import { Colors } from '@constant/Colors';
 import { useReadingLogs, useIsReadingLogsLoading } from '@/shared/store/readingLogsWithBooksStore';
 import { getReadingLevel } from '@/shared/constant/ReadingLevels';
 import { transformReadingLogToBookInfo } from '@/shared/utils/bookDataTransform';
+import { ReadingLevelModal } from '@/shared/component/ReadingLevelModal';
 import ArrowUpIcon from '@assets/svgs/ArrowUp.svg';
 export const TowerOfBooks = () => {
   const readingLogs = useReadingLogs();
   const isLoading = useIsReadingLogsLoading();
+  const [showLevelModal, setShowLevelModal] = useState(false);
 
   // 독서 기록이 없을 때 빈 배열 반환
   if (isLoading) {
@@ -87,11 +89,14 @@ export const TowerOfBooks = () => {
           text={`${books.length}권의 책 \n ${totalPages} 페이지 \n 높이 ${formatThickness(totalThickness)}`}
           className="text-gray-300 text-xs mt-1 text-center"
         />
-        <View className="flex-row">
-        <Text text={readingLevel.title} type="body1" className="text-primary text-xs mt-1 text-center" />
-        <Text text=" 급 독서광" type="body1" className="text-gray-300 text-xs mt-1 text-center" />
-
-        </View>
+        <TouchableOpacity 
+          onPress={() => setShowLevelModal(true)}
+          activeOpacity={0.7}
+          className="flex-row justify-center"
+        >
+          <Text text={readingLevel.title} type="body1" className="text-primary text-xs mt-1 text-center" />
+          <Text text=" 급 독서광" type="body1" className="text-gray-300 text-xs mt-1 text-center" />
+        </TouchableOpacity>
       </View>
           {books.map((book, index) => (
               <BookHorizontal
@@ -106,6 +111,13 @@ export const TowerOfBooks = () => {
               />
           ))}
       </ScrollView>
+      
+      {/* 레벨 모달 */}
+      <ReadingLevelModal
+        visible={showLevelModal}
+        onClose={() => setShowLevelModal(false)}
+        currentThickness={totalThickness}
+      />
     </View>
   );
 };
