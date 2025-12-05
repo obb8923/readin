@@ -512,7 +512,14 @@ export const BookRecordModal = ({
         throw new Error('로그인이 필요합니다.');
       }
 
-      const toISO = (d?: Date | null) => (d ? d.toISOString().split('T')[0] : null);
+      // 로컬 시간대 기준으로 날짜 문자열 생성 (타임존 문제 방지)
+      const toISO = (d?: Date | null) => {
+        if (!d) return null;
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
       
       // 읽기 상태에 따라 날짜 값 결정
       let finalStartDate: Date;
@@ -561,7 +568,14 @@ export const BookRecordModal = ({
       try {
         const store = useReadingLogsWithBooksStore.getState();
         const current = store.readingLogs.find((l) => l.id === String(book.record!.id));
-        const toISO = (d?: Date | null) => (d ? d.toISOString().split('T')[0] : null);
+        // 로컬 시간대 기준으로 날짜 문자열 생성 (타임존 문제 방지)
+      const toISO = (d?: Date | null) => {
+        if (!d) return null;
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
         const updatesForStore: any = {
           rate: rating,
           memo,

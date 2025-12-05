@@ -29,8 +29,11 @@ export type Save2Params = {
 
 function toISODateOnly(input?: Date | null): string | undefined {
   if (!input) return undefined;
-  const iso = input.toISOString();
-  return iso.split('T')[0];
+  // 로컬 시간대 기준으로 날짜 문자열 생성 (타임존 문제 방지)
+  const year = input.getFullYear();
+  const month = String(input.getMonth() + 1).padStart(2, '0');
+  const day = String(input.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export async function saveBookAndLog(params: SaveParams) {
