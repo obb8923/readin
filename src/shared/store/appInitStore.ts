@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import { Platform } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { SUPABASE_WEB_CLIENT_KEY, SUPABASE_IOS_CLIENT_KEY } from '@env';
+import { getAnalytics, logEvent } from '@react-native-firebase/analytics';
+import { getApp } from '@react-native-firebase/app';
 import { useAuthStore } from './authStore';
 import { useFirstVisitStore } from './firstVisitStore';
 import { useReadingLogsWithBooksStore } from './readingLogsWithBooksStore';
@@ -57,6 +60,15 @@ export const useAppInitStore = create<AppInitStore>((set, get) => ({
       if (isLoggedIn && userId) {
         const { fetchReadingLogs } = useReadingLogsWithBooksStore.getState();
         await fetchReadingLogs(userId);
+      }
+
+      // 5. Firebase Analytics 초기화 및 이벤트 로깅 설정
+      try {
+        const analytics = getAnalytics(getApp());
+        logEvent(analytics, 'app_open' + Platform.OS + Date.now());
+        if (__DEV__) console.log('[AppInitStore] Firebase Analytics initialized');
+      } catch (error) {
+        if (__DEV__) console.error('[AppInitStore] Error initializing analytics:', error);
       }
       
       set({ isInitialized: true, isInitializing: false });
