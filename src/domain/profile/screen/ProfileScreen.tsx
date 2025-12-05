@@ -10,8 +10,8 @@ import { useShowTabBar} from '@store/tabStore';
 import { APP_STORE_URL, MAIL_ADDRESS, PLAY_STORE_URL} from '@constant/normal';
 import { useAuthStore } from '@store/authStore';
 import {AuthButton} from '../component/AuthButton';
-
-  type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
+import { AdmobNative } from '@component/ads/AdmobNative';
+type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen = () => {
   const { isLoggedIn } = useAuthStore();
@@ -80,7 +80,7 @@ export const ProfileScreen = () => {
   }
 
   return (
-    <Background>
+    <Background isTabBarGap={true}>
       <View className="flex-1">
         {/* 헤더 */}
         <View className="px-6 py-4">
@@ -184,6 +184,9 @@ export const ProfileScreen = () => {
           <View className="h-16" />
         </ScrollView>
       </View>
+
+      <AdmobNative />
+
     </Background>
   );
 };

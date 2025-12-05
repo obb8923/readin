@@ -13,4 +13,6 @@ declare module '@env' {
   export const SUPABASE_EDGE_FUNCTION_PERPLEXITY: string; 
   export const SUPABASE_WEB_CLIENT_KEY: string;
   export const SUPABASE_IOS_CLIENT_KEY: string;
+  export const GOOGLE_MOBILE_ADS_UNIT_ID_NATIVE_ANDROID: string;
+  export const GOOGLE_MOBILE_ADS_UNIT_ID_NATIVE_IOS: string;
 }

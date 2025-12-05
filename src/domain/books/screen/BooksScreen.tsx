@@ -10,7 +10,7 @@ import { Colors } from '@constant/Colors';
 import { transformReadingLogToBookWithRecord } from '@/shared/utils/bookDataTransform';
 import { useFocusEffect } from "@react-navigation/native";
 import { useShowTabBar } from "@store/tabStore";
-
+import { AdmobNative } from '@component/ads/AdmobNative';
 export const BooksScreen = () => {
   const [selectedView, setSelectedView] = useState<ViewType>('shelf');
   const readingLogs = useReadingLogs();
@@ -74,6 +74,7 @@ export const BooksScreen = () => {
           <BookGrid books={books} />
         )}
       </View>
+      <AdmobNative />
     </Background>
   );
 };

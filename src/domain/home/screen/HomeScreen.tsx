@@ -9,9 +9,10 @@ import { useNavigation } from '@react-navigation/native';
 import { HomeStackParamList } from '@nav/stack/Home';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSetActiveTab, useShowTabBar } from '@/shared/store/tabStore';
-import { TAB_NAME } from '@/shared/constant/tab';
+import { TAB_NAME } from '@constant/tab';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '@store/authStore';
+import { AdmobNative } from '@component/ads/AdmobNative';
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const showTabBar = useShowTabBar();
@@ -57,6 +58,7 @@ export const HomeScreen = () => {
         {/* tower of books section */}
         <TowerOfBooks />
       </View>
+      <AdmobNative />
     </Background>
   );
 };
