@@ -39,6 +39,7 @@ export type ReadingLogWithBook = ReadingLog & {
     created_at: string;
     updated_at: string;
   };
+  custom_image_url?: string | null; // 커스텀 이미지 URL
 };
 
 export async function createReadingLog(input: ReadingLogCreateInput) {
@@ -126,7 +127,8 @@ export async function getUserReadingLogsWithBookInfo(userId: string) {
     throw new Error('권한이 없습니다.');
   }
   
-  const { data, error } = await supabase
+  // reading_logs와 books를 join하고, user_book_custom도 join해서 커스텀 이미지 가져오기
+  const { data: logsData, error: logsError } = await supabase
     .from('reading_logs')
     .select(`
       *,
@@ -136,12 +138,29 @@ export async function getUserReadingLogsWithBookInfo(userId: string) {
     .order('finished_at', { ascending: false })
     .order('created_at', { ascending: false });
       
-  if (error) {
-    console.error('[getUserReadingLogsWithBookInfo] Supabase 쿼리 에러:', error);
-    throw error;
+  if (logsError) {
+    console.error('[getUserReadingLogsWithBookInfo] Supabase 쿼리 에러:', logsError);
+    throw logsError;
   }
+
+  // 각 책에 대한 커스텀 이미지 가져오기
+  const logsWithCustomImages = await Promise.all(
+    (logsData || []).map(async (log) => {
+      const { data: customImageData } = await supabase
+        .from('user_book_custom')
+        .select('custom_image_url')
+        .eq('user_id', userId)
+        .eq('book_id', log.book_id)
+        .single();
+
+      return {
+        ...log,
+        custom_image_url: customImageData?.custom_image_url || null,
+      } as ReadingLogWithBook;
+    })
+  );
   
-  return data as ReadingLogWithBook[];
+  return logsWithCustomImages;
 }
 
 

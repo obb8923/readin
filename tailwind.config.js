@@ -40,7 +40,7 @@ module.exports = {
         'orange600': '#C32604',
         'orange700': '#911C03',
         'orange800': '#5F1202',
-        'orange900': '#2D0901',
+        'orange900': '#2D0901',K
       },
 
     },

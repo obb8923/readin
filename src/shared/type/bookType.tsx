@@ -41,4 +41,5 @@ export type BookWithRecord = BookType & {
   createdAt: string;
   updatedAt: string;
   bookId: string;
+  customImageUrl?: string | null; // 커스텀 이미지 URL
 };

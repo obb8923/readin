@@ -30,6 +30,10 @@ import { useReadingLogsWithBooksStore, useMedianScore, useGetScoreStats } from '
 import { ScoreStatsModal } from '@component/ScoreStatsModal';
 import { DEFAULT_THICKNESS, DEFAULT_HEIGHT, DEFAULT_WIDTH, DEFAULT_WEIGHT, DEFAULT_PAGES } from '@constant/defaultBook';
 import { useExecuteInAppReview } from '@store/reviewStore';
+import { launchImageLibrary, ImagePickerResponse, MediaType } from 'react-native-image-picker';
+import { useAuthStore } from '@store/authStore';
+import { saveCustomBookImage } from '@libs/supabase/userBookCustom';
+import { uploadCustomBookImage } from '@libs/supabase/storage/uploadCustomBookImage';
 export type BookRecordModalMode = 'save' | 'save2' | 'view';
 
 interface BookRecordModalProps {
@@ -98,6 +102,14 @@ export const BookRecordModal = ({
   const [customThickness, setCustomThickness] = useState<number | null>(null);
   const [customWeight, setCustomWeight] = useState<number | null>(null);
   const [customPages, setCustomPages] = useState<number | null>(null);
+  // 커스텀 이미지 상태
+  const [customImageUrl, setCustomImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  // 선택한 이미지 (아직 저장되지 않은 로컬 이미지)
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
+  const userId = useAuthStore((state) => state.userId);
+  
   // 모달이 열릴 때 초기화
   useEffect(() => {
     if (visible && (book || mode === 'save2')) {
@@ -170,6 +182,14 @@ export const BookRecordModal = ({
       setEnriched(null);
       setEditingField(null);
       setDateValidationMessage(null);
+      // view 모드일 때 store에서 커스텀 이미지 가져오기
+      if (mode === 'view' && book && 'customImageUrl' in book) {
+        setCustomImageUrl(book.customImageUrl || null);
+      } else {
+        setCustomImageUrl(null);
+      }
+      setSelectedImageUri(null);
+      setSelectedImageBase64(null);
       
       // 저장 모드일 때만 물리 정보 조회
       if (mode === 'save' && book) {
@@ -188,7 +208,7 @@ export const BookRecordModal = ({
         enrichPromiseRef.current = p;
       }
     }
-  }, [visible, book, mode]);
+  }, [visible, book, mode, userId]);
 
   // 날짜 유효성 검사 메시지 애니메이션 및 자동 제거
   useEffect(() => {
@@ -246,6 +266,75 @@ export const BookRecordModal = ({
     setShowEndDatePicker(false);
     setShowMemoEditor(false);
     setEnriched(null);
+    setCustomImageUrl(null);
+    setSelectedImageUri(null);
+    setSelectedImageBase64(null);
+  };
+
+
+  // 이미지 선택 및 업로드 핸들러
+  const handleImagePress = async () => {
+    if (mode !== 'view') {
+      return;
+    }
+    if (!book) {
+      return;
+    }
+    if (!userId) {
+      return;
+    }
+    if (isUploadingImage) {
+      return;
+    }
+    
+    try {
+      // 이미지 피커 열기 (react-native-image-picker가 자동으로 권한 요청)
+      const options = {
+        mediaType: 'photo' as MediaType,
+        quality: 0.3 as any, // 품질 낮춤 (0.3 = 30%)
+        maxWidth: 300,
+        maxHeight: 300,
+        selectionLimit: 1,
+        includeBase64: true, // Base64로 이미지 데이터 받기
+      };
+      
+      launchImageLibrary(
+        options,
+        async (response: ImagePickerResponse) => {
+        if (response.didCancel) {
+          return;
+        }
+
+        // 권한 거부 에러 처리
+        if (response.errorCode === 'permission') {
+          Alert.alert(
+            '권한 필요',
+            '갤러리 접근 권한이 필요합니다. 설정에서 권한을 허용해주세요.'
+          );
+          return;
+        }
+
+        if (response.errorCode || response.errorMessage) {
+          Alert.alert('오류', response.errorMessage || '이미지를 선택하는 중 오류가 발생했습니다.');
+          return;
+        }
+
+        const asset = response.assets?.[0];
+        if (!asset?.uri) {
+          return;
+        }
+
+        // 로컬 상태에만 저장 (아직 업로드하지 않음)
+        setSelectedImageUri(asset.uri);
+        setSelectedImageBase64(asset.base64 || null);
+        
+        // UI에 즉시 반영 (로컬 URI 사용)
+        // customImageUrl은 수정하기 버튼을 눌러야 업데이트됨
+      }
+      );
+    } catch (error) {
+      Alert.alert('오류', '이미지 피커를 열 수 없습니다. 앱을 재시작해주세요.');
+    }
   };
 
   // 읽기 상태 변경 핸들러
@@ -564,6 +653,52 @@ export const BookRecordModal = ({
         }
       }
 
+      // 선택한 이미지가 있으면 업로드 및 저장
+      if (selectedImageUri && userId) {
+        try {
+          setIsUploadingImage(true);
+          
+          // 기존 커스텀 이미지 URL 가져오기
+          const existingImageUrl = (book && 'customImageUrl' in book) 
+            ? book.customImageUrl 
+            : null;
+          
+          // 이미지 업로드 (base64 또는 uri 사용, 기존 이미지 삭제 후 업로드)
+          const uploadResult = await uploadCustomBookImage(
+            selectedImageUri,
+            selectedImageBase64 || undefined,
+            userId,
+            book.id,
+            existingImageUrl
+          );
+
+          // 데이터베이스에 저장
+          await saveCustomBookImage(userId, book.id, uploadResult.url);
+
+          // UI 업데이트
+          setCustomImageUrl(uploadResult.url);
+          setSelectedImageUri(null);
+          setSelectedImageBase64(null);
+
+          // Store 업데이트 (커스텀 이미지 URL 추가)
+          try {
+            const store = useReadingLogsWithBooksStore.getState();
+            const current = store.readingLogs.find((l) => l.id === String(book.record!.id));
+            if (current) {
+              store.updateReadingLog(String(book.record.id), {
+                custom_image_url: uploadResult.url,
+              });
+            }
+          } catch (e) {
+            console.warn('store 커스텀 이미지 업데이트 실패 (무시 가능):', e);
+          }
+        } catch (error) {
+          // 이미지 업로드 실패해도 다른 업데이트는 계속 진행
+        } finally {
+          setIsUploadingImage(false);
+        }
+      }
+
       // 전역 store 업데이트 (rate/memo/기간 및 물리정보 반영)
       try {
         const store = useReadingLogsWithBooksStore.getState();
@@ -703,7 +838,11 @@ export const BookRecordModal = ({
           ) : (
             <View className="flex-row mb-6">
               {/* 왼쪽 이미지 */}
-              <BookImage imageUrl={book?.imageUrl || ''} className="w-[80] h-[100] mr-2" />
+              <BookImage 
+                imageUrl={selectedImageUri || (book && 'customImageUrl' in book ? book.customImageUrl : null) || book?.imageUrl || ''} 
+                className="w-[80] h-[100] mr-2"
+                onPress={mode === 'view' ? handleImagePress : undefined}
+              />
               {/* 오른쪽 책 정보 */}
               <View className="flex-1">
                 <Text 
@@ -1305,7 +1444,8 @@ export const BookRecordModal = ({
               text="수정"
               onPress={handleUpdate}
               className="ml-2 bg-primary"
-              isLoading={isSaving}
+              disabled={isSaving || isUploadingImage}
+              isLoading={isSaving || isUploadingImage}
               />
               </>
             )}
